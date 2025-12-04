@@ -20,6 +20,35 @@
 - 순수 Flutter (StatefulWidget)를 사용합니다
 - 네비게이션은 `Navigator.push()` 사용
 
+### 4. 문서 기반 개발 워크플로우
+모든 작업은 다음 프로세스를 따라야 합니다:
+
+**작업 시작 전:**
+1. 관련 설계 문서 확인 (`specs/dailyflow_design_spec.md`)
+2. TODO 문서 확인 (`specs/TODO.md`) - 작업 항목 확인
+3. REFERENCE 문서 확인 (`specs/REFERENCE.md`) - 개발 가이드라인 확인
+4. 데이터베이스 스펙 확인 (`specs/daily_flow_db_spec.md`) - 필요 시
+
+**작업 진행 중:**
+- 문서의 요구사항과 일치하는지 확인하며 작업 진행
+- 스펙과 불일치하는 부분 발견 시 문서 먼저 확인 및 수정
+
+**작업 완료 후:**
+1. 문서 갱신 필요 여부 확인
+2. 필요 시 관련 문서 업데이트:
+   - **설계 문서** (`specs/dailyflow_design_spec.md`) - UI/UX 변경, 새로운 기능 추가 시
+   - **TODO 문서** (`specs/TODO.md`) - 작업 완료 체크, 새 작업 추가 시
+   - **REFERENCE 문서** (`specs/REFERENCE.md`) - 새로운 규칙, 정책, 가이드라인 추가 시
+   - **PROGRESS 문서** (`specs/PROGRESS.md`) - 작업 완료 기록 시
+   - **데이터베이스 스펙** (`specs/daily_flow_db_spec.md`) - DB 구조 변경 시
+
+**문서 갱신 체크리스트:**
+- [ ] 작업 내용이 설계 문서의 요구사항과 일치하는가?
+- [ ] 새로운 기능이나 변경사항이 문서에 반영되어야 하는가?
+- [ ] TODO 항목이 완료되었는가?
+- [ ] 새로운 규칙이나 정책이 추가되었는가?
+- [ ] 다른 개발자가 이해할 수 있도록 문서가 충분히 업데이트되었는가?
+
 ---
 
 ## 📁 프로젝트 구조
@@ -79,38 +108,68 @@ lib/
 
 ## 🎨 색상 시스템
 
-### 역할 기반 컬러 토큰
-모든 색상은 역할 이름(Role Name)으로 관리됩니다.
+### 구조 개요
+색상 시스템은 **공용 컬러**와 **앱 전용 컬러**로 분리되어 있습니다:
 
-**기본 색상:**
+- **`CommonColorScheme`**: 다른 앱에서도 재사용 가능한 기본 컬러
+- **`DailyFlowColorScheme`**: DailyFlow 앱 전용 컬러
+- **`AppColorScheme`**: 두 스키마를 조합한 통합 컬러 스키마
+
+이 구조를 통해 공용 컬러는 다른 앱에서도 재사용할 수 있으며, 앱 전용 컬러는 DailyFlow에만 존재합니다.
+
+### 역할 기반 컬러 토큰
+모든 색상은 역할 이름(Role Name)으로 관리되며, 라이트/다크 모드에 따라 자동으로 적절한 색상이 적용됩니다.
+
+**공용 색상 (CommonColorScheme):**
 - Background, CardBackground, Primary, Accent
 - TextPrimary, TextSecondary, Divider
-
-**필터 칩 색상:**
 - ChipSelectedBg, ChipSelectedText
 - ChipUnselectedBg, ChipUnselectedText
 
-**Summary Bar 색상:**
-- ProgressMorning (아침)
-- ProgressNoon (낮)
-- ProgressEvening (저녁)
-- ProgressAnytime (Anytime)
+**앱 전용 색상 (DailyFlowColorScheme):**
+- **Summary Bar 색상:**
+  - ProgressMorning (아침) - 라이트: 주황색, 다크: 밝은 주황색
+  - ProgressNoon (낮) - 라이트: 밝은 노란색, 다크: 밝은 노란색
+  - ProgressEvening (저녁) - 라이트: 청록색, 다크: 밝은 청록색
+  - ProgressAnytime (Anytime) - 라이트: 보라색, 다크: 밝은 보라색
 
-**중요도 색상 (추가 필요):**
-- PriorityVeryLow (1단계: 매우 낮음)
-- PriorityLow (2단계: 낮음)
-- PriorityMedium (3단계: 보통)
-- PriorityHigh (4단계: 높음)
-- PriorityVeryHigh (5단계: 매우 높음)
+- **중요도 색상:**
+  - PriorityVeryLow (1단계: 매우 낮음) - 라이트: 회색, 다크: 밝은 회색
+  - PriorityLow (2단계: 낮음) - 라이트: 파란색, 다크: 밝은 파란색
+  - PriorityMedium (3단계: 보통) - 라이트: 초록색, 다크: 밝은 초록색
+  - PriorityHigh (4단계: 높음) - 라이트: 주황색, 다크: 밝은 주황색
+  - PriorityVeryHigh (5단계: 매우 높음) - 라이트: 빨간색, 다크: 밝은 빨간색
+
+### 라이트/다크 모드 지원
+`AppColorScheme`은 라이트 모드와 다크 모드를 모두 지원하며, `context.palette`를 통해 현재 테마에 맞는 색상이 자동으로 제공됩니다.
+
+- **라이트 모드**: 밝은 배경에 어두운 텍스트, 선명한 색상 사용
+- **다크 모드**: 어두운 배경에 밝은 텍스트, 다크 모드에 최적화된 밝은 색상 사용
 
 ### 사용 방법
 ```dart
 final p = context.palette; // AppColorScheme 객체 접근
 Container(
-  color: p.background,
+  color: p.background, // 공용 색상
   child: Text('Hello', style: TextStyle(color: p.textPrimary)),
 )
+
+// 앱 전용 색상 사용
+Container(color: p.progressMorning) // Summary Bar
+Container(color: p.priorityHigh) // 중요도 표시
 ```
+
+### 파일 구조
+색상 관련 파일은 `lib/theme/` 폴더에 다음과 같이 분리되어 있습니다:
+
+- `common_color_scheme.dart` - 공용 컬러 스키마
+- `daily_flow_color_scheme.dart` - 앱 전용 컬러 스키마
+- `app_color_scheme.dart` - 통합 컬러 스키마 (조합 클래스)
+- `app_colors.dart` - 팔레트 정의 및 모든 컬러 관련 요소 export
+- `app_theme_mode.dart` - 테마 모드 enum
+- `palette_context.dart` - BuildContext 확장 (context.palette)
+
+기존 코드 호환성을 위해 `app_colors.dart`에서 모든 요소를 export하므로, 기존 import 경로는 그대로 사용할 수 있습니다.
 
 ---
 
@@ -238,7 +297,10 @@ Navigator.push(
 - `flutter_local_notifications: ^19.5.0` - 로컬 알람
 - `table_calendar: ^3.2.0` - 달력 위젯
 - `flutter_slidable: ^4.0.3` - 슬라이드 액션
-- `geekyants_flutter_gauges: ^1.0.4` - Summary Bar
+
+### 테스트용 패키지 (제거 예정)
+- `sqflite_common_ffi: ^2.3.0` - 단위 테스트용 SQLite (데스크톱 환경)
+  - **주의:** 나중에 제거 요청 시 `dev_dependencies`에서 제거 필요
 
 ### 사용하지 않는 패키지
 - `get: ^4.7.3` - GetX (제거됨)

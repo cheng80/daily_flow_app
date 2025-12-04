@@ -1,4 +1,26 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black87;
+  }
+}
 
 /// Switch 위젯
 ///
@@ -77,7 +99,7 @@ class CustomSwitch extends StatelessWidget {
                 return inactiveThumbColor;
               }
               if (states.contains(WidgetState.selected)) {
-                return thumbColor ?? activeColor ?? Colors.blue;
+                return thumbColor ?? activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
               }
               return inactiveThumbColor;
             }),
@@ -88,9 +110,8 @@ class CustomSwitch extends StatelessWidget {
                 return inactiveTrackColor;
               }
               if (states.contains(WidgetState.selected)) {
-                return trackColor ??
-                    activeColor?.withValues(alpha: 0.5) ??
-                    Colors.blue.withValues(alpha: 0.5);
+                final themeColor = activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+                return trackColor ?? themeColor.withValues(alpha: 0.5);
               }
               return inactiveTrackColor;
             }),
@@ -98,8 +119,8 @@ class CustomSwitch extends StatelessWidget {
               Set<WidgetState> states,
             ) {
               if (states.contains(WidgetState.selected)) {
-                return activeColor?.withValues(alpha: 0.12) ??
-                    Colors.blue.withValues(alpha: 0.12);
+                final themeColor = activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+                return themeColor.withValues(alpha: 0.12);
               }
               return null;
             }),
@@ -129,7 +150,7 @@ class CustomSwitch extends StatelessWidget {
           SizedBox(width: spacing ?? 12),
           Text(
             label!,
-            style: labelStyle ?? TextStyle(fontSize: 16, color: Colors.black87),
+            style: labelStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black87),
           ),
         ],
       );

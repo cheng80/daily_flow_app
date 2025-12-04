@@ -1,4 +1,26 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black87;
+  }
+}
 
 /// Checkbox 위젯
 ///
@@ -67,7 +89,7 @@ class CustomCheckbox extends StatelessWidget {
                   return inactiveColor;
                 }
                 if (states.contains(WidgetState.selected)) {
-                  return activeColor ?? Colors.blue;
+                  return activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
                 }
                 return inactiveColor;
               },
@@ -78,7 +100,8 @@ class CustomCheckbox extends StatelessWidget {
             overlayColor: WidgetStateProperty.resolveWith<Color?>(
               (Set<WidgetState> states) {
                 if (states.contains(WidgetState.selected)) {
-                  return activeColor?.withValues(alpha: 0.12) ?? Colors.blue.withValues(alpha: 0.12);
+                  final themeColor = activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+                  return themeColor.withValues(alpha: 0.12);
                 }
                 return null;
               },
@@ -106,7 +129,7 @@ class CustomCheckbox extends StatelessWidget {
             style: labelStyle ??
                 TextStyle(
                   fontSize: 16,
-                  color: Colors.black87,
+                  color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
                 ),
           ),
         ],

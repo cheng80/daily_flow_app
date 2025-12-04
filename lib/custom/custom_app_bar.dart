@@ -1,5 +1,26 @@
 import 'custom_common_util.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeForegroundColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.white; // AppBar는 보통 흰색 텍스트
+  }
+}
 
 /// AppBar 위젯
 ///
@@ -78,8 +99,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? Colors.blue;
-    final fgColor = foregroundColor ?? Colors.white;
+    final bgColor =
+        backgroundColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+    final fgColor =
+        foregroundColor ?? _getThemeForegroundColor(context) ?? Colors.white;
 
     // title이 String인지 Widget인지 확인하고 처리
     Widget titleWidget;

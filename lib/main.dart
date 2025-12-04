@@ -11,7 +11,7 @@ void main() {
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
-  
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: AppColors.dark.background,
       ),
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-      
+
       debugShowCheckedModeBanner: false, // 우측 상단 디버그 배너 제거
       // 다국어 지원
       localizationsDelegates: [
@@ -57,9 +57,7 @@ class _MyAppState extends State<MyApp> {
       ],
 
       initialRoute: '/', // 처음 화면 지정
-      routes: {
-        '/': (context) => Home(onToggleTheme: _toggleTheme),
-      },
+      routes: {'/': (context) => Home(onToggleTheme: _toggleTheme)},
     );
   }
 }

@@ -1,4 +1,35 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black87;
+  }
+}
+
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey;
+  }
+}
 
 /// 리스트 선택기 위젯
 ///
@@ -108,15 +139,15 @@ class CustomPickerView<T> extends StatelessWidget {
                       item.toString(),
                       style: isSelected
                           ? (selectedItemStyle ??
-                              const TextStyle(
+                              TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: _getThemePrimaryColor(context) ?? Colors.blue,
                               ))
                           : (unselectedItemStyle ??
-                              const TextStyle(
+                              TextStyle(
                                 fontSize: 16,
-                                color: Colors.black87,
+                                color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
                               )),
                     ),
             ),
@@ -159,15 +190,15 @@ class CustomPickerView<T> extends StatelessWidget {
               child: Row(
                 children: [
                   if (isSelected)
-                    const Icon(
+                    Icon(
                       Icons.check_circle,
-                      color: Colors.blue,
+                      color: _getThemePrimaryColor(context) ?? Colors.blue,
                       size: 20,
                     )
                   else
-                    const Icon(
+                    Icon(
                       Icons.radio_button_unchecked,
-                      color: Colors.grey,
+                      color: _getThemeTextSecondaryColor(context) ?? Colors.grey,
                       size: 20,
                     ),
                   const SizedBox(width: 12),
@@ -178,15 +209,15 @@ class CustomPickerView<T> extends StatelessWidget {
                             item.toString(),
                             style: isSelected
                                 ? (selectedItemStyle ??
-                                    const TextStyle(
+                                    TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue,
+                                      color: _getThemePrimaryColor(context) ?? Colors.blue,
                                     ))
                                 : (unselectedItemStyle ??
-                                    const TextStyle(
+                                    TextStyle(
                                       fontSize: 16,
-                                      color: Colors.black87,
+                                      color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
                                     )),
                           ),
                   ),

@@ -28,6 +28,7 @@
 - **유연한 커스터마이징**: 모든 속성을 선택적으로 오버라이드 가능
 - **String/Widget 지원**: 텍스트 관련 속성은 String 또는 Widget 모두 지원
 - **일관된 네이밍**: Custom 접두사 사용
+- **테마 색상 자동 지원**: `AppColorScheme`이 있는 경우 자동으로 테마 색상 사용, 없으면 Material 기본값 사용
 
 ## 빠른 시작
 
@@ -95,12 +96,41 @@ import 'package:custom_test_app/custom/utils_core.dart';
 import 'package:custom_test_app/custom/custom_full.dart';
 ```
 
+### 테마 색상 지원
+
+커스텀 위젯들은 `AppColorScheme`을 자동으로 감지하여 테마 색상을 사용합니다:
+
+- **테마가 있는 경우**: `context.palette`를 통해 테마 색상 자동 적용
+- **테마가 없는 경우**: Material Theme 기본값 사용 (다른 앱에서도 사용 가능)
+
+**사용 예시:**
+```dart
+// 테마 색상 자동 적용 (backgroundColor를 지정하지 않으면 테마 primary 색상 사용)
+CustomButton(btnText: "확인", onCallBack: () {})
+
+// 명시적으로 색상 지정 (테마 색상보다 우선)
+CustomButton(
+  btnText: "확인",
+  backgroundColor: Colors.red, // 명시적 색상이 우선
+  onCallBack: () {},
+)
+
+// 테마 색상 직접 사용
+final p = context.palette;
+CustomButton(
+  btnText: "확인",
+  backgroundColor: p.primary, // 테마 primary 색상
+  onCallBack: () {},
+)
+```
+
 ### 사용 예시
 
 ```dart
-// 기본 사용
-CustomText("안녕하세요")
-CustomButton(btnText: "확인", onCallBack: () {})
+// 기본 사용 (테마 색상 자동 적용)
+CustomText("안녕하세요") // 테마 textPrimary 색상 사용
+CustomButton(btnText: "확인", onCallBack: () {}) // 테마 primary 색상 사용
+CustomAppBar(title: "홈") // 테마 primary 배경색 사용
 
 // Widget 사용
 CustomButton(
@@ -172,3 +202,62 @@ CustomRating(
   onRatingChanged: (rating) => setState(() => _rating = rating),
 )
 ```
+
+## 테마 색상 자동 적용
+
+### 지원되는 위젯
+
+다음 위젯들은 테마 색상을 자동으로 감지하여 적용합니다:
+
+- **CustomButton**: `backgroundColor`를 지정하지 않으면 테마 `primary` 색상 사용
+- **CustomText**: `color`를 지정하지 않으면 테마 `textPrimary` 색상 사용
+- **CustomAppBar**: `backgroundColor`를 지정하지 않으면 테마 `primary` 색상 사용
+- **CustomIconButton**: `iconColor`를 지정하지 않으면 테마 `textPrimary` 색상 사용
+
+### 테마 색상 우선순위
+
+1. **명시적 색상 지정** (최우선)
+   ```dart
+   CustomButton(btnText: "확인", backgroundColor: Colors.red, onCallBack: () {})
+   ```
+
+2. **테마 색상** (AppColorScheme이 있는 경우)
+   ```dart
+   CustomButton(btnText: "확인", onCallBack: () {}) // 테마 primary 색상 자동 적용
+   ```
+
+3. **Material Theme 기본값** (테마가 없는 경우)
+   ```dart
+   // 다른 앱에서도 사용 가능 - Material Theme 기본값 사용
+   CustomButton(btnText: "확인", onCallBack: () {}) // Colors.blue 사용
+   ```
+
+### 다른 앱에서 사용 시
+
+커스텀 위젯들은 다른 앱에서도 사용할 수 있도록 설계되었습니다:
+
+- `AppColorScheme`이 없는 경우 Material Theme 기본값 사용
+- 테마 색상은 선택적으로 적용되며, 없어도 정상 동작
+- 모든 색상 파라미터는 선택적(optional)이므로 명시적으로 지정 가능
+
+### 구현 방식
+
+위젯들은 내부적으로 다음 로직을 사용합니다:
+
+```dart
+// 테마 색상 감지 헬퍼 함수 (각 위젯 파일 내부)
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    final palette = (context as dynamic).palette;
+    if (palette != null) {
+      return palette.primary;
+    }
+  } catch (e) {
+    // PaletteContext가 없는 경우 무시
+  }
+  // Material Theme 기본값 사용
+  return Theme.of(context).colorScheme.primary;
+}
+```
+
+이 방식으로 다른 앱에서도 사용할 수 있으면서, 테마가 있는 경우 자동으로 적용됩니다.

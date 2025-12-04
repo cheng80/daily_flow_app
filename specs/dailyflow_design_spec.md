@@ -65,7 +65,7 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 
 - 구성: 아침 / 낮 / 저녁 / Anytime 4색 수평 바
 - 각 색상 구간의 너비는 **해당 Step의 Todo 수 비율**로 계산
-- UI 구성은 외부 라이브러리 `flutter_linear_gauge` 를 통해 구현하며, Linear Gauge의 Range 기능을 활용하여 4개 색상 세그먼트를 비율 기반으로 배치한다.
+- UI 구성은 커스텀 위젯 `actionFourRangeBar` 함수를 통해 구현하며, 4개 색상 세그먼트를 비율 기반으로 배치한다.
 
 예:
 
@@ -561,4 +561,23 @@ Row(
 ```
 
 이 문서에서 정의하는 모든 색상 요구사항은 **역할 이름(Role) 기준**으로만 유지되며, 실제 색상 값과 다크/라이트 전환 로직은 `AppColorScheme` / `AppColors` / `context.palette` 구현에서 처리한다.
+
+### 9.4.1 라이트/다크 모드 색상 전략
+
+`AppColorScheme`은 라이트 모드와 다크 모드를 모두 지원하며, 각 모드에 최적화된 색상을 제공합니다:
+
+**라이트 모드 특징:**
+- 밝은 배경 (`Color(0xFFF5F5F5)`)과 순수 흰색 카드 배경
+- 어두운 텍스트 (`Color(0xFF212121)`)로 가독성 확보
+- Material Design 가이드라인에 맞는 진한 Primary 색상 (`Color(0xFF1976D2)`)
+- 선명하고 밝은 Progress 색상 사용
+
+**다크 모드 특징:**
+- Material Dark 배경 (`Color(0xFF121212)`)과 어두운 카드 배경
+- 밝은 텍스트 (`Color(0xFFFFFFFF)`)로 가독성 확보
+- 다크 모드에 최적화된 밝은 Primary 색상 (`Color(0xFF90CAF9)`)
+- 다크 배경에서도 잘 보이는 밝은 Progress 색상 사용
+- 칩 선택 텍스트는 흰색으로 설정하여 가독성 향상
+
+모든 색상은 `context.palette`를 통해 현재 테마 모드에 맞게 자동으로 제공되므로, 코드에서 별도의 분기 처리가 필요하지 않습니다.
 

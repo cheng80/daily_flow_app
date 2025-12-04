@@ -1,6 +1,34 @@
 import 'custom_text.dart';
 import 'custom_common_util.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemeSnackBarBackgroundColor(BuildContext context) {
+  try {
+    // SnackBar는 보통 어두운 배경을 사용하므로 textSecondary를 어둡게 사용
+    final brightness = Theme.of(context).brightness;
+    if (brightness == Brightness.dark) {
+      return context.palette.textSecondary.withValues(alpha: 0.8);
+    } else {
+      return Colors.grey.shade800; // 라이트 모드에서는 기존 색상 유지
+    }
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey.shade800;
+  }
+}
+
+Color? _getThemeSnackBarTextColor(BuildContext context) {
+  try {
+    // SnackBar는 보통 어두운 배경이므로 흰색 텍스트 사용
+    return Colors.white;
+  } catch (e) {
+    // PaletteContext가 없는 경우 기본값 사용
+    return Colors.white;
+  }
+}
 
 /// SnackBar 헬퍼 클래스
 ///
@@ -37,7 +65,7 @@ class CustomSnackBar {
         message as String,
         fontSize: 14,
         fontWeight: FontWeight.normal,
-        color: textColor ?? Colors.white,
+        color: textColor ?? _getThemeSnackBarTextColor(context) ?? Colors.white,
       );
     } else {
       // Widget인 경우 그대로 사용
@@ -49,7 +77,10 @@ class CustomSnackBar {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: messageWidget,
-        backgroundColor: backgroundColor ?? Colors.grey.shade800,
+        backgroundColor:
+            backgroundColor ??
+            _getThemeSnackBarBackgroundColor(context) ??
+            Colors.grey.shade800,
         duration: duration,
         behavior: behavior,
         // margin은 floating에서만 사용 가능
@@ -57,7 +88,7 @@ class CustomSnackBar {
         action: actionLabel != null && onAction != null
             ? SnackBarAction(
                 label: actionLabel,
-                textColor: Colors.white,
+                textColor: _getThemeSnackBarTextColor(context) ?? Colors.white,
                 onPressed: onAction,
               )
             : null,

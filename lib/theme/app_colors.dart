@@ -1,119 +1,104 @@
+/// 앱 컬러 시스템 - 모든 컬러 관련 클래스와 확장을 export
+///
+/// 기존 코드 호환성을 위해 이 파일에서 모든 컬러 관련 요소를 export합니다.
+///
+/// 사용 예시:
+/// ```dart
+/// import 'package:daily_flow_app/theme/app_colors.dart';
+///
+/// final p = context.palette; // AppColorScheme
+/// Container(color: p.primary)
+/// ```
+library;
+
+// 공용 컬러 스키마
+export 'common_color_scheme.dart';
+
+// 앱 전용 컬러 스키마
+export 'daily_flow_color_scheme.dart';
+
+// 통합 컬러 스키마
+export 'app_color_scheme.dart';
+
+// 테마 모드 enum
+export 'app_theme_mode.dart';
+
+// BuildContext 확장
+export 'palette_context.dart';
+
 import 'package:flutter/material.dart';
+import 'common_color_scheme.dart';
+import 'daily_flow_color_scheme.dart';
+import 'app_color_scheme.dart';
 
-// -----------------------------------------------------------------------------
-// 1. 한 테마(라이트/다크 등)에 해당하는 컬러 세트 정의
-// -----------------------------------------------------------------------------
-
-class AppColorScheme {
-  final Color background;      // 전체 배경 색
-  final Color cardBackground;  // 카드/패널 배경 색
-  final Color primary;         // 주요 포인트 색
-  final Color accent;          // 보조 포인트 색
-  final Color textPrimary;     // 기본 텍스트 색
-  final Color textSecondary;   // 보조 텍스트 색
-  final Color divider;         // 구분선 색
-
-  // 필터 칩용 색상
-  final Color chipSelectedBg;
-  final Color chipSelectedText;
-  final Color chipUnselectedBg;
-  final Color chipUnselectedText;
-
-  // 요약 Progress Bar (아침/낮/저녁/Anytime)
-  final Color progressMorning;
-  final Color progressNoon;
-  final Color progressEvening;
-  final Color progressAnytime;
-
-  const AppColorScheme({
-    required this.background,
-    required this.cardBackground,
-    required this.primary,
-    required this.accent,
-    required this.textPrimary,
-    required this.textSecondary,
-    required this.divider,
-    required this.chipSelectedBg,
-    required this.chipSelectedText,
-    required this.chipUnselectedBg,
-    required this.chipUnselectedText,
-    required this.progressMorning,
-    required this.progressNoon,
-    required this.progressEvening,
-    required this.progressAnytime,
-  });
-}
-
-// -----------------------------------------------------------------------------
-// 2. 라이트 / 다크 팔레트 정의
-// -----------------------------------------------------------------------------
-
+/// 라이트 / 다크 팔레트 정의
+///
+/// 각 테마 모드에 맞는 CommonColorScheme과 DailyFlowColorScheme을 조합하여
+/// AppColorScheme을 생성합니다.
 class AppColors {
   const AppColors._();
 
+  // ============================================================================
   // 라이트 테마 팔레트
+  // ============================================================================
+
+  /// 라이트 테마 컬러 스키마
   static const AppColorScheme light = AppColorScheme(
-    background: Color(0xFFF7F7F7),
-    cardBackground: Colors.white,
-    primary: Color(0xFF4A90E2),
-    accent: Color(0xFFFFC107),
-    textPrimary: Color(0xFF222222),
-    textSecondary: Color(0xFF777777),
-    divider: Color(0xFFE0E0E0),
-    chipSelectedBg: Color(0xFF4A90E2),
-    chipSelectedText: Colors.white,
-    chipUnselectedBg: Color(0xFFE3F2FD),
-    chipUnselectedText: Color(0xFF1565C0),
-    progressMorning: Color(0xFFFFA726), // 아침
-    progressNoon: Color(0xFFFFEE58),    // 낮
-    progressEvening: Color(0xFF26C6DA), // 저녁
-    progressAnytime: Color(0xFFAB47BC), // Anytime
+    common: CommonColorScheme(
+      background: Color(0xFFF5F5F5), // 연한 회색 배경
+      cardBackground: Colors.white, // 순수 흰색 카드
+      primary: Color(0xFF1976D2), // Material Blue 700 (더 진한 파랑)
+      accent: Color(0xFFFF9800), // Material Orange 500 (더 선명한 주황)
+      textPrimary: Color(0xFF212121), // 거의 검은색 텍스트
+      textSecondary: Color(0xFF757575), // 중간 회색 텍스트
+      divider: Color(0xFFE0E0E0), // 연한 회색 구분선
+      chipSelectedBg: Color(0xFF1976D2), // Primary와 동일
+      chipSelectedText: Colors.white, // 흰색 텍스트
+      chipUnselectedBg: Color(0xFFE3F2FD), // 연한 파랑 배경
+      chipUnselectedText: Color(0xFF1565C0), // 진한 파랑 텍스트
+    ),
+    dailyFlow: DailyFlowColorScheme(
+      progressMorning: Color(0xFFFF9800), // 주황색 (아침)
+      progressNoon: Color(0xFFFFEB3B), // 밝은 노란색 (낮)
+      progressEvening: Color(0xFF00BCD4), // 청록색 (저녁)
+      progressAnytime: Color(0xFF9C27B0), // 보라색 (Anytime)
+      priorityVeryLow: Color(0xFF9E9E9E), // 회색 (매우 낮음)
+      priorityLow: Color(0xFF2196F3), // 파란색 (낮음)
+      priorityMedium: Color(0xFF4CAF50), // 초록색 (보통)
+      priorityHigh: Color(0xFFFF9800), // 주황색 (높음)
+      priorityVeryHigh: Color(0xFFF44336), // 빨간색 (매우 높음)
+    ),
   );
 
+  // ============================================================================
   // 다크 테마 팔레트
+  // ============================================================================
+
+  /// 다크 테마 컬러 스키마
   static const AppColorScheme dark = AppColorScheme(
-    background: Color(0xFF121212),
-    cardBackground: Color(0xFF1E1E1E),
-    primary: Color(0xFF90CAF9),
-    accent: Color(0xFFFFD54F),
-    textPrimary: Color(0xFFFFFFFF),
-    textSecondary: Color(0xFFB0B0B0),
-    divider: Color(0xFF424242),
-    chipSelectedBg: Color(0xFF90CAF9),
-    chipSelectedText: Color(0xFF0D47A1),
-    chipUnselectedBg: Color(0xFF263238),
-    chipUnselectedText: Color(0xFFB0BEC5),
-    progressMorning: Color(0xFFFFB74D),
-    progressNoon: Color(0xFFFFF176),
-    progressEvening: Color(0xFF4DD0E1),
-    progressAnytime: Color(0xFFBA68C8),
+    common: CommonColorScheme(
+      background: Color(0xFF121212), // Material Dark 배경
+      cardBackground: Color(0xFF1E1E1E), // 약간 밝은 다크 카드
+      primary: Color(0xFF90CAF9), // 밝은 파랑 (다크 모드용)
+      accent: Color(0xFFFFB74D), // 밝은 주황 (다크 모드용)
+      textPrimary: Color(0xFFFFFFFF), // 순수 흰색 텍스트
+      textSecondary: Color(0xFFB0B0B0), // 밝은 회색 텍스트
+      divider: Color(0xFF424242), // 중간 회색 구분선
+      chipSelectedBg: Color(0xFF1976D2), // Primary 색상 (다크에서도 잘 보임)
+      chipSelectedText: Colors.white, // 흰색 텍스트 (가독성 향상)
+      chipUnselectedBg: Color(0xFF2C2C2C), // 약간 밝은 다크 배경
+      chipUnselectedText: Color(0xFFB0BEC5), // 밝은 회색 텍스트
+    ),
+    dailyFlow: DailyFlowColorScheme(
+      progressMorning: Color(0xFFFFB74D), // 밝은 주황색 (아침)
+      progressNoon: Color(0xFFFFF59D), // 밝은 노란색 (낮)
+      progressEvening: Color(0xFF4DD0E1), // 밝은 청록색 (저녁)
+      progressAnytime: Color(0xFFCE93D8), // 밝은 보라색 (Anytime)
+      priorityVeryLow: Color(0xFF757575), // 밝은 회색 (매우 낮음)
+      priorityLow: Color(0xFF64B5F6), // 밝은 파란색 (낮음)
+      priorityMedium: Color(0xFF81C784), // 밝은 초록색 (보통)
+      priorityHigh: Color(0xFFFFB74D), // 밝은 주황색 (높음)
+      priorityVeryHigh: Color(0xFFE57373), // 밝은 빨간색 (매우 높음)
+    ),
   );
-}
-
-// -----------------------------------------------------------------------------
-// 3. 앱 내부에서 사용할 테마 모드 enum
-// -----------------------------------------------------------------------------
-
-enum AppThemeMode {
-  light,
-  dark,
-}
-
-// -----------------------------------------------------------------------------
-// 4. BuildContext 확장 – context.palette 로 현재 팔레트 접근
-// -----------------------------------------------------------------------------
-
-// 실제 앱에서는 InheritedWidget / Provider / GetX 등으로 AppThemeMode를 보관하고,
-// 아래 확장 내부에서 현재 모드에 맞는 AppColorScheme를 반환하는 식으로 사용할 수 있다.
-// 여기서는 가장 단순한 예제로, Theme.of(context).brightness를 기준으로 분기한다.
-
-extension PaletteContext on BuildContext {
-  AppColorScheme get palette {
-    final brightness = Theme.of(this).brightness;
-    if (brightness == Brightness.dark) {
-      return AppColors.dark;
-    } else {
-      return AppColors.light;
-    }
-  }
 }

@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black;
+  }
+}
 
 /// Text 위젯
 ///
@@ -50,7 +63,7 @@ class CustomText extends StatelessWidget {
     final defaultStyle = TextStyle(
       fontSize: fontSize ?? 20,
       fontWeight: fontWeight ?? FontWeight.bold,
-      color: color ?? Colors.black,
+      color: color ?? _getThemeTextPrimaryColor(context) ?? Colors.black,
     );
 
     // 사용자가 커스텀 style을 제공한 경우, 기본 스타일과 병합

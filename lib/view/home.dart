@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
+import '../util/common_util.dart';
 
 class Home extends StatefulWidget {
   final VoidCallback onToggleTheme;
-  
+
   const Home({super.key, required this.onToggleTheme});
 
   @override
@@ -17,25 +18,25 @@ class _HomeState extends State<Home> {
   late bool _themeBool;
 
   @override
-  void initState() { //페이지가 새로 생성 될때 무조건 1번 사용 됨
+  void initState() {
+    //페이지가 새로 생성 될때 무조건 1번 사용 됨
     super.initState();
     _themeBool = false;
   }
-  
+
   @override
   void dispose() {
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근
-    
+
     return Scaffold(
       backgroundColor: p.background,
       appBar: CustomAppBar(
-        title: CustomText( "Home" , style: TextStyle(color: p.textPrimary) ),
+        title: CustomText("Home", style: TextStyle(color: p.textPrimary)),
         actions: [
           Switch(
             value: _themeBool,
@@ -50,17 +51,29 @@ class _HomeState extends State<Home> {
       ),
       body: Center(
         child: CustomColumn(
-          children:[
-            CustomText("Home Page", style: TextStyle(color: p.textPrimary) ),
-           
-          ]
+          children: [
+            CustomText("Home Page", style: TextStyle(color: p.textPrimary)),
+
+            CustomContainer(
+              width: 300,
+              height: 40,
+              child: actionFourRangeBar(
+                context,
+                barWidth: 300,
+                barHeight: 40,
+                morningRatio: 0.2,
+                noonRatio: 0.3,
+                eveningRatio: 0.4,
+                anytimeRatio: 0.1,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-
   //--------Functions ------------
-  
+
   //------------------------------
 }

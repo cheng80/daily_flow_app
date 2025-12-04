@@ -1,4 +1,25 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey;
+  }
+}
 
 /// TabBar 위젯 (TabBarView 포함)
 ///
@@ -77,8 +98,8 @@ class _CustomTabBarState extends State<CustomTabBar>
 
   @override
   Widget build(BuildContext context) {
-    final tabColor = widget.tabColor ?? Colors.blue;
-    final unselectedTabColor = widget.unselectedTabColor ?? Colors.grey;
+    final tabColor = widget.tabColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+    final unselectedTabColor = widget.unselectedTabColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey;
     final indicatorColor = widget.indicatorColor ?? tabColor;
     final indicatorHeight = widget.indicatorHeight ?? 3.0;
 

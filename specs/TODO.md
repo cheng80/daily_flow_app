@@ -7,11 +7,19 @@
 ## 🔴 높은 우선순위 (즉시 필요)
 
 ### 1. 색상 시스템 보완
-- [ ] `lib/theme/app_colors.dart` 수정
-  - [ ] `AppColorScheme`에 중요도 색상 5개 필드 추가
-  - [ ] 라이트 테마 색상 값 설정
-  - [ ] 다크 테마 색상 값 설정
-  - [ ] 린터 에러 확인
+- [x] `lib/theme/app_colors.dart` 수정
+  - [x] 라이트 테마 색상 값 설정 (Material Design 가이드라인 준수)
+  - [x] 다크 테마 색상 값 설정 (다크 모드 최적화)
+  - [x] Progress 색상 라이트/다크 모드별 최적화
+  - [x] 칩 색상 가독성 개선 (다크 모드 텍스트 흰색)
+  - [x] `AppColorScheme`에 중요도 색상 5개 필드 추가
+    - [x] priorityVeryLow (1단계: 매우 낮음) - 회색
+    - [x] priorityLow (2단계: 낮음) - 파란색
+    - [x] priorityMedium (3단계: 보통) - 초록색
+    - [x] priorityHigh (4단계: 높음) - 주황색
+    - [x] priorityVeryHigh (5단계: 매우 높음) - 빨간색
+    - [x] 라이트/다크 모드별 색상 최적화
+  - [x] 린터 에러 확인
 
 **참고:** 설계서 `dailyflow_design_spec.md` 9.3.1 섹션
 
@@ -26,7 +34,7 @@
 ### 3. 메인 화면 구현
 - [ ] `lib/view/main/main_view.dart` 생성
   - [ ] TableCalendar 통합
-  - [ ] Summary Bar 구현 (geekyants_flutter_gauges 사용)
+  - [ ] Summary Bar 구현 (actionFourRangeBar 함수 사용)
   - [ ] Filter Chips 구현 (전체/아침/낮/저녁/Anytime)
   - [ ] Todo List 구현 (체크박스 + Slidable)
   - [ ] FloatingActionButton 구현
@@ -110,15 +118,19 @@
 ## 🧪 테스트 및 검증
 
 ### 단위 테스트
-- [ ] Model 클래스 테스트
-  - [ ] Todo.fromMap/toMap 테스트
-  - [ ] DeletedTodo.fromMap/toMap 테스트
-  - [ ] copyWith 메서드 테스트
+- [x] Model 클래스 테스트
+  - [x] Todo.fromMap/toMap 테스트
+  - [x] DeletedTodo.fromMap/toMap 테스트
+  - [x] copyWith 메서드 테스트
+  - [x] 더미 데이터 생성 함수 작성 (`test/util/test_helpers.dart`)
   
-- [ ] DatabaseHandler 테스트
-  - [ ] CRUD 동작 테스트
-  - [ ] 소프트 삭제/복구 테스트
-  - [ ] 날짜/Step별 조회 테스트
+- [x] DatabaseHandler 테스트
+  - [x] CRUD 동작 테스트
+  - [x] 소프트 삭제/복구 테스트
+  - [x] 날짜/Step별 조회 테스트
+  - [x] 테스트 파일 생성 (`test/vm/database_handler_test.dart`)
+
+**참고:** 테스트용 패키지 `sqflite_common_ffi`는 나중에 제거 요청 시 제거 예정입니다.
 
 ### 통합 테스트
 - [ ] 화면 간 네비게이션 테스트

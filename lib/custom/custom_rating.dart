@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
 
 /// 별점 위젯
 ///
@@ -24,11 +25,11 @@ class CustomRating extends StatelessWidget {
   /// 별 크기 (기본값: 24.0)
   final double starSize;
 
-  /// 채워진 별 색상 (기본값: Colors.amber)
-  final Color filledColor;
+  /// 채워진 별 색상 (기본값: Colors.amber 또는 테마 accent 색상)
+  final Color? filledColor;
 
-  /// 비어있는 별 색상 (기본값: Colors.grey)
-  final Color unfilledColor;
+  /// 비어있는 별 색상 (기본값: Colors.grey 또는 테마 textSecondary 색상)
+  final Color? unfilledColor;
 
   /// 별 사이 간격 (기본값: 4.0)
   final double starSpacing;
@@ -49,8 +50,8 @@ class CustomRating extends StatelessWidget {
     this.maxRating = 5,
     this.readOnly = false,
     this.starSize = 24.0,
-    this.filledColor = Colors.amber,
-    this.unfilledColor = Colors.grey,
+    this.filledColor,
+    this.unfilledColor,
     this.starSpacing = 4.0,
     this.allowHalfRating = false,
     this.filledIcon = Icons.star,
@@ -66,6 +67,19 @@ class CustomRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 테마 색상 가져오기 (선택적)
+    Color? themeAccent;
+    Color? themeTextSecondary;
+    try {
+      themeAccent = context.palette.accent;
+      themeTextSecondary = context.palette.textSecondary;
+    } catch (e) {
+      // PaletteContext가 없는 경우 무시
+    }
+    
+    final effectiveFilledColor = filledColor ?? themeAccent ?? Colors.amber;
+    final effectiveUnfilledColor = unfilledColor ?? themeTextSecondary ?? Colors.grey;
+    
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(
@@ -77,7 +91,7 @@ class CustomRating extends StatelessWidget {
           Widget starWidget = Icon(
             isFilled ? filledIcon : unfilledIcon,
             size: starSize,
-            color: isFilled ? filledColor : unfilledColor,
+            color: isFilled ? effectiveFilledColor : effectiveUnfilledColor,
           );
 
           // 읽기 전용이 아니고 onRatingChanged가 있으면 클릭 가능

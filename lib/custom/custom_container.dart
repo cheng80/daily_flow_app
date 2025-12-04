@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey;
+  }
+}
 
 /// Container 위젯
 ///
@@ -96,7 +108,10 @@ class CustomContainer extends StatelessWidget {
                 shadowOffset != null)
             ? [
                 BoxShadow(
-                  color: shadowColor ?? Colors.grey.withValues(alpha: 0.2),
+                  color:
+                      shadowColor ??
+                      (_getThemeTextSecondaryColor(context) ?? Colors.grey)
+                          .withValues(alpha: 0.2),
                   spreadRadius: spreadRadius ?? 1.0,
                   blurRadius: blurRadius ?? 8.0,
                   offset: shadowOffset ?? const Offset(0, 2),

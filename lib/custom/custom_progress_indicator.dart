@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey.shade600;
+  }
+}
 
 /// 로딩 및 진행률 표시 위젯
 ///
@@ -94,7 +106,7 @@ class CustomProgressIndicator extends StatelessWidget {
               label!,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey.shade600,
+                color: _getThemeTextSecondaryColor(context) ?? Colors.grey.shade600,
               ),
             ),
           ],

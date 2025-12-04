@@ -1,5 +1,26 @@
 import 'custom_common_util.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey;
+  }
+}
 
 /// 하단 네비게이션 바 아이템 모델
 class BottomNavItem {
@@ -111,8 +132,8 @@ class CustomBottomNavBar extends StatefulWidget {
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   /// 하단 네비게이션 바를 생성하는 메서드
   BottomNavigationBar _buildBottomNavBar() {
-    final defaultSelectedColor = widget.selectedColor ?? Colors.blue;
-    final defaultUnselectedColor = widget.unselectedColor ?? Colors.grey;
+    final defaultSelectedColor = widget.selectedColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+    final defaultUnselectedColor = widget.unselectedColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey;
     final iconSize = widget.iconSize ?? 24.0;
     final selectedFontSize = widget.selectedFontSize ?? 14.0;
     final unselectedFontSize = widget.unselectedFontSize ?? 12.0;

@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 import 'custom_common_util.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black;
+  }
+}
+
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey;
+  }
+}
+
+Color? _getThemeCardBackgroundColor(BuildContext context) {
+  try {
+    return context.palette.cardBackground;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.grey[900] : Colors.white;
+  }
+}
 
 /// DropdownButton 위젯 (String/Widget 지원)
 ///
@@ -106,7 +138,7 @@ class CustomDropdownButton<T> extends StatelessWidget {
             ? itemBuilder!(item)
             : CustomCommonUtil.toWidget(
                 item,
-                style: textStyle ?? const TextStyle(fontSize: 16, color: Colors.black),
+                style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
               ),
       );
     }).toList();
@@ -131,8 +163,8 @@ class CustomDropdownButton<T> extends StatelessWidget {
         (hint != null
             ? Text(
                 hint!,
-                style: textStyle?.copyWith(color: Colors.grey) ??
-                    TextStyle(fontSize: 16, color: Colors.grey),
+                style: textStyle?.copyWith(color: _getThemeTextSecondaryColor(context) ?? Colors.grey) ??
+                    TextStyle(fontSize: 16, color: _getThemeTextSecondaryColor(context) ?? Colors.grey),
               )
             : null);
 
@@ -145,13 +177,13 @@ class CustomDropdownButton<T> extends StatelessWidget {
       selectedItemBuilder: selectedItemBuilder != null
           ? (context) => [selectedItemWidget!]
           : null,
-      style: textStyle ?? const TextStyle(fontSize: 16, color: Colors.black),
+      style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
       icon: Icon(
         Icons.arrow_drop_down,
-        color: iconColor ?? Colors.grey,
+        color: iconColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey,
         size: iconSize ?? 24,
       ),
-      dropdownColor: dropdownColor ?? Colors.white,
+      dropdownColor: dropdownColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
       itemHeight: itemHeight ?? kMinInteractiveDimension,
       isExpanded: width != null,
     );
@@ -162,9 +194,9 @@ class CustomDropdownButton<T> extends StatelessWidget {
       height: height,
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: backgroundColor ?? Colors.white,
+        color: backgroundColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
         border: Border.all(
-          color: borderColor ?? Colors.grey.shade300,
+          color: borderColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey.shade300,
           width: borderWidth ?? 1.0,
         ),
         borderRadius: BorderRadius.circular(borderRadius ?? 4.0),

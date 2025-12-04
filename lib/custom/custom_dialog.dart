@@ -2,6 +2,47 @@ import 'custom_button.dart';
 import 'custom_text.dart';
 import 'custom_common_util.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black;
+  }
+}
+
+Color? _getThemeCardBackgroundColor(BuildContext context) {
+  try {
+    return context.palette.cardBackground;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.grey[900] : Colors.white;
+  }
+}
+
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey;
+  }
+}
 
 /// 다이얼로그 타입 enum
 enum DialogType {
@@ -155,7 +196,7 @@ class CustomDialog {
         title as String,
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
+        color: _getThemeTextPrimaryColor(context) ?? Colors.black,
       );
     } else {
       titleWidget = title as Widget;
@@ -168,7 +209,7 @@ class CustomDialog {
         message as String,
         fontSize: 16,
         fontWeight: FontWeight.normal,
-        color: Colors.black,
+        color: _getThemeTextPrimaryColor(context) ?? Colors.black,
       );
     } else {
       messageWidget = message as Widget;
@@ -194,7 +235,7 @@ class CustomDialog {
                     height: double.infinity,
                     child: Center(
                       child: AlertDialog(
-                        backgroundColor: backgroundColor ?? Colors.white,
+                        backgroundColor: backgroundColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
                         shape: borderRadius != null
                             ? RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
@@ -356,7 +397,7 @@ class CustomDialog {
       return [
         CustomButton(
           btnText: confirmText,
-          backgroundColor: Colors.blue,
+          backgroundColor: _getThemePrimaryColor(ctx) ?? Colors.blue,
           minimumSize: const Size(100, 40),
           onCallBack: () {
             onConfirmWithContexts?.call(ctx, dialogScaffoldContext);
@@ -374,7 +415,7 @@ class CustomDialog {
         CustomButton(
           btnText: cancelText,
           buttonType: ButtonType.outlined,
-          backgroundColor: Colors.grey,
+          backgroundColor: _getThemeTextSecondaryColor(ctx) ?? Colors.grey,
           minimumSize: const Size(80, 40),
           onCallBack: () {
             onCancelWithContexts?.call(ctx, dialogScaffoldContext);
@@ -387,7 +428,7 @@ class CustomDialog {
         ),
         CustomButton(
           btnText: confirmText,
-          backgroundColor: Colors.blue,
+          backgroundColor: _getThemePrimaryColor(ctx) ?? Colors.blue,
           minimumSize: const Size(80, 40),
           onCallBack: () {
             onConfirmWithContexts?.call(ctx, dialogScaffoldContext);

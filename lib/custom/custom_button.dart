@@ -1,6 +1,28 @@
 import 'custom_text.dart';
 import 'custom_common_util.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black;
+  }
+}
 
 /// 버튼 타입을 선택하는 enum
 enum ButtonType {
@@ -83,7 +105,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 기본 스타일 생성
-    final defaultStyle = _createButtonStyle();
+    final defaultStyle = _createButtonStyle(context);
 
     // 사용자가 커스텀 btnStyle을 제공한 경우, 기본 스타일과 병합
     final finalStyle = btnStyle != null
@@ -99,10 +121,17 @@ class CustomButton extends StatelessWidget {
       // - textColor가 명시되면 그것을 사용
       // - 배경색이 있는 버튼(TextButton, ElevatedButton): 기본 흰색
       // - 배경색이 없는 버튼(OutlinedButton): 기본 검은색
+      // 텍스트 색상 결정
+      // - textColor가 명시되면 그것을 사용
+      // - foregroundColor가 있으면 사용
+      // - OutlinedButton: 테마 텍스트 색상 또는 검은색
+      // - TextButton/ElevatedButton: 흰색
       final textColorFinal =
           textColor ??
           foregroundColor ??
-          (buttonType == ButtonType.outlined ? Colors.black : Colors.white);
+          (buttonType == ButtonType.outlined
+              ? (_getThemeTextPrimaryColor(context) ?? Colors.black)
+              : Colors.white);
 
       // CustomText 위젯 생성
       buttonChild = CustomText(
@@ -140,8 +169,9 @@ class CustomButton extends StatelessWidget {
   }
 
   /// 기본 버튼 스타일을 생성하는 메서드
-  ButtonStyle _createButtonStyle() {
-    final bgColor = backgroundColor ?? Colors.blue;
+  ButtonStyle _createButtonStyle(BuildContext context) {
+    final bgColor =
+        backgroundColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
     final minSize = minimumSize ?? const Size(100, 60);
     final radius = borderRadius ?? 10;
 
@@ -170,8 +200,11 @@ class CustomButton extends StatelessWidget {
           ),
         );
       case ButtonType.outlined:
-        // OutlinedButton: 배경색이 없으므로 기본 텍스트 색상은 검은색
-        final outlinedFgColor = foregroundColor ?? Colors.black;
+        // OutlinedButton: 배경색이 없으므로 기본 텍스트 색상은 테마 텍스트 색상 또는 검은색
+        final outlinedFgColor =
+            foregroundColor ??
+            _getThemeTextPrimaryColor(context) ??
+            Colors.black;
         return OutlinedButton.styleFrom(
           minimumSize: minSize,
           foregroundColor: outlinedFgColor,

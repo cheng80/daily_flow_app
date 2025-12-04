@@ -1,4 +1,44 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black;
+  }
+}
+
+Color? _getThemeChipSelectedBgColor(BuildContext context) {
+  try {
+    return context.palette.chipSelectedBg;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return _getThemePrimaryColor(context) ?? Colors.blue;
+  }
+}
+
+Color? _getThemeChipSelectedTextColor(BuildContext context) {
+  try {
+    return context.palette.chipSelectedText;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.white;
+  }
+}
 
 /// 태그, 필터, 선택 표시용 Chip 위젯
 ///
@@ -76,9 +116,9 @@ class CustomChip extends StatelessWidget {
     this.deleteIcon,
     this.tooltip,
   }) : assert(
-          !selectable || onSelected != null || !selected,
-          'selectable이 true일 때 onSelected가 제공되어야 합니다.',
-        );
+         !selectable || onSelected != null || !selected,
+         'selectable이 true일 때 onSelected가 제공되어야 합니다.',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +129,12 @@ class CustomChip extends StatelessWidget {
         label as String,
         style: TextStyle(
           color: selectable && selected
-              ? (selectedLabelColor ?? Colors.white)
-              : (labelColor ?? Colors.black),
+              ? (selectedLabelColor ??
+                    _getThemeChipSelectedTextColor(context) ??
+                    Colors.white)
+              : (labelColor ??
+                    _getThemeTextPrimaryColor(context) ??
+                    Colors.black),
         ),
       );
     } else {
@@ -105,11 +149,18 @@ class CustomChip extends StatelessWidget {
         onSelected: onSelected,
         avatar: avatar,
         backgroundColor: backgroundColor,
-        selectedColor: selectedColor ?? Colors.blue,
+        selectedColor:
+            selectedColor ??
+            _getThemeChipSelectedBgColor(context) ??
+            Colors.blue,
         labelStyle: TextStyle(
           color: selected
-              ? (selectedLabelColor ?? Colors.white)
-              : (labelColor ?? Colors.black),
+              ? (selectedLabelColor ??
+                    _getThemeChipSelectedTextColor(context) ??
+                    Colors.white)
+              : (labelColor ??
+                    _getThemeTextPrimaryColor(context) ??
+                    Colors.black),
         ),
         padding: padding,
         shape: borderRadius != null
@@ -128,7 +179,10 @@ class CustomChip extends StatelessWidget {
         avatar: avatar,
         backgroundColor: backgroundColor,
         deleteIconColor: deleteIconColor,
-        labelStyle: TextStyle(color: labelColor ?? Colors.black),
+        labelStyle: TextStyle(
+          color:
+              labelColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black,
+        ),
         padding: padding,
         shape: borderRadius != null
             ? RoundedRectangleBorder(
@@ -146,7 +200,9 @@ class CustomChip extends StatelessWidget {
       label: labelWidget,
       avatar: avatar,
       backgroundColor: backgroundColor,
-      labelStyle: TextStyle(color: labelColor ?? Colors.black),
+      labelStyle: TextStyle(
+        color: labelColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black,
+      ),
       padding: padding,
       shape: borderRadius != null
           ? RoundedRectangleBorder(
@@ -163,4 +219,3 @@ class CustomChip extends StatelessWidget {
     return chip;
   }
 }
-

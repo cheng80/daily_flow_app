@@ -1,4 +1,35 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart'; // PaletteContext extension 사용
+
+// 테마 색상 지원 (선택적)
+// 다른 앱에서도 사용 가능하도록 try-catch로 처리
+Color? _getThemePrimaryColor(BuildContext context) {
+  try {
+    return context.palette.primary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Theme.of(context).colorScheme.primary;
+  }
+}
+
+Color? _getThemeTextSecondaryColor(BuildContext context) {
+  try {
+    return context.palette.textSecondary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    return Colors.grey.shade300;
+  }
+}
+
+Color? _getThemeTextPrimaryColor(BuildContext context) {
+  try {
+    return context.palette.textPrimary;
+  } catch (e) {
+    // PaletteContext가 없는 경우 Material Theme 기본값 사용
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? Colors.white : Colors.black87;
+  }
+}
 
 /// Slider 위젯
 ///
@@ -87,22 +118,35 @@ class CustomSlider extends StatelessWidget {
     this.visualDensity,
     this.sliderTheme,
   }) : assert(
-          value >= (min ?? 0.0) && value <= (max ?? 1.0),
-          'value는 min과 max 사이의 값이어야 합니다.',
-        );
+         value >= (min ?? 0.0) && value <= (max ?? 1.0),
+         'value는 min과 max 사이의 값이어야 합니다.',
+       );
 
   @override
   Widget build(BuildContext context) {
     final sliderWidget = SliderTheme(
-      data: sliderTheme ??
+      data:
+          sliderTheme ??
           SliderThemeData(
-            activeTrackColor: activeColor ?? Colors.blue,
-            inactiveTrackColor: inactiveColor ?? Colors.grey.shade300,
-            thumbColor: thumbColor ?? activeColor ?? Colors.blue,
-            overlayColor: overlayColor ?? (activeColor ?? Colors.blue).withValues(alpha: 0.12),
-            valueIndicatorColor: activeColor ?? Colors.blue,
+            activeTrackColor:
+                activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue,
+            inactiveTrackColor:
+                inactiveColor ??
+                _getThemeTextSecondaryColor(context) ??
+                Colors.grey.shade300,
+            thumbColor:
+                thumbColor ??
+                activeColor ??
+                _getThemePrimaryColor(context) ??
+                Colors.blue,
+            overlayColor:
+                overlayColor ??
+                (activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue)
+                    .withValues(alpha: 0.12),
+            valueIndicatorColor:
+                activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue,
             valueIndicatorTextStyle: TextStyle(
-              color: Colors.white,
+              color: Colors.white, // Value indicator는 항상 흰색
               fontSize: 12,
             ),
           ),
@@ -127,11 +171,12 @@ class CustomSlider extends StatelessWidget {
           if (title != null) ...[
             Text(
               title!,
-              style: titleStyle ??
+              style:
+                  titleStyle ??
                   TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
                   ),
             ),
             SizedBox(height: spacing ?? 8),
@@ -141,10 +186,13 @@ class CustomSlider extends StatelessWidget {
             SizedBox(height: spacing ?? 8),
             Text(
               value.toStringAsFixed(divisions != null ? 0 : 1),
-              style: valueStyle ??
+              style:
+                  valueStyle ??
                   TextStyle(
                     fontSize: 14,
-                    color: Colors.grey.shade600,
+                    color:
+                        _getThemeTextSecondaryColor(context) ??
+                        Colors.grey.shade600,
                   ),
             ),
           ],
@@ -155,4 +203,3 @@ class CustomSlider extends StatelessWidget {
     return sliderWidget;
   }
 }
-
