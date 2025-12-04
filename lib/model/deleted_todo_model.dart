@@ -3,8 +3,20 @@ import 'todo_model.dart';
 /// DeletedTodo 모델 클래스
 /// 
 /// 삭제된 일정을 나타내는 데이터 모델입니다.
-/// 스펙 문서 daily_flow_db_spec.md의 deleted_todo 테이블 구조를 기반으로 합니다.
+/// deleted_todo 테이블의 구조를 반영하며, SQLite 데이터베이스와 직접 매핑됩니다.
 /// 휴지통 기능에서 사용되며, 복구 또는 완전 삭제가 가능합니다.
+/// 
+/// 테이블 구조:
+/// - id: INTEGER PRIMARY KEY AUTOINCREMENT
+/// - original_id: INTEGER (NULL 허용, 원래 todo.id 값)
+/// - title: TEXT NOT NULL
+/// - memo: TEXT (NULL 허용)
+/// - date: TEXT NOT NULL (형식: 'YYYY-MM-DD')
+/// - time: TEXT (NULL 허용, 형식: 'HH:MM')
+/// - step: INTEGER NOT NULL DEFAULT 3 (0=아침, 1=낮, 2=저녁, 3=Anytime)
+/// - priority: INTEGER NOT NULL DEFAULT 3 (1~5단계)
+/// - is_done: INTEGER NOT NULL DEFAULT 0 (0=미완료, 1=완료)
+/// - deleted_at: TEXT NOT NULL (형식: 'YYYY-MM-DD HH:MM:SS')
 class DeletedTodo {
   /// 휴지통 레코드 ID (PK, AUTOINCREMENT)
   /// null일 경우 새로 삭제 보관함에 추가되는 레코드를 의미합니다.
@@ -122,8 +134,13 @@ class DeletedTodo {
   /// Todo → DeletedTodo 변환 팩토리 생성자
   /// 
   /// 활성 Todo 객체를 DeletedTodo로 변환합니다.
-  /// 소프트 삭제 시 사용됩니다.
-  /// 스펙 문서 2.3의 삭제 플로우에 따라 사용됩니다.
+  /// 소프트 삭제 시 사용되며, todo 테이블에서 deleted_todo 테이블로 이동할 때 호출됩니다.
+  /// 
+  /// 변환 과정:
+  /// - Todo의 모든 필드를 DeletedTodo로 복사
+  /// - original_id에 todo.id 값 저장
+  /// - deleted_at에 현재 시각 설정
+  /// - id는 null로 설정 (AUTOINCREMENT로 자동 생성)
   /// 
   /// [todo] 삭제할 Todo 객체
   /// [originalId] 원래 todo.id 값 (기본값: todo.id)

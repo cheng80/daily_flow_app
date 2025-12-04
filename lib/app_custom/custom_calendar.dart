@@ -36,7 +36,7 @@ import '../theme/app_colors.dart';
 /// )
 /// ```
 ///
-/// 참고: 설계서 `dailyflow_design_spec.md` 1.3 섹션
+/// 화면 상단 40~45%를 차지하도록 높이를 설정하는 것을 권장합니다.
 class CustomCalendar extends StatelessWidget {
   /// 선택된 날짜
   ///
@@ -65,20 +65,44 @@ class CustomCalendar extends StatelessWidget {
 
   /// 날짜별 이벤트(Todo) 리스트를 반환하는 함수
   ///
-  /// TableCalendar가 각 날짜 셀을 렌더링할 때 호출됩니다.
-  /// [day] 조회할 날짜
+  /// **위치 및 호출 시점:**
+  /// - TableCalendar가 각 날짜 셀을 렌더링할 때 자동으로 호출됩니다.
+  /// - 달력 화면이 표시되거나 월이 변경될 때마다 모든 날짜 셀에 대해 호출됩니다.
+  /// - CustomCalendar 위젯의 필수 파라미터로 전달되며, TableCalendar의 `eventLoader` 속성에 연결됩니다.
   ///
-  /// 반환값: 해당 날짜의 Todo 리스트 (List<dynamic> 또는 List<Todo>)
-  /// - 빈 리스트를 반환하면 일정 갯수 배지와 진행도 바가 표시되지 않습니다.
-  /// - 실제 구현 시 DatabaseHandler.queryDataByDate()를 사용하여 조회합니다.
+  /// **파라미터:**
+  /// - [day] 조회할 날짜 (DateTime 객체)
   ///
-  /// 예시:
+  /// **반환값:**
+  /// - 해당 날짜의 Todo 리스트 (List<dynamic> 또는 List<Todo>)
+  /// - 빈 리스트([])를 반환하면 일정 갯수 배지와 이벤트 바가 표시되지 않습니다.
+  /// - 리스트의 길이가 이벤트 개수로 계산되어 배지에 표시됩니다.
+  ///
+  /// **날짜별 Todo 계산 방식:**
+  /// 1. eventLoader가 호출되면 전달받은 [day] 파라미터를 사용하여 해당 날짜의 Todo를 조회합니다.
+  /// 2. 날짜 형식 변환: DateTime 객체를 'YYYY-MM-DD' 형식의 문자열로 변환합니다.
+  /// 3. 데이터베이스 조회: DatabaseHandler.queryDataByDate()를 사용하여 해당 날짜의 모든 Todo를 조회합니다.
+  /// 4. 반환된 리스트는 markerBuilder에서 사용되어 이벤트 개수를 계산하고 배지/바를 표시합니다.
+  ///
+  /// **실제 구현 예시:**
   /// ```dart
-  /// eventLoader: (day) {
+  /// eventLoader: (day) async {
+  ///   // 날짜 형식 변환: DateTime -> 'YYYY-MM-DD'
   ///   final dateStr = '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
-  ///   return databaseHandler.queryDataByDate(dateStr);
+  ///
+  ///   // DatabaseHandler를 사용하여 해당 날짜의 Todo 조회
+  ///   final databaseHandler = DatabaseHandler();
+  ///   final todos = await databaseHandler.queryDataByDate(dateStr);
+  ///
+  ///   // Todo 리스트 반환 (빈 리스트면 배지/바 표시 안 됨)
+  ///   return todos;
   /// }
   /// ```
+  ///
+  /// **주의사항:**
+  /// - 동기 함수로 구현해야 합니다 (비동기 함수는 지원하지 않음).
+  /// - 실제 데이터베이스 조회가 필요한 경우, 미리 조회한 데이터를 Map에 캐싱하여 사용하는 것을 권장합니다.
+  /// - 테스트용으로는 더미 데이터를 반환할 수 있습니다 (home.dart 참고).
   final List<dynamic> Function(DateTime day) eventLoader;
 
   /// 달력 위젯의 높이 (픽셀)
@@ -394,14 +418,22 @@ class CustomCalendar extends StatelessWidget {
         // 이벤트 마커 빌더: 이벤트가 있는 날짜에 하단 언더바 및 이벤트 개수 배지 표시
         // TableCalendar의 기본 셀 구조를 유지하고, markerBuilder를 통해 이벤트 표시 오버레이
         markerBuilder: (context, date, events) {
-          // 이벤트 개수 계산
-          // events는 List<dynamic> 타입 (null이 아님, 빈 리스트일 수 있음)
+          // 날짜별 Todo 개수 계산
+          // events 파라미터는 eventLoader에서 반환된 리스트입니다.
+          // eventLoader가 호출되어 해당 날짜의 Todo 리스트를 조회하고,
+          // 그 리스트가 events로 전달됩니다.
+          //
+          // 계산 과정:
+          // 1. eventLoader(day) 호출 → 해당 날짜의 Todo 리스트 반환
+          // 2. TableCalendar가 events로 전달
+          // 3. markerBuilder에서 events.length로 개수 계산
+          // 4. 개수가 0보다 크면 배지와 바 표시
           int eventCount = 0;
           try {
             final eventsList = events as List;
-            eventCount = eventsList.length;
+            eventCount = eventsList.length; // 리스트 길이 = Todo 개수
           } catch (e) {
-            // events가 List가 아닌 경우 처리
+            // events가 List가 아닌 경우 처리 (안전장치)
             eventCount = 0;
           }
 

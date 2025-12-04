@@ -10,15 +10,25 @@ import '../custom/custom_dialog.dart';
 /// DatabaseHandler 클래스
 ///
 /// DailyFlow 앱의 SQLite 데이터베이스 관리 클래스입니다.
-/// 스펙 문서 daily_flow_db_spec.md를 기반으로 구현되었습니다.
+/// todo와 deleted_todo 테이블을 관리하며, 소프트 삭제/복구 기능을 제공합니다.
 class DatabaseHandler {
   // DatabaseHandler 클래스의 내용
   // Database와 Table 만들기
 
-  /// DB 초기화 및 테이블 생성 (스펙 문서 기준)
+  /// DB 초기화 및 테이블 생성
   ///
   /// 데이터베이스 파일을 생성하고 todo, deleted_todo 테이블을 생성합니다.
   /// 인덱스도 함께 생성합니다.
+  ///
+  /// 생성되는 테이블:
+  /// - todo: 활성 일정 테이블 (id, title, memo, date, time, step, priority, is_done, has_alarm, notification_id, created_at, updated_at)
+  /// - deleted_todo: 삭제된 일정 테이블 (id, original_id, title, memo, date, time, step, priority, is_done, deleted_at)
+  ///
+  /// 생성되는 인덱스:
+  /// - idx_todo_date: todo 테이블의 date 컬럼 인덱스
+  /// - idx_todo_date_step: todo 테이블의 date, step 복합 인덱스
+  /// - idx_deleted_todo_date: deleted_todo 테이블의 date 컬럼 인덱스
+  /// - idx_deleted_todo_deleted_at: deleted_todo 테이블의 deleted_at 컬럼 인덱스
   ///
   /// 반환값: 초기화된 Database 객체
   Future<Database> initializeDB() async {
@@ -29,7 +39,8 @@ class DatabaseHandler {
     return openDatabase(
       join(path, 'daily_flow.db'),
       onCreate: (db, version) async {
-        // todo 테이블 생성 (스펙 문서 1.4 기준)
+        // todo 테이블 생성
+        // 활성 일정을 저장하는 메인 테이블
         await db.execute("""
           CREATE TABLE IF NOT EXISTS todo (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +58,8 @@ class DatabaseHandler {
           );
           """);
 
-        // deleted_todo 테이블 생성 (스펙 문서 2.4 기준)
+        // deleted_todo 테이블 생성
+        // 삭제된 일정을 보관하는 테이블 (소프트 삭제)
         await db.execute("""
           CREATE TABLE IF NOT EXISTS deleted_todo (
             id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,19 +75,26 @@ class DatabaseHandler {
           );
           """);
 
-        // 인덱스 생성 (스펙 문서 기준)
-        await db.execute(
-          "CREATE INDEX IF NOT EXISTS idx_todo_date ON todo(date);",
-        );
-        await db.execute(
-          "CREATE INDEX IF NOT EXISTS idx_todo_date_step ON todo(date, step);",
-        );
-        await db.execute(
-          "CREATE INDEX IF NOT EXISTS idx_deleted_todo_date ON deleted_todo(date);",
-        );
-        await db.execute(
-          "CREATE INDEX IF NOT EXISTS idx_deleted_todo_deleted_at ON deleted_todo(deleted_at);",
-        );
+        // 인덱스 생성
+        // 조회 성능 향상을 위한 인덱스
+        await db.execute("""
+          CREATE INDEX IF NOT EXISTS idx_todo_date 
+          ON todo(date);
+          """);
+
+        await db.execute("""
+          CREATE INDEX IF NOT EXISTS idx_todo_date_step 
+          ON todo(date, step);
+          """);
+
+        await db.execute("""
+          CREATE INDEX IF NOT EXISTS idx_deleted_todo_date 
+          ON deleted_todo(date);
+          """);
+        await db.execute("""
+          CREATE INDEX IF NOT EXISTS idx_deleted_todo_deleted_at 
+          ON deleted_todo(deleted_at);
+          """);
       },
       version: 1,
     );
@@ -93,9 +112,11 @@ class DatabaseHandler {
   /// 반환값: Todo 객체 리스트
   Future<List<Todo>> queryData() async {
     final Database db = await initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      'SELECT * FROM todo ORDER BY date ASC, time ASC, priority DESC',
-    );
+    final List<Map<String, Object?>> queryResult = await db.rawQuery("""
+      SELECT * 
+      FROM todo 
+      ORDER BY date ASC, time ASC, priority DESC
+      """);
     return queryResult.map((e) => Todo.fromMap(e)).toList();
   }
 
@@ -106,7 +127,12 @@ class DatabaseHandler {
   Future<List<Todo>> queryDataByDate(String date) async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      'SELECT * FROM todo WHERE date = ? ORDER BY time ASC, priority DESC',
+      """
+      SELECT * 
+      FROM todo 
+      WHERE date = ? 
+      ORDER BY time ASC, priority DESC
+      """,
       [date],
     );
     return queryResult.map((e) => Todo.fromMap(e)).toList();
@@ -120,7 +146,13 @@ class DatabaseHandler {
   Future<List<Todo>> queryDataByDateAndStep(String date, int step) async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      'SELECT * FROM todo WHERE date = ? AND step = ? ORDER BY time ASC, priority DESC',
+      """
+      SELECT * 
+      FROM todo 
+      WHERE date = ? 
+        AND step = ? 
+      ORDER BY time ASC, priority DESC
+      """,
       [date, step],
     );
     return queryResult.map((e) => Todo.fromMap(e)).toList();
@@ -133,7 +165,11 @@ class DatabaseHandler {
   Future<Todo?> queryDataById(int id) async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      'SELECT * FROM todo WHERE id = ?',
+      """
+      SELECT * 
+      FROM todo 
+      WHERE id = ?
+      """,
       [id],
     );
     if (queryResult.isEmpty) return null;
@@ -223,9 +259,11 @@ class DatabaseHandler {
   /// 반환값: DeletedTodo 객체 리스트
   Future<List<DeletedTodo>> queryDeletedData() async {
     final Database db = await initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      'SELECT * FROM deleted_todo ORDER BY deleted_at DESC',
-    );
+    final List<Map<String, Object?>> queryResult = await db.rawQuery("""
+      SELECT * 
+      FROM deleted_todo 
+      ORDER BY deleted_at DESC
+      """);
     return queryResult.map((e) => DeletedTodo.fromMap(e)).toList();
   }
 
@@ -244,23 +282,31 @@ class DatabaseHandler {
     final endStr = '${_formatDateTime(endDate, includeTime: false)} 23:59:59';
 
     final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      'SELECT * FROM deleted_todo WHERE deleted_at BETWEEN ? AND ? ORDER BY deleted_at DESC',
+      """
+      SELECT * 
+      FROM deleted_todo 
+      WHERE deleted_at BETWEEN ? AND ? 
+      ORDER BY deleted_at DESC
+      """,
       [startStr, endStr],
     );
     return queryResult.map((e) => DeletedTodo.fromMap(e)).toList();
   }
 
   // ============================================
-  // 소프트 삭제 / 복구 / 완전 삭제 (스펙 문서 2.3 기준)
+  // 소프트 삭제 / 복구 / 완전 삭제
   // ============================================
 
   /// 소프트 삭제 (todo → deleted_todo로 이동)
   ///
-  /// 스펙 문서 2.3의 삭제 플로우를 따릅니다:
+  /// 일정을 완전히 삭제하지 않고 삭제 보관함으로 이동시킵니다.
+  /// 삭제 플로우:
   /// 1. todo에서 대상 레코드 SELECT (이미 todo 객체로 받음)
   /// 2. 같은 내용 + original_id = todo.id, deleted_at = 현재 시각으로 deleted_todo에 INSERT
   /// 3. 필요 시 알람 cancel(notification_id) 수행 (호출 측에서 처리)
   /// 4. todo에서 해당 레코드 DELETE
+  ///
+  /// 삭제 실패 시 deleted_todo로 이동하지 못하면 todo 테이블의 레코드는 삭제되지 않습니다.
   ///
   /// [todo] 삭제할 Todo 객체
   /// [context] 에러 메시지 표시를 위한 BuildContext (선택사항)
@@ -325,12 +371,14 @@ class DatabaseHandler {
 
   /// 복구 (deleted_todo → todo로 이동)
   ///
-  /// 스펙 문서 2.3의 복구 플로우를 따릅니다:
+  /// 삭제 보관함의 일정을 다시 활성 일정으로 복구합니다.
+  /// 복구 플로우:
   /// 1. deleted_todo에서 복구 대상 SELECT (이미 deletedTodo 객체로 받음)
-  /// 2. todo에 INSERT (새 id 부여)
+  /// 2. todo에 INSERT (새 id 부여, created_at과 updated_at은 현재 시각으로 설정)
   /// 3. deleted_todo에서 해당 레코드 DELETE
   ///
-  /// 복구 시 알람은 비활성화됩니다 (스펙 문서 2.2 비고 참조).
+  /// 복구 시 알람은 비활성화됩니다 (has_alarm = false, notification_id = null).
+  /// 복구된 일정은 새로운 id를 받으며, original_id는 todo 테이블에 저장되지 않습니다.
   ///
   /// [deletedTodo] 복구할 DeletedTodo 객체
   /// [context] 성공/에러 메시지 표시를 위한 BuildContext (선택사항)
@@ -356,7 +404,7 @@ class DatabaseHandler {
         step: deletedTodo.step,
         priority: deletedTodo.priority,
         isDone: deletedTodo.isDone,
-        hasAlarm: false, // 복구 시 알람은 비활성화 (스펙 문서 2.2 비고 참조)
+        hasAlarm: false, // 복구 시 알람은 비활성화
         notificationId: null,
         createdAt: createdAtStr,
         updatedAt: createdAtStr,
@@ -402,8 +450,13 @@ class DatabaseHandler {
 
   /// 완전 삭제 (deleted_todo 테이블에서 영구 삭제)
   ///
-  /// 스펙 문서 2.3의 완전 삭제 플로우를 따릅니다:
-  /// deleted_todo에서 해당 레코드 DELETE
+  /// 삭제 보관함의 일정을 완전히 삭제합니다.
+  /// 이 작업은 되돌릴 수 없으며, deleted_todo 테이블에서 해당 레코드를 영구적으로 삭제합니다.
+  ///
+  /// 삭제 플로우:
+  /// - deleted_todo에서 해당 레코드 DELETE
+  ///
+  /// 확인 다이얼로그가 표시되며, 사용자가 확인해야 삭제가 진행됩니다.
   ///
   /// [deletedTodo] 완전 삭제할 DeletedTodo 객체
   /// [context] 확인 다이얼로그 및 메시지 표시를 위한 BuildContext (선택사항)

@@ -1,7 +1,21 @@
 /// Todo 모델 클래스
 /// 
 /// 활성 일정을 나타내는 데이터 모델입니다.
-/// 스펙 문서 daily_flow_db_spec.md의 todo 테이블 구조를 기반으로 합니다.
+/// todo 테이블의 구조를 반영하며, SQLite 데이터베이스와 직접 매핑됩니다.
+/// 
+/// 테이블 구조:
+/// - id: INTEGER PRIMARY KEY AUTOINCREMENT
+/// - title: TEXT NOT NULL
+/// - memo: TEXT (NULL 허용)
+/// - date: TEXT NOT NULL (형식: 'YYYY-MM-DD')
+/// - time: TEXT (NULL 허용, 형식: 'HH:MM')
+/// - step: INTEGER NOT NULL DEFAULT 3 (0=아침, 1=낮, 2=저녁, 3=Anytime)
+/// - priority: INTEGER NOT NULL DEFAULT 3 (1~5단계)
+/// - is_done: INTEGER NOT NULL DEFAULT 0 (0=미완료, 1=완료)
+/// - has_alarm: INTEGER NOT NULL DEFAULT 0 (0=알람없음, 1=알람있음)
+/// - notification_id: INTEGER (NULL 허용)
+/// - created_at: TEXT NOT NULL (형식: 'YYYY-MM-DD HH:MM:SS')
+/// - updated_at: TEXT NOT NULL (형식: 'YYYY-MM-DD HH:MM:SS')
 class Todo {
   /// 일정 고유 ID (PK, AUTOINCREMENT)
   /// null일 경우 새로 생성되는 일정을 의미합니다.

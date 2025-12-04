@@ -121,76 +121,97 @@
 
 ---
 
-## 🟡 중간 우선순위 (다음 단계)
+## 🔴 높은 우선순위 (즉시 필요)
 
-### 4. 일정 등록 화면
-- [ ] `lib/view/create_todo/create_todo_view.dart` 생성
-  - [ ] 날짜 선택 (CustomDatePicker 또는 TableCalendar 위젯 사용)
-  - [ ] 시간 선택 (TimePicker 또는 드롭다운)
-  - [ ] 제목 입력 (CustomTextField)
-  - [ ] 메모 입력 (CustomTextField, 멀티라인)
-  - [ ] Step 선택 (CustomDropdownButton)
-  - [ ] 중요도 선택 (1~5단계)
-  - [ ] 알람 설정 (Switch)
-  - [ ] 저장 버튼 (CustomButton)
-  - [ ] 시간 → Step 자동 매핑 로직
+### 7. 기능 모듈 구현 (화면 구성 전)
 
-**참고:** 설계서 `dailyflow_design_spec.md` 2장
-
-### 4-1. 일정 등록 화면용 달력 위젯 (선택사항)
-- [ ] `lib/custom/custom_calendar_picker.dart` 생성 (또는 기존 CustomCalendar 재사용)
-  - [ ] 날짜 선택 전용 달력 위젯
+#### 7-1. 일정 등록/수정 화면용 달력 위젯 모듈
+- [ ] `lib/app_custom/custom_calendar_picker.dart` 생성
+  - [ ] 기존 `CustomCalendar` 기반으로 날짜 선택 전용 위젯 구현
   - [ ] 메인 화면 달력과 유사하나 단순화된 버전
-  - [ ] 날짜 선택 시 즉시 반영
-  - [ ] 선택된 날짜 강조 표시
+    - [ ] 이벤트 바 및 배지 제거 (날짜 선택에 집중)
+    - [ ] 날짜 선택 시 즉시 반영
+    - [ ] 선택된 날짜 강조 표시
   - [ ] 다이얼로그 또는 풀스크린 모드 지원
+    - [ ] `showDialog`로 날짜 선택 다이얼로그 구현
+    - [ ] 선택된 날짜를 콜백으로 반환
   - [ ] 테마 색상 적용 (context.palette 사용)
+  - [ ] 초기 날짜 설정 가능
+  - [ ] 날짜 변경 시 콜백 호출
+  - [ ] `home.dart`에서 모듈 테스트
 
-**참고:** 설계서 `dailyflow_design_spec.md` 2.2 섹션
+**참고:** 설계서 `dailyflow_design_spec.md` 2.2, 3장 섹션
 
-### 5. 일정 수정 화면
-- [ ] `lib/view/edit_todo/edit_todo_view.dart` 생성
-  - [ ] 기존 데이터 로드
-  - [ ] 수정 기능 (등록 화면과 유사)
-  - [ ] 날짜 선택 (CustomDatePicker 또는 TableCalendar 위젯 사용)
-  - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
-  - [ ] 삭제 확인 Dialog (CustomDialog)
-  - [ ] 알람 업데이트 로직
-
-**참고:** 설계서 `dailyflow_design_spec.md` 3장
-
-### 5-1. 일정 수정 화면용 달력 위젯 (선택사항)
-- [ ] 일정 등록 화면과 동일한 달력 위젯 재사용
-  - [ ] 기존 날짜로 초기화
-  - [ ] 날짜 변경 시 즉시 반영
-  - [ ] 테마 색상 적용
-
-### 6. 하루 상세 화면
-- [ ] `lib/view/day_detail/day_detail_view.dart` 생성
-  - [ ] 상단 요약 카드 (강조 버전)
-  - [ ] 필터 칩 (전체/아침/낮/저녁/Anytime)
-  - [ ] Todo 상세 리스트
-  - [ ] 중요도 라벨 색상 표시
-  - [ ] 카드 탭 → 상세 보기
-  - [ ] Slidable (좌: 삭제 / 우: 수정)
-
-**참고:** 설계서 `dailyflow_design_spec.md` 4장
-
----
-
-## 🟢 낮은 우선순위 (향후 구현)
-
-### 7. 알람 기능
+#### 7-2. 알람 기능 모듈
 - [ ] `lib/service/notification_service.dart` 생성
   - [ ] flutter_local_notifications 초기화
+    - [ ] Android 초기화 (채널 설정)
+    - [ ] iOS 초기화 (권한 요청)
+    - [ ] 시뮬레이터/에뮬레이터에서 테스트 가능 (실기기 필수 아님)
   - [ ] 알람 등록 메서드
+    - [ ] Todo의 date와 time을 기반으로 알람 스케줄링
+    - [ ] notification_id를 Todo에 저장
+    - [ ] 알람 제목과 내용 설정
   - [ ] 알람 취소 메서드
+    - [ ] notification_id로 알람 취소
+    - [ ] Todo 삭제 시 자동 취소
   - [ ] 알람 업데이트 메서드
+    - [ ] 기존 알람 취소 후 새 알람 등록
+    - [ ] 시간 변경 시 자동 업데이트
   - [ ] 알람 권한 요청
+    - [ ] iOS: UNUserNotificationCenter 권한 요청
+    - [ ] Android: 알람 권한 (Android 13+)
+  - [ ] 알람 정책 구현
+    - [ ] 1 Todo당 최대 1개의 알람만 지원
+    - [ ] has_alarm = true AND time IS NOT NULL일 때만 알람 등록
+    - [ ] 복구 시 알람은 비활성화 상태로 복구
+  - [ ] `home.dart`에서 모듈 테스트
+    - [ ] 알람 등록 테스트 버튼
+    - [ ] 알람 취소 테스트 버튼
+    - [ ] 알람 업데이트 테스트 버튼
+
+**테스트 환경:**
+- iOS 시뮬레이터: 알람 표시 가능 (실제 알람 소리는 제한적)
+- Android 에뮬레이터: 알람 표시 가능
+- 실기기: 모든 기능 완전 지원
 
 **참고:** 설계서 `dailyflow_design_spec.md` 7장
 
-### 8. 삭제 보관함 화면 (선택 기능)
+---
+
+## 🟡 중간 우선순위 (기능 모듈 완료 후 화면 구성)
+
+### 8. 화면 구현 (기능 모듈 통합)
+
+#### 8-1. 일정 등록 화면
+  - [ ] `lib/view/create_todo/create_todo_view.dart` 생성
+    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+    - [ ] 시간 선택 (TimePicker 또는 드롭다운)
+    - [ ] 제목 입력 (CustomTextField)
+    - [ ] 메모 입력 (CustomTextField, 멀티라인)
+    - [ ] Step 선택 (CustomDropdownButton)
+    - [ ] 중요도 선택 (1~5단계)
+    - [ ] 알람 설정 (Switch)
+    - [ ] 저장 버튼 (CustomButton)
+    - [ ] 시간 → Step 자동 매핑 로직
+    - [ ] NotificationService와 연동 (알람 등록)
+    - [ ] DatabaseHandler와 연동 (Todo 저장)
+
+**참고:** 설계서 `dailyflow_design_spec.md` 2장
+
+#### 8-2. 일정 수정 화면
+  - [ ] `lib/view/edit_todo/edit_todo_view.dart` 생성
+    - [ ] 기존 데이터 로드
+    - [ ] 수정 기능 (등록 화면과 유사)
+    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+    - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
+    - [ ] 삭제 확인 Dialog (CustomDialog)
+    - [ ] NotificationService와 연동 (알람 업데이트/취소)
+    - [ ] DatabaseHandler와 연동 (Todo 수정/삭제)
+
+**참고:** 설계서 `dailyflow_design_spec.md` 3장
+
+### 9. 하루 상세 화면
 - [ ] `lib/view/deleted_todos/deleted_todos_view.dart` 생성
   - [ ] 삭제된 Todo 리스트 표시
   - [ ] 필터 칩 (전체/오늘/7일/30일)
@@ -200,7 +221,7 @@
 
 **참고:** 설계서 `dailyflow_design_spec.md` 6장
 
-### 9. 설정 화면
+### 10. 설정 화면
 - [ ] `lib/view/settings/settings_view.dart` 생성
   - [ ] 라이트/다크 모드 토글 (현재는 홈 화면 앱바에 임시 구현됨)
   - [ ] 삭제 보관함 진입 버튼
@@ -237,10 +258,10 @@
 ## 📝 리팩토링 및 개선
 
 ### 코드 품질
-- [ ] Repository 레이어 추가 (선택사항)
-  - [ ] `lib/repository/todo_repository.dart`
-  - [ ] `lib/repository/deleted_todo_repository.dart`
-  - [ ] DatabaseHandler와 View 사이의 중간 계층
+- [x] Repository 레이어 추가 검토 (결정: 현재 구조 유지)
+  - [x] DatabaseHandler를 직접 사용하는 현재 구조 유지
+  - [x] Repository 레이어는 추가하지 않음 (단순한 CRUD 작업, SQLite만 사용)
+  - [x] 향후 네트워크 동기화나 복잡한 비즈니스 로직 추가 시 재검토
 
 ### 성능 최적화
 - [ ] 데이터베이스 쿼리 최적화
