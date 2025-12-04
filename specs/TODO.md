@@ -42,13 +42,77 @@
 
 **참고:** 설계서 `dailyflow_design_spec.md` 1장
 
+**작업 방식:**
+- `lib/view/home.dart`는 모듈 테스트/프로토타이핑 용도로만 사용
+- 각 커스텀 모듈 개발 완료 후 `home.dart`에서 테스트
+- 모든 모듈이 완료되면 `main_view.dart`에서 실제 화면 구성
+- 필요 시 추가 작업 요청
+
+### 3-1. TableCalendar 커스텀 위젯 구현
+- [ ] `lib/custom/custom_calendar.dart` 생성
+  - [ ] 기본 TableCalendar 위젯 래핑
+  - [ ] 날짜 셀 커스터마이징 (`calendarBuilders` 구현)
+    - [ ] 좌상단: 날짜 숫자 표시
+    - [ ] 중앙 하단: 일정 갯수 원형 배지 표시
+      - [ ] 해당 날짜의 Todo 개수 계산 및 표시
+      - [ ] 배지 색상: Primary 색상 사용
+      - [ ] 배지 크기 및 위치 조정
+    - [ ] 맨 하단: 진행도 미니 바 표시
+      - [ ] 완료된 Todo / 전체 Todo 비율 계산
+      - [ ] Progress 색상 사용 (Primary 또는 Progress 색상)
+      - [ ] 바 높이 및 위치 조정
+    - [ ] 선택 상태 스타일링
+      - [ ] 선택된 날짜 배경 강조 (CardBackground 또는 Primary 색상)
+      - [ ] 선택된 날짜 테두리 표시 (Primary 색상)
+    - [ ] 오늘 날짜 표시
+      - [ ] 오늘 날짜 파란색 테두리 표시
+      - [ ] 오늘 날짜 텍스트 강조 (Primary 또는 Accent 색상)
+    - [ ] 이전/다음 달 날짜 스타일링
+      - [ ] 다른 달 날짜는 TextSecondary 색상으로 표시
+      - [ ] 다른 달 날짜는 투명도 조정
+  - [ ] 월/연도 헤더 커스터마이징 (`headerStyle` 구현)
+    - [ ] 헤더 배경색: CardBackground
+    - [ ] 헤더 텍스트 색상: TextPrimary
+    - [ ] 좌우 화살표 버튼 스타일링
+      - [ ] 이전/다음 월 이동 버튼
+      - [ ] 버튼 색상: Primary 또는 Accent
+      - [ ] 버튼 아이콘 크기 및 패딩 조정
+  - [ ] 요일 헤더 커스터마이징 (`daysOfWeekStyle` 구현)
+    - [ ] 요일 헤더 배경색: CardBackground 또는 Background
+    - [ ] 요일 텍스트 색상: TextPrimary
+    - [ ] 요일 텍스트 크기 및 굵기 조정
+    - [ ] 주말(토/일) 색상 구분 (선택사항)
+  - [ ] 날짜 선택 이벤트 처리 (`onDaySelected` 구현)
+    - [ ] 선택된 날짜 상태 관리
+    - [ ] 날짜 선택 시 Summary Bar 갱신
+    - [ ] 날짜 선택 시 Todo List 갱신
+    - [ ] 날짜 선택 시 필터 초기화 (전체로 리셋)
+  - [ ] 테마 색상 적용
+    - [ ] `context.palette`를 통한 동적 색상 적용
+    - [ ] 라이트/다크 모드 자동 전환 지원
+    - [ ] 모든 색상은 AppColorScheme의 역할 기반 토큰 사용
+  - [ ] 달력 레이아웃 설정
+    - [ ] 화면 상단 40~45% 차지하도록 높이 조정
+    - [ ] 달력 전체 패딩 및 마진 설정
+    - [ ] 날짜 셀 크기 및 간격 조정
+  - [ ] 초기 날짜 설정
+    - [ ] 앱 시작 시 오늘 날짜로 초기화
+    - [ ] 선택된 날짜 상태 관리
+  - [ ] 데이터 바인딩
+    - [ ] 날짜별 Todo 데이터 조회 (DatabaseHandler 사용)
+    - [ ] 날짜별 Todo 개수 계산
+    - [ ] 날짜별 완료율 계산
+    - [ ] 데이터 변경 시 달력 자동 갱신
+
+**참고:** 설계서 `dailyflow_design_spec.md` 1.3 섹션, `table_calendar` 패키지 문서
+
 ---
 
 ## 🟡 중간 우선순위 (다음 단계)
 
 ### 4. 일정 등록 화면
 - [ ] `lib/view/create_todo/create_todo_view.dart` 생성
-  - [ ] 날짜 선택 (CustomDatePicker 사용)
+  - [ ] 날짜 선택 (CustomDatePicker 또는 TableCalendar 위젯 사용)
   - [ ] 시간 선택 (TimePicker 또는 드롭다운)
   - [ ] 제목 입력 (CustomTextField)
   - [ ] 메모 입력 (CustomTextField, 멀티라인)
@@ -60,15 +124,33 @@
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2장
 
+### 4-1. 일정 등록 화면용 달력 위젯 (선택사항)
+- [ ] `lib/custom/custom_calendar_picker.dart` 생성 (또는 기존 CustomCalendar 재사용)
+  - [ ] 날짜 선택 전용 달력 위젯
+  - [ ] 메인 화면 달력과 유사하나 단순화된 버전
+  - [ ] 날짜 선택 시 즉시 반영
+  - [ ] 선택된 날짜 강조 표시
+  - [ ] 다이얼로그 또는 풀스크린 모드 지원
+  - [ ] 테마 색상 적용 (context.palette 사용)
+
+**참고:** 설계서 `dailyflow_design_spec.md` 2.2 섹션
+
 ### 5. 일정 수정 화면
 - [ ] `lib/view/edit_todo/edit_todo_view.dart` 생성
   - [ ] 기존 데이터 로드
   - [ ] 수정 기능 (등록 화면과 유사)
+  - [ ] 날짜 선택 (CustomDatePicker 또는 TableCalendar 위젯 사용)
   - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
   - [ ] 삭제 확인 Dialog (CustomDialog)
   - [ ] 알람 업데이트 로직
 
 **참고:** 설계서 `dailyflow_design_spec.md` 3장
+
+### 5-1. 일정 수정 화면용 달력 위젯 (선택사항)
+- [ ] 일정 등록 화면과 동일한 달력 위젯 재사용
+  - [ ] 기존 날짜로 초기화
+  - [ ] 날짜 변경 시 즉시 반영
+  - [ ] 테마 색상 적용
 
 ### 6. 하루 상세 화면
 - [ ] `lib/view/day_detail/day_detail_view.dart` 생성

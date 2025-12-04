@@ -4,11 +4,17 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/app_colors.dart';
 import 'view/home.dart';
 
-//import 'package:프로젝트명/home.dart';
+/// 앱 진입점
+///
+/// Flutter 앱을 시작하고 MyApp 위젯을 실행합니다.
 void main() {
   runApp(const MyApp());
 }
 
+/// DailyFlow 앱의 루트 위젯
+///
+/// 테마 모드 관리 및 MaterialApp 설정을 담당합니다.
+/// 라이트/다크 모드 전환 기능을 제공합니다.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -17,8 +23,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  /// 현재 테마 모드 (기본값: 라이트 모드)
   AppThemeMode _mode = AppThemeMode.light;
 
+  /// 테마 모드를 토글합니다.
+  ///
+  /// 라이트 모드와 다크 모드를 전환합니다.
   void _toggleTheme() {
     setState(() {
       _mode = _mode == AppThemeMode.light
@@ -27,6 +37,9 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  /// MaterialApp 위젯을 빌드합니다.
+  ///
+  /// 테마 설정, 다국어 지원, 라우팅을 구성합니다.
   @override
   Widget build(BuildContext context) {
     final isDark = _mode == AppThemeMode.dark;
