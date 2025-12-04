@@ -127,6 +127,12 @@ class _HomeState extends State<Home> {
                       if (day.day == 15) {
                         return [1, 2];
                       }
+                      // 12월 26일에 10개 이벤트 표시 (테스트용 - 🔥 이모지 확인)
+                      if (day.day == 26 &&
+                          day.month == 12 &&
+                          day.year == 2025) {
+                        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+                      }
                       return [];
                     },
                   )
@@ -279,6 +285,18 @@ class _HomeState extends State<Home> {
                         _focusedDay.month,
                         1,
                       );
+                    });
+                  },
+                ),
+                const SizedBox(width: 10),
+                // 12월 26일 선택 (10개 이벤트 테스트용)
+                // 2025년 12월 26일로 이동하여 🔥 이모지 확인
+                CustomButton(
+                  btnText: "26일 선택",
+                  onCallBack: () {
+                    setState(() {
+                      _selectedDay = DateTime(2025, 12, 26);
+                      _focusedDay = DateTime(2025, 12, 26);
                     });
                   },
                 ),

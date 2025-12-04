@@ -142,6 +142,8 @@ class CustomCalendar extends StatelessWidget {
         defaultTextStyle: TextStyle(color: p.textPrimary, fontSize: 14),
 
         // 주말 날짜 텍스트 스타일
+        // 일요일과 토요일을 구분하기 위해 calendarBuilders에서 개별 처리
+        // 여기서는 기본값 설정 (실제 색상은 defaultBuilder에서 적용)
         weekendTextStyle: TextStyle(color: p.textPrimary, fontSize: 14),
 
         // 오늘 날짜 스타일 (테두리만, 배경 없음 - 선택된 날짜와 구분)
@@ -241,11 +243,156 @@ class CustomCalendar extends StatelessWidget {
       // 기본 셀 구조는 TableCalendar의 기본 구조를 사용하고,
       // markerBuilder를 통해 이벤트 바만 오버레이하는 방식으로 구현
       calendarBuilders: CalendarBuilders(
-        // 기본 셀 빌더는 null로 설정하여 TableCalendar의 기본 셀 사용
-        // CalendarStyle에서 설정한 스타일이 자동 적용됨
+        // 기본 날짜 셀 빌더: 주말 색상 구분 적용
+        // 일요일: 붉은 계열 색상, 토요일: 파란 계열 색상
+        defaultBuilder: (context, date, events) {
+          final p = context.palette;
 
-        // 이벤트 마커 빌더: 이벤트가 있는 날짜에 하단 언더바 표시
-        // TableCalendar의 기본 셀 구조를 유지하고, markerBuilder를 통해 이벤트 바만 오버레이
+          // 요일 확인 (1=월요일, 7=일요일)
+          final weekday = date.weekday;
+          final isSunday = weekday == 7; // 일요일
+          final isSaturday = weekday == 6; // 토요일
+
+          // 주말이 아닌 경우 기본 스타일 사용 (null 반환)
+          if (!isSunday && !isSaturday) {
+            return null; // null을 반환하면 CalendarStyle의 기본 스타일 사용
+          }
+
+          // 주말 색상 결정
+          // 일요일: 붉은 계열 색상 (빨간색)
+          // 토요일: 파란 계열 색상 (Primary 색상 사용)
+          final textColor = isSunday
+              ? Colors
+                    .red
+                    .shade600 // 일요일: 붉은 계열
+              : p.primary; // 토요일: Primary 색상
+
+          // 주말 날짜 셀 커스터마이징
+          return Container(
+            margin: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+          );
+        },
+
+        // 오늘 날짜 셀 빌더: 주말인 경우 색상 구분 적용
+        todayBuilder: (context, date, events) {
+          final p = context.palette;
+          final isSelected = isSameDay(selectedDay, date);
+
+          // 요일 확인 (1=월요일, 7=일요일)
+          final weekday = date.weekday;
+          final isSunday = weekday == 7; // 일요일
+          final isSaturday = weekday == 6; // 토요일
+
+          // 주말 색상 결정
+          final textColor = isSunday
+              ? Colors
+                    .red
+                    .shade600 // 일요일: 붉은 계열
+              : (isSaturday
+                    ? p.primary
+                    : p.primary); // 토요일: Primary, 평일: Primary
+
+          // 선택된 날짜인 경우 선택 스타일 우선 적용
+          if (isSelected) {
+            return Container(
+              margin: const EdgeInsets.all(2.0),
+              decoration: BoxDecoration(
+                color: p.primary.withOpacity(0.15),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(color: p.primary, width: 2.0),
+              ),
+              child: Center(
+                child: Text(
+                  '${date.day}',
+                  style: TextStyle(
+                    color: p.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          // 오늘 날짜 스타일 (테두리 + 주말 색상)
+          return Container(
+            margin: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: p.primary, width: 1.5),
+            ),
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+        },
+
+        // 선택된 날짜 셀 빌더: 주말인 경우 색상 구분 적용
+        selectedBuilder: (context, date, events) {
+          final p = context.palette;
+
+          // 요일 확인 (1=월요일, 7=일요일)
+          final weekday = date.weekday;
+          final isSunday = weekday == 7; // 일요일
+          final isSaturday = weekday == 6; // 토요일
+
+          // 주말 색상 결정 (선택된 날짜는 Primary 색상 사용하되, 주말인 경우 약간 조정)
+          final textColor = isSunday
+              ? Colors
+                    .red
+                    .shade700 // 일요일: 더 진한 붉은 계열
+              : (isSaturday
+                    ? p.primary
+                    : p.primary); // 토요일: Primary, 평일: Primary
+
+          // 선택된 날짜 스타일 (배경색 + 테두리)
+          return Container(
+            margin: const EdgeInsets.all(2.0),
+            decoration: BoxDecoration(
+              color: p.primary.withOpacity(0.15),
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: p.primary, width: 2.0),
+            ),
+            child: Center(
+              child: Text(
+                '${date.day}',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+        },
+
+        // 이벤트 마커 빌더: 이벤트가 있는 날짜에 하단 언더바 및 이벤트 개수 배지 표시
+        // TableCalendar의 기본 셀 구조를 유지하고, markerBuilder를 통해 이벤트 표시 오버레이
         markerBuilder: (context, date, events) {
           // 이벤트 개수 계산
           // events는 List<dynamic> 타입 (null이 아님, 빈 리스트일 수 있음)
@@ -258,24 +405,61 @@ class CustomCalendar extends StatelessWidget {
             eventCount = 0;
           }
 
-          // 이벤트가 있는 경우에만 하단 바 표시
+          // 이벤트가 있는 경우에만 하단 바 및 이벤트 개수 배지 표시
           if (eventCount > 0) {
             final p = context.palette;
-            return Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 4,
-                decoration: BoxDecoration(
-                  // 눈에 잘 띄는 색상 (Accent 색상 사용 - 주황색)
-                  color: p.accent,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(8.0),
-                    bottomRight: Radius.circular(8.0),
+            return Stack(
+              children: [
+                // 이벤트 바 (하단 언더바)
+                // 셀의 margin(2.0)을 고려하여 양 옆에 여백 추가 (더 줄여서 정확히 맞춤)
+                Positioned(
+                  bottom: 0,
+                  left: 4,
+                  right: 4,
+                  child: Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      // 눈에 잘 띄는 색상 (Accent 색상 사용 - 주황색)
+                      color: p.accent,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(8.0),
+                        bottomRight: Radius.circular(8.0),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                // 이벤트 개수 배지 (우측 하단, 원형)
+                Positioned(
+                  bottom: 2,
+                  right: 2,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      // 배지 배경색: 10개 이상이면 붉은 계열, 9개 이하는 Primary 색상
+                      color: eventCount >= 10
+                          ? Colors
+                                .red
+                                .shade600 // 10개 이상: 붉은 계열
+                          : p.primary, // 9개 이하: Primary 색상
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        // 이벤트 개수 표시 (숫자로 표시, 최대 99개까지)
+                        // 10개 이상이면 붉은 배지로 강조
+                        '$eventCount',
+                        style: TextStyle(
+                          // 배지 텍스트 색상: 배경과 대비되는 색상 (일반적으로 흰색)
+                          color: p.cardBackground,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             );
           }
 
