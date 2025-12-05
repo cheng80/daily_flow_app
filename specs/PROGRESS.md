@@ -33,22 +33,45 @@
 - 완전 삭제: `deleted_todo`에서 영구 삭제
 - 날짜/Step별 조회 기능
 
-### 2. 설계 결정 사항 ✅
+### 2. UI 컴포넌트 커스터마이징 ✅
 
-#### 2.1 상태 관리
+#### 2.1 TableCalendar 커스터마이징
+- ✅ `lib/app_custom/custom_calendar.dart` - 메인 화면용 캘린더 위젯
+  - 로케일 설정 (한국어)
+  - 오늘 날짜와 선택된 날짜 구분 표시
+  - 날짜 셀 모양: 원형 → 둥근 사각형으로 변경
+  - 반응형 높이 조정 기능
+  - 이벤트 표시: 하단 언더바 + 우측 하단 숫자 배지
+  - 토요일/일요일 색상 구분 (토요일: Primary 색상, 일요일: 빨간색)
+  - 10개 이상 이벤트 시 빨간색 배지로 강조
+
+#### 2.2 테스트 화면 구조 개선
+- ✅ 기능별 테스트 화면 분리
+  - `lib/view/home_test_calendar.dart` - 캘린더 테스트 화면
+  - `lib/view/home_test_summary_bar.dart` - 서머리바 테스트 화면
+  - `lib/view/home.dart` - 테스트 화면 라우팅용 인덱스로 변경
+  - 각 테스트 화면에 테마 토글 기능 포함
+
+### 3. 설계 결정 사항 ✅
+
+#### 3.1 상태 관리
 - ✅ GetX 제거 결정
 - ✅ 순수 Flutter (StatefulWidget) 사용
 - ✅ 네비게이션: Navigator.push() 사용
 
-#### 2.2 UI 컴포넌트
+#### 3.2 UI 컴포넌트
 - ✅ CustomSnackBar 사용 (에러/성공 메시지)
 - ✅ CustomDialog 사용 (확인 다이얼로그)
 - ✅ lib_doc의 커스텀 위젯 우선 사용
 
-#### 2.3 데이터베이스
+#### 3.3 데이터베이스
 - ✅ SQLite (sqflite 패키지)
 - ✅ 스펙 문서의 컬럼명 및 타입 준수
 - ✅ 소프트 삭제 구조 (휴지통 기능)
+
+#### 3.4 코드 품질 개선
+- ✅ SQL 쿼리 가독성 개선 (multi-line 문자열 사용)
+- ✅ 스펙 문서 참조 주석 제거 및 자체 설명 주석으로 통합
 
 ---
 
@@ -60,14 +83,22 @@
 
 ## 📝 다음 작업 예정
 
-### 1. 색상 시스템 보완
-- [ ] `AppColorScheme`에 중요도 색상 5개 추가
-  - PriorityVeryLow (1단계: 매우 낮음 - 회색 #9E9E9E)
-  - PriorityLow (2단계: 낮음 - 파랑 #1E88E5)
-  - PriorityMedium (3단계: 보통 - 초록 #43A047)
-  - PriorityHigh (4단계: 높음 - 주황 #FB8C00)
-  - PriorityVeryHigh (5단계: 매우 높음 - 빨강 #E53935)
-- [ ] 라이트/다크 테마 모두 적용
+### 1. 기능 모듈 구현 (화면 구성 전) 🔴 높은 우선순위
+
+#### 1.1 일정 등록/수정 화면용 달력 위젯 모듈
+- [ ] `lib/app_custom/custom_calendar_picker.dart` 생성
+  - 기존 `CustomCalendar` 기반으로 날짜 선택 전용 위젯 구현
+  - 메인 화면 달력과 유사하나 단순화된 버전 (이벤트 바 및 배지 제거)
+  - 날짜 선택 시 즉시 반영
+  - 다이얼로그 또는 풀스크린 모드 지원
+  - 테마 색상 적용
+
+#### 1.2 알람 기능 모듈
+- [ ] `lib/service/notification_service.dart` 생성
+  - `flutter_local_notifications` 초기화
+  - 알람 등록/취소/업데이트 메서드
+  - 알람 권한 요청 (iOS/Android)
+  - 알람 정책 구현 (1 Todo당 최대 1개 알람, has_alarm=true AND time IS NOT NULL일 때만 등록)
 
 ### 2. 유틸리티 클래스 생성
 - [ ] `lib/util/step_mapper_util.dart` - 시간 → Step 매핑
@@ -75,7 +106,7 @@
   - `mapTimeToStep(String? time)` 메서드
   - `stepToKorean(int step)` 메서드
 
-### 3. 화면 구현
+### 3. 화면 구현 🟡 중간 우선순위 (기능 모듈 완료 후)
 - [ ] 메인 화면 (Main View)
   - TableCalendar 통합
   - Summary Bar 구현
@@ -103,6 +134,19 @@
 ## 📅 작업 일지
 
 ### 2024년 (최근 작업)
+
+#### UI 컴포넌트 커스터마이징 및 테스트 구조 개선
+- TableCalendar 커스터마이징 완료
+  - 날짜 셀 스타일링 (둥근 사각형, 오늘/선택 날짜 구분)
+  - 이벤트 표시 (하단 언더바 + 숫자 배지)
+  - 주말 색상 구분 (토요일/일요일)
+  - 반응형 높이 조정 기능
+- 기능별 테스트 화면 분리
+  - `home_test_calendar.dart`, `home_test_summary_bar.dart` 생성
+  - `home.dart`를 테스트 화면 라우팅용 인덱스로 변경
+- 코드 품질 개선
+  - SQL 쿼리 가독성 개선
+  - 스펙 문서 참조 주석 제거 및 자체 설명 주석으로 통합
 
 #### 데이터베이스 및 모델 구현
 - Model 클래스 생성 완료
