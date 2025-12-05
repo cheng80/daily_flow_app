@@ -24,10 +24,11 @@
 **참고:** 설계서 `dailyflow_design_spec.md` 9.3.1 섹션
 
 ### 2. 시간 → Step 매핑 유틸리티
-- [ ] `lib/util/step_mapper_util.dart` 생성
-  - [ ] `mapTimeToStep(String? time)` 메서드 구현
-  - [ ] `stepToKorean(int step)` 메서드 구현
-  - [ ] 시간대 구분 규칙 적용 (06:00-11:59=아침, 12:00-17:59=낮, 18:00-23:59=저녁, 나머지=Anytime)
+- [x] `lib/util/step_mapper_util.dart` 생성
+  - [x] `mapTimeToStep(String? time)` 메서드 구현
+  - [x] `stepToKorean(int step)` 메서드 구현
+  - [x] 시간대 구분 규칙 적용 (06:00-11:59=아침, 12:00-17:59=낮, 18:00-23:59=저녁, 나머지=Anytime)
+  - [x] 단위 테스트 작성 및 통과 (`test/util/step_mapper_util_test.dart`)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2.2 섹션
 
@@ -126,19 +127,20 @@
 ### 7. 기능 모듈 구현 (화면 구성 전)
 
 #### 7-1. 일정 등록/수정 화면용 달력 위젯 모듈
-- [ ] `lib/app_custom/custom_calendar_picker.dart` 생성
-  - [ ] 기존 `CustomCalendar` 기반으로 날짜 선택 전용 위젯 구현
-  - [ ] 메인 화면 달력과 유사하나 단순화된 버전
-    - [ ] 이벤트 바 및 배지 제거 (날짜 선택에 집중)
-    - [ ] 날짜 선택 시 즉시 반영
-    - [ ] 선택된 날짜 강조 표시
-  - [ ] 다이얼로그 또는 풀스크린 모드 지원
-    - [ ] `showDialog`로 날짜 선택 다이얼로그 구현
-    - [ ] 선택된 날짜를 콜백으로 반환
-  - [ ] 테마 색상 적용 (context.palette 사용)
-  - [ ] 초기 날짜 설정 가능
-  - [ ] 날짜 변경 시 콜백 호출
-  - [ ] `home.dart`에서 모듈 테스트
+- [x] `lib/app_custom/custom_calendar_picker.dart` 생성
+  - [x] 기존 `CustomCalendar` 기반으로 날짜 선택 전용 위젯 구현
+  - [x] 메인 화면 달력과 유사하나 단순화된 버전
+    - [x] 이벤트 바 및 배지 제거 (날짜 선택에 집중) - `showEvents: false` 옵션 사용
+    - [x] 날짜 선택 시 즉시 반영
+    - [x] 선택된 날짜 강조 표시
+  - [x] 다이얼로그 또는 풀스크린 모드 지원
+    - [x] `showDialog`로 날짜 선택 다이얼로그 구현
+    - [x] 선택된 날짜를 콜백으로 반환
+  - [x] 테마 색상 적용 (context.palette 사용)
+  - [x] 초기 날짜 설정 가능
+  - [x] 날짜 변경 시 콜백 호출
+  - [x] `home.dart`에서 모듈 테스트
+  - [x] `CustomCalendar`에 `showEvents` 옵션 추가 (기존 클래스 재사용 방식 채택)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2.2, 3장 섹션
 

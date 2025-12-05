@@ -5,18 +5,18 @@ import '../theme/app_colors.dart';
 /// DailyFlow 앱 전용 달력 위젯
 ///
 /// TableCalendar 패키지를 기반으로 구현된 커스텀 달력 위젯입니다.
-/// 메인 화면에서 월간 달력을 표시하며, 날짜별 일정 정보를 시각적으로 표현합니다.
+/// 메인 화면과 일정 등록/수정 화면에서 모두 사용할 수 있습니다.
 ///
 /// 주요 기능:
 /// - 날짜 선택 및 포커스 관리
-/// - 날짜별 일정 갯수 원형 배지 표시
-/// - 날짜별 진행도 미니 바 표시 (완료된 Todo / 전체 Todo 비율)
+/// - 날짜별 일정 갯수 원형 배지 표시 (옵션)
+/// - 날짜별 진행도 미니 바 표시 (옵션)
 /// - 오늘 날짜 강조 표시 (파란색 테두리)
 /// - 선택된 날짜 강조 표시 (배경색 + 테두리)
 /// - 다른 달 날짜 회색 처리
 /// - 라이트/다크 모드 자동 지원
 ///
-/// 사용 예시:
+/// 사용 예시 (메인 화면용 - 이벤트 표시):
 /// ```dart
 /// CustomCalendar(
 ///   selectedDay: DateTime.now(),
@@ -33,6 +33,22 @@ import '../theme/app_colors.dart';
 ///     return databaseHandler.queryDataByDate(formatDate(day));
 ///   },
 ///   calendarHeight: 400,
+///   showEvents: true, // 기본값: true
+/// )
+/// ```
+///
+/// 사용 예시 (일정 등록/수정 화면용 - 이벤트 숨김):
+/// ```dart
+/// CustomCalendar(
+///   selectedDay: _selectedDate,
+///   focusedDay: _selectedDate,
+///   onDaySelected: (selectedDay, focusedDay) {
+///     setState(() {
+///       _selectedDate = selectedDay;
+///     });
+///   },
+///   eventLoader: (day) => [], // 빈 리스트 반환
+///   showEvents: false, // 이벤트 표시 안 함
 /// )
 /// ```
 ///
@@ -112,6 +128,14 @@ class CustomCalendar extends StatelessWidget {
   /// 예: MediaQuery.of(context).size.height * 0.4
   final double? calendarHeight;
 
+  /// 이벤트 표시 여부 (기본값: true)
+  ///
+  /// true: 날짜별 일정 갯수 배지와 이벤트 바 표시 (메인 화면용)
+  /// false: 이벤트 표시 안 함 (일정 등록/수정 화면용)
+  ///
+  /// 일정 등록/수정 화면에서는 날짜 선택에 집중하기 위해 이벤트 표시를 숨길 수 있습니다.
+  final bool showEvents;
+
   const CustomCalendar({
     super.key,
     required this.selectedDay,
@@ -119,6 +143,7 @@ class CustomCalendar extends StatelessWidget {
     required this.onDaySelected,
     required this.eventLoader,
     this.calendarHeight,
+    this.showEvents = true,
   });
 
   @override
@@ -418,6 +443,11 @@ class CustomCalendar extends StatelessWidget {
         // 이벤트 마커 빌더: 이벤트가 있는 날짜에 하단 언더바 및 이벤트 개수 배지 표시
         // TableCalendar의 기본 셀 구조를 유지하고, markerBuilder를 통해 이벤트 표시 오버레이
         markerBuilder: (context, date, events) {
+          // showEvents가 false면 이벤트 표시 안 함 (일정 등록/수정 화면용)
+          if (!showEvents) {
+            return const SizedBox.shrink();
+          }
+
           // 날짜별 Todo 개수 계산
           // events 파라미터는 eventLoader에서 반환된 리스트입니다.
           // eventLoader가 호출되어 해당 날짜의 Todo 리스트를 조회하고,

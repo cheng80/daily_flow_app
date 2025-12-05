@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:daily_flow_app/vm/database_handler.dart';
-import 'package:daily_flow_app/model/todo_model.dart';
-import 'package:daily_flow_app/model/deleted_todo_model.dart';
 import '../util/test_helpers.dart';
 
 void main() {
@@ -104,18 +102,19 @@ void main() {
         await Future.delayed(Duration(seconds: 1));
 
         // When: Todo 수정
-        final updatedTodo = todo.copyWith(
-          id: insertedId,
-          title: "수정됨",
-        );
+        final updatedTodo = todo.copyWith(id: insertedId, title: "수정됨");
         await dbHandler.updateData(updatedTodo);
 
         // Then: updated_at이 갱신되었는지 확인
         final retrieved = await dbHandler.queryDataById(insertedId);
         expect(retrieved!.updatedAt, isNot(equals(originalUpdatedAt)));
         // 또는 시간이 더 최신인지 확인
-        final originalTime = DateTime.parse(originalUpdatedAt.replaceAll(' ', 'T'));
-        final updatedTime = DateTime.parse(retrieved.updatedAt.replaceAll(' ', 'T'));
+        final originalTime = DateTime.parse(
+          originalUpdatedAt.replaceAll(' ', 'T'),
+        );
+        final updatedTime = DateTime.parse(
+          retrieved.updatedAt.replaceAll(' ', 'T'),
+        );
         expect(updatedTime.isAfter(originalTime), isTrue);
       });
 
@@ -279,10 +278,7 @@ void main() {
         final deletedTodo = deletedTodos.first;
 
         // When: 완전 삭제 (다이얼로그 없이)
-        await dbHandler.realDeleteData(
-          deletedTodo,
-          showConfirmDialog: false,
-        );
+        await dbHandler.realDeleteData(deletedTodo, showConfirmDialog: false);
 
         // Then: deleted_todo에서 완전히 삭제되었는지 확인
         final deletedTodosAfter = await dbHandler.queryDeletedData();
@@ -294,14 +290,8 @@ void main() {
       setUp(() async {
         // 테스트 데이터 준비 (삭제된 Todo들)
         final todos = [
-          TestHelpers.createDummyTodo(
-            title: "삭제된 일정 1",
-            date: "2024-01-15",
-          ),
-          TestHelpers.createDummyTodo(
-            title: "삭제된 일정 2",
-            date: "2024-01-16",
-          ),
+          TestHelpers.createDummyTodo(title: "삭제된 일정 1", date: "2024-01-15"),
+          TestHelpers.createDummyTodo(title: "삭제된 일정 2", date: "2024-01-16"),
         ];
 
         for (final todo in todos) {
@@ -365,4 +355,3 @@ void main() {
     });
   });
 }
-

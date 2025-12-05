@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:daily_flow_app/model/deleted_todo_model.dart';
-import 'package:daily_flow_app/model/todo_model.dart';
 import '../util/test_helpers.dart';
 
 void main() {
