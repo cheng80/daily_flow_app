@@ -30,7 +30,7 @@ class CreateTodoView extends StatefulWidget {
 
 class _CreateTodoViewState extends State<CreateTodoView> {
   /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
-  late bool _themeBool;
+  // late bool _themeBool;
 
   /// 데이터베이스 핸들러
   late DatabaseHandler _handler;
@@ -63,7 +63,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   @override
   void initState() {
     super.initState();
-    _themeBool = false;
+    // _themeBool = false;
     _selectedDay = widget.initialDate ?? DateTime.now();
     _handler = DatabaseHandler();
   }
@@ -94,16 +94,22 @@ class _CreateTodoViewState extends State<CreateTodoView> {
           "일정 등록",
           style: TextStyle(color: p.textOnPrimary, fontSize: 24),
         ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: p.textOnPrimary),
+        //   onPressed: () {
+        //     CustomNavigationUtil.back(context);
+        //   },
+        // ),
         actions: [
-          Switch(
-            value: _themeBool,
-            onChanged: (value) {
-              setState(() {
-                _themeBool = value;
-              });
-              widget.onToggleTheme();
-            },
-          ),
+          // Switch(
+          //   value: _themeBool,
+          //   onChanged: (value) {
+          //     setState(() {
+          //       _themeBool = value;
+          //     });
+          //     widget.onToggleTheme();
+          //   },
+          // ),
         ],
       ),
 
@@ -549,7 +555,6 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     }
   }
 
-
   /// Todo 저장
   Future<void> _saveTodo() async {
     // 제목 필수 입력 검증
@@ -592,7 +597,9 @@ class _CreateTodoViewState extends State<CreateTodoView> {
 
       // 디버그: 저장할 데이터 확인
       print("=== Todo 저장 ===");
-      print("todo: id=${todo.id}, step=${todo.step}, time=${todo.time}, hasAlarm=${todo.hasAlarm}");
+      print(
+        "todo: id=${todo.id}, step=${todo.step}, time=${todo.time}, hasAlarm=${todo.hasAlarm}",
+      );
       print("_selectedStep: $_selectedStep, finalTime: $finalTime");
 
       // 데이터베이스에 저장
@@ -603,7 +610,9 @@ class _CreateTodoViewState extends State<CreateTodoView> {
       final verifyTodo = await _handler.queryDataById(id);
       if (verifyTodo != null) {
         print("=== 저장 후 DB 확인 ===");
-        print("DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}");
+        print(
+          "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}",
+        );
       }
 
       // 저장 성공 다이얼로그

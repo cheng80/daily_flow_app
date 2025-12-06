@@ -11,16 +11,41 @@ enum PageTransitionType {
 }
 
 /// 스와이프 백 제스처가 비활성화된 PageRoute
-/// fullscreenDialog: true를 사용하여 iOS 스와이프 백을 완전히 차단
+/// PopScope를 사용하여 iOS 스와이프 백을 완전히 차단
 class _NoSwipeBackPageRoute<T> extends PageRouteBuilder<T> {
   _NoSwipeBackPageRoute({
     required WidgetBuilder builder,
     RouteSettings? settings,
     PageTransitionType transitionType = PageTransitionType.slide,
   }) : super(
-          pageBuilder: (context, animation, secondaryAnimation) => builder(context),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            // PopScope로 감싸서 스와이프 백 제스처만 차단 (뒤로가기 버튼은 허용)
+            return PopScope(
+              canPop: true, // 뒤로가기 버튼은 허용
+              onPopInvokedWithResult: (bool didPop, dynamic result) {
+                // 스와이프 백 제스처로 인한 pop은 무시
+                // 프로그래밍 방식의 pop(Navigator.pop)은 허용
+                if (didPop) {
+                  // 이미 pop이 발생했으므로 다시 push하여 복구
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (Navigator.canPop(context) == false) {
+                      Navigator.push<T>(
+                        context,
+                        _NoSwipeBackPageRoute<T>(
+                          builder: builder,
+                          settings: settings,
+                          transitionType: transitionType,
+                        ),
+                      );
+                    }
+                  });
+                }
+              },
+              child: builder(context),
+            );
+          },
           settings: settings,
-          fullscreenDialog: true, // iOS 스와이프 백 완전 차단
+          // fullscreenDialog: true 제거 (이것이 X 아이콘을 표시하는 원인)
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             switch (transitionType) {
               case PageTransitionType.slide:

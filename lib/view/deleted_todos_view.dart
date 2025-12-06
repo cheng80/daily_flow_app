@@ -23,7 +23,7 @@ class DeletedTodosView extends StatefulWidget {
 
 class _DeletedTodosViewState extends State<DeletedTodosView> {
   /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
-  late bool _themeBool;
+  // late bool _themeBool;
 
   /// 데이터베이스 핸들러
   late DatabaseHandler _handler;
@@ -38,7 +38,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
   @override
   void initState() {
     super.initState();
-    _themeBool = false;
+    // _themeBool = false;
     _handler = DatabaseHandler();
     _selectedDateFilter = null; // 기본값: 전체
     _sortByTime = false; // 기본값: 시간순
@@ -60,16 +60,22 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
           "삭제 보관함",
           style: TextStyle(color: p.textOnPrimary, fontSize: 24),
         ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: p.textOnPrimary),
+        //   onPressed: () {
+        //     CustomNavigationUtil.back(context);
+        //   },
+        // ),
         actions: [
-          Switch(
-            value: _themeBool,
-            onChanged: (value) {
-              setState(() {
-                _themeBool = value;
-              });
-              widget.onToggleTheme();
-            },
-          ),
+          // Switch(
+          //   value: _themeBool,
+          //   onChanged: (value) {
+          //     setState(() {
+          //       _themeBool = value;
+          //     });
+          //     widget.onToggleTheme();
+          //   },
+          // ),
         ],
       ),
       body: CustomColumn(

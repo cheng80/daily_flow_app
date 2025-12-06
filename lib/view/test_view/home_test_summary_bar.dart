@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../custom/custom.dart';
-import '../theme/app_colors.dart';
-import '../app_custom/app_common_util.dart';
+import '../../custom/custom.dart';
+import '../../theme/app_colors.dart';
+import '../../app_custom/app_common_util.dart';
 
 /// 서머리바 위젯 테스트 화면
 ///
@@ -36,7 +36,7 @@ class _HomeTestSummaryBarState extends State<HomeTestSummaryBar> {
   double _eveningRatio = 0.2;
 
   /// 야간 비율 (0.0 ~ 1.0)
-  double _nightRatio = 0.1;
+  final double _nightRatio = 0.1;
 
   /// Anytime 비율 (0.0 ~ 1.0)
   double _anytimeRatio = 0.2;
@@ -67,10 +67,7 @@ class _HomeTestSummaryBarState extends State<HomeTestSummaryBar> {
     return Scaffold(
       backgroundColor: p.background,
       appBar: CustomAppBar(
-        title: CustomText(
-          "서머리바 테스트",
-          style: TextStyle(color: p.textPrimary),
-        ),
+        title: CustomText("서머리바 테스트", style: TextStyle(color: p.textPrimary)),
         actions: [
           Switch(
             value: _themeBool,
@@ -307,4 +304,3 @@ class _HomeTestSummaryBarState extends State<HomeTestSummaryBar> {
     );
   }
 }
-

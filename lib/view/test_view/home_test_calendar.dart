@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../custom/custom.dart';
-import '../app_custom/custom_calendar.dart';
-import '../theme/app_colors.dart';
+import '../../custom/custom.dart';
+import '../../app_custom/custom_calendar.dart';
+import '../../theme/app_colors.dart';
 
 /// 메인 화면용 캘린더 위젯 테스트 화면
 ///
@@ -69,10 +69,7 @@ class _HomeTestCalendarState extends State<HomeTestCalendar> {
     return Scaffold(
       backgroundColor: p.background,
       appBar: CustomAppBar(
-        title: CustomText(
-          "캘린더 테스트",
-          style: TextStyle(color: p.textPrimary),
-        ),
+        title: CustomText("캘린더 테스트", style: TextStyle(color: p.textPrimary)),
         actions: [
           Switch(
             value: _themeBool,
@@ -349,4 +346,3 @@ class _HomeTestCalendarState extends State<HomeTestCalendar> {
     );
   }
 }
-

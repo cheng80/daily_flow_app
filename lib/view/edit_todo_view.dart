@@ -30,7 +30,7 @@ class EditTodoView extends StatefulWidget {
 
 class _EditTodoViewState extends State<EditTodoView> {
   /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
-  late bool _themeBool;
+  // late bool _themeBool;
 
   /// 데이터베이스 핸들러
   late DatabaseHandler _handler;
@@ -62,7 +62,7 @@ class _EditTodoViewState extends State<EditTodoView> {
   @override
   void initState() {
     super.initState();
-    _themeBool = false;
+    // _themeBool = false;
     _handler = DatabaseHandler();
 
     // 기존 Todo 데이터로 초기화
@@ -101,16 +101,22 @@ class _EditTodoViewState extends State<EditTodoView> {
           "일정 수정",
           style: TextStyle(color: p.textOnPrimary, fontSize: 24),
         ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back, color: p.textOnPrimary),
+        //   onPressed: () {
+        //     CustomNavigationUtil.back(context);
+        //   },
+        // ),
         actions: [
-          Switch(
-            value: _themeBool,
-            onChanged: (value) {
-              setState(() {
-                _themeBool = value;
-              });
-              widget.onToggleTheme();
-            },
-          ),
+          // Switch(
+          //   value: _themeBool,
+          //   onChanged: (value) {
+          //     setState(() {
+          //       _themeBool = value;
+          //     });
+          //     widget.onToggleTheme();
+          //   },
+          // ),
         ],
       ),
 
