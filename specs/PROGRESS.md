@@ -9,24 +9,26 @@
 ### 1. 데이터베이스 설계 및 구현 ✅
 
 #### 1.1 Model 클래스 생성
+
 - ✅ `lib/model/todo_model.dart` - 활성 일정 모델 클래스
   - 스펙 문서 `daily_flow_db_spec.md`의 todo 테이블 구조 기반
   - `fromMap()`, `toMap()`, `copyWith()`, `createNew()` 메서드 구현
   - 상세한 한국어 주석 포함
-  
 - ✅ `lib/model/deleted_todo_model.dart` - 삭제된 일정 모델 클래스
   - 스펙 문서 `daily_flow_db_spec.md`의 deleted_todo 테이블 구조 기반
   - `fromMap()`, `toMap()`, `fromTodo()`, `copyWith()` 메서드 구현
   - 상세한 한국어 주석 포함
 
 #### 1.2 DatabaseHandler 구현
+
 - ✅ `lib/vm/database_handler.dart` - 데이터베이스 관리 클래스
   - GetX 제거 완료 (순수 Flutter로 전환)
   - CustomSnackBar/Dialog 통합
   - 스펙 문서 기준 테이블 구조 구현
   - 인덱스 4개 생성 (idx_todo_date, idx_todo_date_step, idx_deleted_todo_date, idx_deleted_todo_deleted_at)
-  
+
 **주요 기능:**
+
 - Todo CRUD: 조회, 생성, 수정, 완료 토글
 - 소프트 삭제: `todo` → `deleted_todo` 이동
 - 복구: `deleted_todo` → `todo` 이동
@@ -36,6 +38,7 @@
 ### 2. UI 컴포넌트 커스터마이징 ✅
 
 #### 2.1 TableCalendar 커스터마이징
+
 - ✅ `lib/app_custom/custom_calendar.dart` - 메인 화면용 캘린더 위젯
   - 로케일 설정 (한국어)
   - 오늘 날짜와 선택된 날짜 구분 표시
@@ -46,6 +49,7 @@
   - 10개 이상 이벤트 시 빨간색 배지로 강조
 
 #### 2.2 테스트 화면 구조 개선
+
 - ✅ 기능별 테스트 화면 분리
   - `lib/view/home_test_calendar.dart` - 캘린더 테스트 화면
   - `lib/view/home_test_summary_bar.dart` - 서머리바 테스트 화면
@@ -53,13 +57,15 @@
   - 각 테스트 화면에 테마 토글 기능 포함
 
 #### 2.3 시간 → Step 매핑 유틸리티 구현
+
 - ✅ `lib/util/step_mapper_util.dart` 생성
   - 시간 문자열('HH:MM')을 Step 값으로 변환하는 기능 제공
-  - 시간대 구분 규칙 적용 (06:00-11:59=아침, 12:00-17:59=낮, 18:00-23:59=저녁, 나머지=Anytime)
+  - 시간대 구분 규칙 적용 (06:00-11:59=오전, 12:00-17:59=오후, 18:00-23:59=저녁, 나머지=종일)
   - Step 값을 한국어 문자열로 변환하는 기능 제공
   - 단위 테스트 작성 및 통과 (10개 테스트 모두 통과)
 
 #### 2.4 일정 등록/수정 화면용 날짜 선택 위젯 구현
+
 - ✅ `lib/app_custom/custom_calendar_picker.dart` 생성
   - 다이얼로그 형식: `CustomCalendarPicker.showDatePicker()` 메서드
   - 화면 배치 형식: `CustomCalendarPickerWidget` 위젯
@@ -68,33 +74,87 @@
 - ✅ `CustomCalendar`에 `showEvents` 옵션 추가
   - 메인 화면용(이벤트 표시)과 일정 등록/수정 화면용(이벤트 숨김) 구분 가능
   - 코드 재사용성 향상
+- ✅ 날짜 선택 위젯 테스트 페이지 분리
+  - `lib/view/home_test_calendar_picker.dart` 생성
+  - 다이얼로그 형식과 화면 배치 형식 모두 테스트 가능
+  - `home.dart`에서 불필요한 레이아웃 제거 및 코드 정리
+
+#### 2.5 Filter Radio 모듈 구현
+
+- ✅ `lib/app_custom/custom_filter_radio.dart` 생성
+  - CustomFilterRadio 기반으로 5개 라디오 구현 (전체/오전/오후/저녁/종일)
+  - Summary Bar 색상과 동일한 색상 적용 (progressMorning, progressNoon, progressEvening, progressAnytime)
+  - 선택된 Step 값 반환 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=종일)
+  - 단일 선택 모드 (하나만 선택 가능)
+  - 테마 색상 자동 적용
+  - 텍스트 색상 자동 조정 (배경색 밝기에 따라)
+  - 테스트 페이지 생성 (`home_test_filter_radio.dart`) 및 검증 완료
+
+#### 2.6 메인 화면 구현
+
+- ✅ `lib/view/main_view.dart` 구현
+  - TableCalendar 통합 및 이벤트 표시 (캐싱 방식)
+  - Summary Bar 구현 및 선택된 날짜 기준 Step별 비율 자동 계산
+  - Filter Radio 구현 (전체/오전/오후/저녁/종일)
+  - Todo List 구현 (CustomListView + Slidable)
+  - 날짜 선택 시 데이터 자동 갱신 로직
+  - DatabaseHandler API 문서 생성 (`lib/vm/DATABASE_HANDLER_API.md`)
+
+#### 2.7 네비게이션 유틸리티 통합
+
+- ✅ `CustomNavigationUtil`로 모든 네비게이션 호출 통일
+  - `Navigator.push` → `CustomNavigationUtil.to`
+  - `Navigator.pop` → `CustomNavigationUtil.back`
+  - 모든 커스텀 위젯 및 화면에 적용 완료
+
+#### 2.8 더미 데이터 관리 기능
+
+- ✅ 더미 데이터 삽입 기능 개선
+  - 2025년 12월 데이터 생성
+  - 오늘 날짜 데이터 자동 포함
+  - 중복 삽입 방지 로직 추가
+- ✅ 모든 데이터 삭제 기능 추가 (드로어에 배치)
 
 ### 3. 문서 업데이트 ✅
 
 #### 3.1 REFERENCE.md 업데이트
+
 - ✅ 테스트 페이지 구조 및 명명 규칙 명시
 - ✅ 개발 작업 스타일 및 우선순위 섹션 추가
   - 기능 모듈 우선 개발, 화면 구성은 후순위 원칙 명시
   - 작업 순서 및 흐름 예시 추가
+- ✅ Step 값 및 시간대 용어 업데이트 (오전/오후/저녁/종일)
+- ✅ 네비게이션 유틸리티 사용 규칙 명시
+
+#### 3.2 DatabaseHandler API 문서 생성
+
+- ✅ `lib/vm/DATABASE_HANDLER_API.md` 생성
+  - 모든 메서드 목록 및 사용법 정리
+  - 파라미터, 반환 타입, 설명 표로 정리
+  - 사용 예시 코드 포함
 
 ### 4. 설계 결정 사항 ✅
 
 #### 4.1 상태 관리
+
 - ✅ GetX 제거 결정
 - ✅ 순수 Flutter (StatefulWidget) 사용
 - ✅ 네비게이션: Navigator.push() 사용
 
 #### 4.2 UI 컴포넌트
+
 - ✅ CustomSnackBar 사용 (에러/성공 메시지)
 - ✅ CustomDialog 사용 (확인 다이얼로그)
 - ✅ lib_doc의 커스텀 위젯 우선 사용
 
 #### 4.3 데이터베이스
+
 - ✅ SQLite (sqflite 패키지)
 - ✅ 스펙 문서의 컬럼명 및 타입 준수
 - ✅ 소프트 삭제 구조 (휴지통 기능)
 
 #### 4.4 코드 품질 개선
+
 - ✅ SQL 쿼리 가독성 개선 (multi-line 문자열 사용)
 - ✅ 스펙 문서 참조 주석 제거 및 자체 설명 주석으로 통합
 
@@ -102,7 +162,11 @@
 
 ## 🚧 진행 중인 작업
 
-현재 진행 중인 작업 없음
+### 메인 화면 기능 개선
+
+- Summary Bar 비율 계산 로직 구현 완료
+- 달력 이벤트 표시 로직 개선 (캐싱 방식)
+- Todo List Slidable 액션 구현 완료
 
 ---
 
@@ -110,15 +174,16 @@
 
 ### 1. 기능 모듈 구현 (화면 구성 전) 🔴 높은 우선순위
 
-#### 1.1 일정 등록/수정 화면용 달력 위젯 모듈
-- [ ] `lib/app_custom/custom_calendar_picker.dart` 생성
-  - 기존 `CustomCalendar` 기반으로 날짜 선택 전용 위젯 구현
-  - 메인 화면 달력과 유사하나 단순화된 버전 (이벤트 바 및 배지 제거)
-  - 날짜 선택 시 즉시 반영
-  - 다이얼로그 또는 풀스크린 모드 지원
-  - 테마 색상 적용
+#### 1.1 Filter Chips 모듈 ✅
+- ✅ `lib/app_custom/custom_filter_chips.dart` 생성
+  - CustomChip 기반으로 5개 칩 구현 (전체/오전/오후/저녁/종일)
+  - Summary Bar 색상과 동일한 색상 적용
+  - 선택된 Step 값 반환 (null = 전체, 0~3 = Step)
+  - 단일 선택 모드 (하나만 선택 가능)
+  - 테스트 페이지 생성 및 검증 완료
 
 #### 1.2 알람 기능 모듈
+
 - [ ] `lib/service/notification_service.dart` 생성
   - `flutter_local_notifications` 초기화
   - 알람 등록/취소/업데이트 메서드
@@ -126,25 +191,28 @@
   - 알람 정책 구현 (1 Todo당 최대 1개 알람, has_alarm=true AND time IS NOT NULL일 때만 등록)
 
 ### 2. 유틸리티 클래스 생성
+
 - [ ] `lib/util/step_mapper_util.dart` - 시간 → Step 매핑
-  - 시간대 구분: 아침(06:00-11:59), 낮(12:00-17:59), 저녁(18:00-23:59), Anytime(나머지)
+  - 시간대 구분: 오전(06:00-11:59), 오후(12:00-17:59), 저녁(18:00-23:59), 종일(나머지)
   - `mapTimeToStep(String? time)` 메서드
   - `stepToKorean(int step)` 메서드
 
 ### 3. 화면 구현 🟡 중간 우선순위 (기능 모듈 완료 후)
+
 - [ ] 메인 화면 (Main View)
   - TableCalendar 통합
   - Summary Bar 구현
   - Filter Chips 구현
   - Todo List (체크박스 + Slidable)
-  
 - [ ] 일정 등록 화면 (Create Todo)
+
   - 날짜/시간 선택
   - 제목/메모 입력
   - Step 선택
   - 저장 기능
 
 - [ ] 일정 수정 화면 (Edit Todo)
+
   - 기존 데이터 로드
   - 수정 기능
   - 삭제 기능
@@ -160,10 +228,21 @@
 
 ### 2024년 (최근 작업)
 
+#### 테스트 페이지 구조 개선 및 코드 정리
+
+- 날짜 선택 위젯 테스트 페이지 분리
+  - `home_test_calendar_picker.dart` 생성
+  - 다이얼로그 형식과 화면 배치 형식 모두 테스트 가능한 별도 페이지로 분리
+  - `home.dart`에서 불필요한 레이아웃 및 중복 코드 제거
+- `create_todo_view.dart` 코드 정리
+  - Summary Bar 관련 불필요한 코드 제거
+  - 사용하지 않는 import 및 필드 정리
+
 #### 기능 모듈 구현 및 문서 업데이트
+
 - 시간 → Step 매핑 유틸리티 구현 완료
   - `StepMapperUtil` 클래스 생성 및 단위 테스트 작성
-  - 시간대 구분 규칙 적용 (아침/낮/저녁/Anytime)
+  - 시간대 구분 규칙 적용 (오전/오후/저녁/종일)
 - 일정 등록/수정 화면용 날짜 선택 위젯 구현 완료
   - 다이얼로그 형식과 화면 배치 형식 두 가지 방식 제공
   - `CustomCalendar`에 `showEvents` 옵션 추가하여 코드 재사용성 향상
@@ -174,6 +253,7 @@
 ### 2024년 (이전 작업)
 
 #### UI 컴포넌트 커스터마이징 및 테스트 구조 개선
+
 - TableCalendar 커스터마이징 완료
   - 날짜 셀 스타일링 (둥근 사각형, 오늘/선택 날짜 구분)
   - 이벤트 표시 (하단 언더바 + 숫자 배지)
@@ -187,6 +267,7 @@
   - 스펙 문서 참조 주석 제거 및 자체 설명 주석으로 통합
 
 #### 데이터베이스 및 모델 구현
+
 - Model 클래스 생성 완료
 - DatabaseHandler 수정 완료
 - GetX 제거 및 CustomSnackBar/Dialog 통합 완료
@@ -197,12 +278,14 @@
 ## 🔍 검증 필요 사항
 
 ### 데이터베이스
+
 - [ ] DB 초기화 테스트
 - [ ] CRUD 동작 테스트
 - [ ] 소프트 삭제/복구 플로우 테스트
 - [ ] 인덱스 성능 확인
 
 ### 모델 클래스
+
 - [ ] fromMap/toMap 변환 정확성 확인
 - [ ] copyWith 메서드 동작 확인
 - [ ] createNew 메서드 날짜 형식 확인
@@ -214,4 +297,3 @@
 - `daily_flow_db_spec.md` - 데이터베이스 스펙
 - `dailyflow_design_spec.md` - 화면 설계 스펙
 - `lib_doc/` - 커스텀 위젯 문서
-

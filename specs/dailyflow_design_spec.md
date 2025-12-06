@@ -25,7 +25,7 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 [AppBar]
 [Monthly Calendar]
 [Time Summary Bar (4색 비율 표시)]
-[Filter Chips: 전체 | 아침 | 낮 | 저녁 | Anytime]
+[Filter Radio: 전체 | 오전 | 오후 | 저녁 | 종일]
 [Todo List (Checkbox + Slidable)]
 [Floating Action Button]
 ```
@@ -63,14 +63,14 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 
 ## 1.4 Time Summary Bar (하루 시간대 비율 바)
 
-- 구성: 아침 / 낮 / 저녁 / Anytime 4색 수평 바
+- 구성: 오전 / 오후 / 저녁 / 종일 4색 수평 바
 - 각 색상 구간의 너비는 **해당 Step의 Todo 수 비율**로 계산
 - UI 구성은 커스텀 위젯 `actionFourRangeBar` 함수를 통해 구현하며, 4개 색상 세그먼트를 비율 기반으로 배치한다.
 
 예:
 
 ```
-[■■ 아침 20%][■■■■ 낮 40%][■ 저녁 10%][■■ Anytime 30%]
+[■■ 오전 20%][■■■■ 오후 40%][■ 저녁 10%][■■ 종일 30%]
 ```
 
 - 직관적으로 어떤 시간대에 할 일이 몰렸는지 한눈에 파악 가능
@@ -83,10 +83,10 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 - 기본 선택: **전체**
 - 선택 가능한 칩:
   - 전체
-  - 아침
-  - 낮
+  - 오전
+  - 오후
   - 저녁
-  - Anytime
+  - 종일
 - 칩 색상은 Summary Bar의 색상과 동일함
 - 칩 선택 시 Todo 리스트가 해당 Step 항목만 필터링되어 표시됨
 
@@ -147,7 +147,7 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 
 - 선택 방식 두 가지 지원:
   1. TimePicker(시·분 선택)
-  2. 드롭다운(아침/낮/저녁/Anytime)
+  2. 드롭다운(오전/오후/저녁/종일)
 - 시간이 직접 선택되면 자동으로 4단계 카테고리에 매핑됨
 - 사용자가 굳이 Step을 고르지 않아도 시간 기반으로 자동 분류 가능
 
@@ -163,8 +163,8 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 
 ### Step 선택
 
-- Dropdown: 아침 / 낮 / 저녁 / Anytime
-- 기본값 Anytime
+- Dropdown: 오전 / 오후 / 저녁 / 종일
+- 기본값 종일
 
 ### 저장 버튼
 
@@ -204,7 +204,7 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 ```
 [AppBar: 선택된 날짜]
 [상단 요약 카드 (메인과 동일하나 정보 강조 버전)]
-[필터 칩 (전체/아침/낮/저녁/Anytime)]
+[필터 라디오 (전체/오전/오후/저녁/종일)]
 [Todo 상세 리스트]
 ```
 
@@ -230,7 +230,7 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 [중요도 라벨 색상 ●]
 [제목]
 [시간 표시 (선택된 경우)]
-[카테고리 배지 (아침/낮/저녁/Anytime)]
+[카테고리 배지 (오전/오후/저녁/종일)]
 [메모 미리보기 (1줄)]
 ----------------------------------
 탭 → 상세 정보 팝업/화면
@@ -256,7 +256,7 @@ Slidable → 좌: 삭제 / 우: 수정
 
 ### 카테고리 배지
 
-- 아침 / 낮 / 저녁 / Anytime
+- 오전 / 오후 / 저녁 / 종일
 - Summary Bar/필터 칩과 동일 색상 유지
 
 ---
@@ -318,7 +318,7 @@ Slidable → 좌: 삭제 / 우: 수정
 - memo
 - date
 - time (nullable)
-- step (아침/낮/저녁/Anytime 또는 enum/int)
+- step (오전/오후/저녁/종일 또는 enum/int)
 - priority (중요도, 1\~5단계)
 - is\_done (삭제 시점 완료 여부)
 - deleted\_at (삭제 일시)
@@ -353,7 +353,7 @@ Slidable → 좌: 삭제 / 우: 수정
 
 - 제목
 - 날짜 + 시간
-- 카테고리 배지 (아침/낮/저녁/Anytime)
+- 카테고리 배지 (오전/오후/저녁/종일)
 - 중요도 라벨 색상 (5단계 중 하나)
 - 삭제 일시 (deleted\_at)
 - 액션 버튼:
@@ -458,10 +458,10 @@ DailyFlow 앱의 모든 UI 색상은 "역할 기반(Role-based) 컬러 시스템
 | ChipSelectedText          | 선택된 필터 칩 텍스트         | `chipSelectedText`          |
 | ChipUnselectedBg          | 비선택 필터 칩 배경           | `chipUnselectedBg`          |
 | ChipUnselectedText        | 비선택 필터 칩 텍스트         | `chipUnselectedText`        |
-| ProgressMorning           | 아침 Summary 바              | `progressMorning`           |
-| ProgressNoon              | 낮 Summary 바                | `progressNoon`              |
+| ProgressMorning           | 오전 Summary 바              | `progressMorning`           |
+| ProgressNoon              | 오후 Summary 바                | `progressNoon`              |
 | ProgressEvening           | 저녁 Summary 바              | `progressEvening`           |
-| ProgressAnytime           | Anytime Summary 바           | `progressAnytime`           |
+| ProgressAnytime           | 종일 Summary 바           | `progressAnytime`           |
 | **PriorityVeryLow**       | 중요도 1단계(매우 낮음)       | `priorityVeryLow`           |
 | **PriorityLow**           | 중요도 2단계(낮음)           | `priorityLow`               |
 | **PriorityMedium**        | 중요도 3단계(보통)           | `priorityMedium`            |
@@ -484,10 +484,10 @@ DailyFlow 앱의 모든 UI 색상은 "역할 기반(Role-based) 컬러 시스템
 | ChipSelectedText   | 선택된 필터 칩 텍스트           | `chipSelectedText`   |
 | ChipUnselectedBg   | 선택되지 않은 필터 칩 배경        | `chipUnselectedBg`   |
 | ChipUnselectedText | 선택되지 않은 필터 칩 텍스트       | `chipUnselectedText` |
-| ProgressMorning    | "아침" Summary 구간 색      | `progressMorning`    |
-| ProgressNoon       | "낮" Summary 구간 색       | `progressNoon`       |
+| ProgressMorning    | "오전" Summary 구간 색      | `progressMorning`    |
+| ProgressNoon       | "오후" Summary 구간 색       | `progressNoon`       |
 | ProgressEvening    | "저녁" Summary 구간 색      | `progressEvening`    |
-| ProgressAnytime    | "Anytime" Summary 구간 색 | `progressAnytime`    |
+| ProgressAnytime    | "종일" Summary 구간 색 | `progressAnytime`    |
 
 이 표에 나온 역할 이름만을 UI 문서에 사용하며, 실제 색상 값(hex, ARGB 등)은 코드 레벨에서 관리한다.
 
@@ -501,10 +501,10 @@ DailyFlow 앱의 모든 UI 색상은 "역할 기반(Role-based) 컬러 시스템
 - "서브 텍스트: TextSecondary"
 - "필터 칩(선택): ChipSelectedBg / ChipSelectedText"
 - "필터 칩(비선택): ChipUnselectedBg / ChipUnselectedText"
-- "요약 Progress – 아침: ProgressMorning"
-- "요약 Progress – 낮: ProgressNoon"
+- "요약 Progress – 오전: ProgressMorning"
+- "요약 Progress – 오후: ProgressNoon"
 - "요약 Progress – 저녁: ProgressEvening"
-- "요약 Progress – Anytime: ProgressAnytime"
+- "요약 Progress – 종일: ProgressAnytime"
 
 이렇게 기록해 두면, 나중에 팔레트 색상(hex 값)을 변경하더라도 문서는 그대로 두고 코드만 수정해도 전체 UI 테마가 바뀌는 구조를 유지할 수 있다.
 

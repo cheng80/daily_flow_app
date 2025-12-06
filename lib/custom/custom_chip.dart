@@ -46,6 +46,8 @@ Color? _getThemeChipSelectedTextColor(BuildContext context) {
 /// ```dart
 /// CustomChip(label: "태그", onDeleted: () {})
 /// CustomChip(label: "필터", selectable: true, selected: true, onSelected: (selected) {})
+/// CustomChip(label: "고정 크기", width: 120) // 너비 고정
+/// CustomChip(label: "고정 크기", width: 120, height: 50) // 너비와 높이 모두 고정
 /// ```
 class CustomChip extends StatelessWidget {
   /// Chip에 표시할 라벨 (필수)
@@ -97,6 +99,12 @@ class CustomChip extends StatelessWidget {
   /// 툴팁 메시지
   final String? tooltip;
 
+  /// Chip의 너비 (지정하면 크기 고정, 생략하면 유동적)
+  final double? width;
+
+  /// Chip의 높이 (지정하면 크기 고정, 생략하면 유동적)
+  final double? height;
+
   const CustomChip({
     super.key,
     required this.label,
@@ -115,6 +123,8 @@ class CustomChip extends StatelessWidget {
     this.iconSize,
     this.deleteIcon,
     this.tooltip,
+    this.width,
+    this.height,
   }) : assert(
          !selectable || onSelected != null || !selected,
          'selectable이 true일 때 onSelected가 제공되어야 합니다.',
@@ -141,9 +151,11 @@ class CustomChip extends StatelessWidget {
       labelWidget = label as Widget;
     }
 
+    Widget chip;
+
     // 선택 가능한 Chip
     if (selectable) {
-      return ChoiceChip(
+      chip = ChoiceChip(
         label: labelWidget,
         selected: selected,
         onSelected: onSelected,
@@ -162,18 +174,28 @@ class CustomChip extends StatelessWidget {
                     _getThemeTextPrimaryColor(context) ??
                     Colors.black),
         ),
-        padding: padding,
+        padding:
+            padding ??
+            ((width != null || height != null) && selectable
+                ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+                : null),
         shape: borderRadius != null
             ? RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(borderRadius!),
               )
             : null,
+        // 크기 고정을 위해 visualDensity 조정
+        visualDensity: (width != null || height != null)
+            ? VisualDensity.compact
+            : null,
+        materialTapTargetSize: (width != null || height != null)
+            ? MaterialTapTargetSize.shrinkWrap
+            : null,
       );
     }
-
     // 삭제 가능한 Chip
-    if (onDeleted != null) {
-      return Chip(
+    else if (onDeleted != null) {
+      chip = Chip(
         label: labelWidget,
         onDeleted: onDeleted,
         avatar: avatar,
@@ -194,26 +216,38 @@ class CustomChip extends StatelessWidget {
             : null,
       );
     }
-
     // 기본 Chip
-    Widget chip = Chip(
-      label: labelWidget,
-      avatar: avatar,
-      backgroundColor: backgroundColor,
-      labelStyle: TextStyle(
-        color: labelColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black,
-      ),
-      padding: padding,
-      shape: borderRadius != null
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius!),
-            )
-          : null,
-    );
+    else {
+      chip = Chip(
+        label: labelWidget,
+        avatar: avatar,
+        backgroundColor: backgroundColor,
+        labelStyle: TextStyle(
+          color:
+              labelColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black,
+        ),
+        padding: padding,
+        shape: borderRadius != null
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius!),
+              )
+            : null,
+      );
+    }
 
     // tooltip이 있는 경우 Tooltip으로 감싸기
     if (tooltip != null) {
       chip = Tooltip(message: tooltip, child: chip);
+    }
+
+    // width 또는 height가 지정되면 크기 고정
+    if (width != null || height != null) {
+      chip = Container(
+        width: width,
+        height: height,
+        clipBehavior: Clip.none, // 선택 아이콘이 잘리지 않도록
+        child: chip,
+      );
     }
 
     return chip;

@@ -7,6 +7,7 @@
 ## 🔴 높은 우선순위 (즉시 필요)
 
 ### 1. 색상 시스템 보완
+
 - [x] `lib/theme/app_colors.dart` 수정
   - [x] 라이트 테마 색상 값 설정 (Material Design 가이드라인 준수)
   - [x] 다크 테마 색상 값 설정 (다크 모드 최적화)
@@ -24,32 +25,48 @@
 **참고:** 설계서 `dailyflow_design_spec.md` 9.3.1 섹션
 
 ### 2. 시간 → Step 매핑 유틸리티
+
 - [x] `lib/util/step_mapper_util.dart` 생성
   - [x] `mapTimeToStep(String? time)` 메서드 구현
   - [x] `stepToKorean(int step)` 메서드 구현
-  - [x] 시간대 구분 규칙 적용 (06:00-11:59=아침, 12:00-17:59=낮, 18:00-23:59=저녁, 나머지=Anytime)
+  - [x] 시간대 구분 규칙 적용 (06:00-11:59=오전, 12:00-17:59=오후, 18:00-23:59=저녁, 나머지=종일)
   - [x] 단위 테스트 작성 및 통과 (`test/util/step_mapper_util_test.dart`)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2.2 섹션
 
 ### 3. 메인 화면 구현
-- [ ] `lib/view/main/main_view.dart` 생성
-  - [ ] TableCalendar 통합
-  - [ ] Summary Bar 구현 (actionFourRangeBar 함수 사용)
-  - [ ] Filter Chips 구현 (전체/아침/낮/저녁/Anytime)
-  - [ ] Todo List 구현 (체크박스 + Slidable)
-  - [ ] FloatingActionButton 구현
-  - [ ] 날짜 선택 시 데이터 갱신 로직
+
+- [x] `lib/view/main_view.dart` 생성
+  - [x] TableCalendar 통합
+  - [x] Summary Bar 구현 (actionFourRangeBar 함수 사용)
+    - [x] 선택된 날짜 기준 Step별 비율 자동 계산 함수 구현
+    - [x] 날짜 선택 시마다 비율 자동 갱신
+  - [x] Filter Radio 구현 (전체/오전/오후/저녁/종일)
+    - [x] `lib/app_custom/custom_filter_radio.dart` 생성
+    - [x] CustomFilterRadio 기반으로 5개 라디오 구현
+    - [x] Summary Bar 색상과 동일한 색상 적용
+    - [x] 선택된 Step 값 반환 (null = 전체, 0~3 = Step)
+    - [x] 테스트 페이지 생성 및 검증 완료
+  - [x] Todo List 구현 (CustomListView + Slidable)
+    - [x] FutureBuilder로 데이터 조회
+    - [x] CustomCard로 Todo 표시
+    - [x] Slidable로 수정/삭제 액션 구현
+  - [x] FloatingActionButton 구현
+  - [x] 날짜 선택 시 데이터 갱신 로직
+    - [x] 달력 이벤트 캐싱 및 자동 로드
+    - [x] Summary Bar 비율 자동 계산
 
 **참고:** 설계서 `dailyflow_design_spec.md` 1장
 
 **작업 방식:**
+
 - `lib/view/home.dart`는 모듈 테스트/프로토타이핑 용도로만 사용
 - 각 커스텀 모듈 개발 완료 후 `home.dart`에서 테스트
 - 모든 모듈이 완료되면 `main_view.dart`에서 실제 화면 구성
 - 필요 시 추가 작업 요청
 
 ### 3-1. TableCalendar 커스텀 위젯 구현
+
 - [x] `lib/app_custom/custom_calendar.dart` 생성
   - [x] 기본 TableCalendar 위젯 래핑
   - [x] 날짜 셀 커스터마이징 (`calendarBuilders` 구현)
@@ -126,7 +143,20 @@
 
 ### 7. 기능 모듈 구현 (화면 구성 전)
 
+#### 7-0. Filter Chips 모듈 ✅
+
+- [x] `lib/app_custom/custom_filter_chips.dart` 생성
+  - [x] CustomChip 기반으로 5개 칩 구현 (전체/오전/오후/저녁/종일)
+  - [x] Summary Bar 색상과 동일한 색상 적용
+  - [x] 선택된 Step 값 반환 (null = 전체, 0~3 = Step)
+  - [x] 단일 선택 모드 (하나만 선택 가능)
+  - [x] 테스트 페이지 생성 (`home_test_filter_chips.dart`)
+  - [x] `home.dart`에 등록
+
+**참고:** 설계서 `dailyflow_design_spec.md` 1.5 섹션
+
 #### 7-1. 일정 등록/수정 화면용 달력 위젯 모듈
+
 - [x] `lib/app_custom/custom_calendar_picker.dart` 생성
   - [x] 기존 `CustomCalendar` 기반으로 날짜 선택 전용 위젯 구현
   - [x] 메인 화면 달력과 유사하나 단순화된 버전
@@ -141,10 +171,14 @@
   - [x] 날짜 변경 시 콜백 호출
   - [x] `home.dart`에서 모듈 테스트
   - [x] `CustomCalendar`에 `showEvents` 옵션 추가 (기존 클래스 재사용 방식 채택)
+  - [x] 날짜 선택 위젯 테스트 페이지 분리 (`home_test_calendar_picker.dart`)
+    - [x] 다이얼로그 형식과 화면 배치 형식 모두 테스트 가능
+    - [x] 별도 테스트 페이지로 분리하여 관리
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2.2, 3장 섹션
 
 #### 7-2. 알람 기능 모듈
+
 - [ ] `lib/service/notification_service.dart` 생성
   - [ ] flutter_local_notifications 초기화
     - [ ] Android 초기화 (채널 설정)
@@ -173,6 +207,7 @@
     - [ ] 알람 업데이트 테스트 버튼
 
 **테스트 환경:**
+
 - iOS 시뮬레이터: 알람 표시 가능 (실제 알람 소리는 제한적)
 - Android 에뮬레이터: 알람 표시 가능
 - 실기기: 모든 기능 완전 지원
@@ -186,35 +221,38 @@
 ### 8. 화면 구현 (기능 모듈 통합)
 
 #### 8-1. 일정 등록 화면
-  - [ ] `lib/view/create_todo/create_todo_view.dart` 생성
-    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
-    - [ ] 시간 선택 (TimePicker 또는 드롭다운)
-    - [ ] 제목 입력 (CustomTextField)
-    - [ ] 메모 입력 (CustomTextField, 멀티라인)
-    - [ ] Step 선택 (CustomDropdownButton)
-    - [ ] 중요도 선택 (1~5단계)
-    - [ ] 알람 설정 (Switch)
-    - [ ] 저장 버튼 (CustomButton)
-    - [ ] 시간 → Step 자동 매핑 로직
-    - [ ] NotificationService와 연동 (알람 등록)
-    - [ ] DatabaseHandler와 연동 (Todo 저장)
+
+- [ ] `lib/view/create_todo_view.dart` 생성
+  - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+  - [ ] 시간 선택 (TimePicker 또는 드롭다운)
+  - [ ] 제목 입력 (CustomTextField)
+  - [ ] 메모 입력 (CustomTextField, 멀티라인)
+  - [ ] Step 선택 (CustomDropdownButton)
+  - [ ] 중요도 선택 (1~5단계)
+  - [ ] 알람 설정 (Switch)
+  - [ ] 저장 버튼 (CustomButton)
+  - [ ] 시간 → Step 자동 매핑 로직
+  - [ ] NotificationService와 연동 (알람 등록)
+  - [ ] DatabaseHandler와 연동 (Todo 저장)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2장
 
 #### 8-2. 일정 수정 화면
-  - [ ] `lib/view/edit_todo/edit_todo_view.dart` 생성
-    - [ ] 기존 데이터 로드
-    - [ ] 수정 기능 (등록 화면과 유사)
-    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
-    - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
-    - [ ] 삭제 확인 Dialog (CustomDialog)
-    - [ ] NotificationService와 연동 (알람 업데이트/취소)
-    - [ ] DatabaseHandler와 연동 (Todo 수정/삭제)
+
+- [ ] `lib/view/edit_todo_view.dart` 생성
+  - [ ] 기존 데이터 로드
+  - [ ] 수정 기능 (등록 화면과 유사)
+  - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+  - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
+  - [ ] 삭제 확인 Dialog (CustomDialog)
+  - [ ] NotificationService와 연동 (알람 업데이트/취소)
+  - [ ] DatabaseHandler와 연동 (Todo 수정/삭제)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 3장
 
 ### 9. 하루 상세 화면
-- [ ] `lib/view/deleted_todos/deleted_todos_view.dart` 생성
+
+- [ ] `lib/view/deleted_todos_view.dart` 생성
   - [ ] 삭제된 Todo 리스트 표시
   - [ ] 필터 칩 (전체/오늘/7일/30일)
   - [ ] 복구 기능
@@ -224,7 +262,8 @@
 **참고:** 설계서 `dailyflow_design_spec.md` 6장
 
 ### 10. 설정 화면
-- [ ] `lib/view/settings/settings_view.dart` 생성
+
+- [ ] `lib/view/settings_view.dart` 생성
   - [ ] 라이트/다크 모드 토글 (현재는 홈 화면 앱바에 임시 구현됨)
   - [ ] 삭제 보관함 진입 버튼
   - [ ] 향후 확장 항목 (알람 기본 설정 등)
@@ -236,12 +275,12 @@
 ## 🧪 테스트 및 검증
 
 ### 단위 테스트
+
 - [x] Model 클래스 테스트
   - [x] Todo.fromMap/toMap 테스트
   - [x] DeletedTodo.fromMap/toMap 테스트
   - [x] copyWith 메서드 테스트
   - [x] 더미 데이터 생성 함수 작성 (`test/util/test_helpers.dart`)
-  
 - [x] DatabaseHandler 테스트
   - [x] CRUD 동작 테스트
   - [x] 소프트 삭제/복구 테스트
@@ -251,6 +290,7 @@
 **참고:** 테스트용 패키지 `sqflite_common_ffi`는 나중에 제거 요청 시 제거 예정입니다.
 
 ### 통합 테스트
+
 - [ ] 화면 간 네비게이션 테스트
 - [ ] 데이터 흐름 테스트
 - [ ] 알람 동작 테스트
@@ -260,12 +300,14 @@
 ## 📝 리팩토링 및 개선
 
 ### 코드 품질
+
 - [x] Repository 레이어 추가 검토 (결정: 현재 구조 유지)
   - [x] DatabaseHandler를 직접 사용하는 현재 구조 유지
   - [x] Repository 레이어는 추가하지 않음 (단순한 CRUD 작업, SQLite만 사용)
   - [x] 향후 네트워크 동기화나 복잡한 비즈니스 로직 추가 시 재검토
 
 ### 성능 최적화
+
 - [ ] 데이터베이스 쿼리 최적화
 - [ ] 위젯 리빌드 최적화
 - [ ] 이미지/리소스 최적화
@@ -275,11 +317,13 @@
 ## 🔍 확인 필요 사항
 
 ### 설계 검토
+
 - [ ] 시간 → Step 자동 매핑 규칙 최종 확인
-  - 현재 제안: 06:00-11:59=아침, 12:00-17:59=낮, 18:00-23:59=저녁, 나머지=Anytime
+  - 현재 제안: 06:00-11:59=오전, 12:00-17:59=오후, 18:00-23:59=저녁, 나머지=종일
   - 새벽 시간대(00:00-05:59) 처리 방식 확인 필요
 
 ### 알람 정책 세부화
+
 - [ ] 알람 취소 시점 명확화
   - Todo 삭제 시
   - 시간 변경 시
@@ -295,4 +339,3 @@
 - `PROGRESS.md` - 진행 상황 문서
 - `REFERENCE.md` - 참고사항 문서
 - `lib_doc/` - 커스텀 위젯 문서
-

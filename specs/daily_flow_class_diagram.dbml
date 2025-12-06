@@ -1,0 +1,271 @@
+// DailyFlow 앱 - 엔티티 관계 다이어그램
+// dbdiagram.io에서 시각화 가능
+// 
+// 이 문서는 앱의 핵심 엔티티와 관계를 도메인 중심으로 정의합니다.
+// 뷰 화면, 데이터베이스, 사용자 행위, 앱 데이터/응답 기준으로 구조화되었습니다.
+//
+// 포함 범위:
+// - 완료된 기능: 모든 구현 완료된 기능 및 관계
+// - 미완료 기능: 설계 문서에 명시된 미완료 기능들 (TODO.md 참조)
+//
+// 제외 범위 (고도화로 미뤄진 기능):
+// - Stepper 기반 플로우 화면
+// - 다국어 지원
+// - 다중 알람
+// - 공휴일 표시 기능
+//
+// 업데이트 참고사항:
+// - 개발이 완료되고 실제 연결들이 완료되면 이 다이어그램을 갱신해야 합니다.
+// - 실제 구현된 관계를 반영하여 Ref 관계를 추가/수정하세요.
+// - 논리적 관계는 Note에 명시되어 있으니, 실제 컬럼 참조가 생기면 Ref로 전환하세요.
+
+// ============================================
+// 1. 데이터베이스 (Database)
+// ============================================
+
+Table todo {
+  id              integer [pk, increment]
+  title           text    [not null]
+  memo            text
+  date            text    [not null]
+  time            text
+  step            integer [not null, default: 3]
+  priority        integer [not null, default: 3]
+  is_done         integer [not null, default: 0]
+  has_alarm       integer [not null, default: 0]
+  notification_id integer
+  created_at      text    [not null]
+  updated_at      text    [not null]
+
+  Note: '활성 일정 저장 테이블\nstep: 0=오전,1=오후,2=저녁,3=종일; priority:1~5; is_done/has_alarm:0/1'
+
+  Indexes {
+    (date) [name: 'idx_todo_date']
+    (date, step) [name: 'idx_todo_date_step']
+  }
+}
+
+Table deleted_todo {
+  id           integer [pk, increment]
+  original_id  integer
+  title        text    [not null]
+  memo         text
+  date         text    [not null]
+  time         text
+  step         integer [not null, default: 3]
+  priority     integer [not null, default: 3]
+  is_done      integer [not null, default: 0]
+  deleted_at   text    [not null]
+
+  Note: '삭제된 일정 보관 테이블 (휴지통)\n알람 정보는 저장하지 않음'
+
+  Indexes {
+    (date)       [name: 'idx_deleted_todo_date']
+    (deleted_at) [name: 'idx_deleted_todo_deleted_at']
+  }
+}
+
+// ============================================
+// 2. 뷰 화면 (View Screens)
+// ============================================
+
+Table MainView {
+  id integer [pk]
+
+  Note: '메인 화면 - 달력 + 일정 목록 + Summary Bar\n기능: 날짜 선택, Step 필터링, 일정 목록 표시, Summary Bar 비율 표시'
+}
+
+Table CreateTodoView {
+  id integer [pk]
+
+  Note: '일정 등록 화면 (미완료)\n기능: 날짜/시간 선택, 제목/메모 입력, Step 선택, 중요도 선택, 알람 설정, 저장'
+}
+
+Table EditTodoView {
+  id integer [pk]
+
+  Note: '일정 수정 화면 (미완료)\n기능: 기존 데이터 로드, 수정, 삭제'
+}
+
+Table DeletedTodosView {
+  id integer [pk]
+
+  Note: '삭제 보관함 화면 (미완료)\n기능: 삭제된 일정 목록 표시, 복구, 완전 삭제, 날짜 필터링'
+}
+
+Table SettingsView {
+  id integer [pk]
+
+  Note: '설정 화면 (미완료)\n기능: 라이트/다크 모드 토글, 삭제 보관함 진입'
+}
+
+// ============================================
+// 3. 사용자 행위 (User Actions)
+// ============================================
+
+Table SelectDate {
+  id integer [pk]
+  selectedDate datetime [not null]
+
+  Note: '사용자 행위: 날짜 선택\n트리거: MainView 달력에서 날짜 클릭\n결과: 해당 날짜의 일정 목록 표시, Summary Bar 갱신'
+}
+
+Table FilterByStep {
+  id integer [pk]
+  selectedStep integer
+
+  Note: '사용자 행위: Step 필터링 (전체/오전/오후/저녁/종일)\n트리거: MainView Filter Radio 선택\n결과: 선택된 Step의 일정만 필터링하여 표시'
+}
+
+Table CreateTodo {
+  id integer [pk]
+  title text [not null]
+  date text [not null]
+  time text
+  step integer [not null]
+  priority integer [not null]
+  hasAlarm boolean
+
+  Note: '사용자 행위: 일정 생성\n트리거: CreateTodoView에서 저장 버튼 클릭\n결과: todo 테이블에 INSERT, 알람 등록 (hasAlarm=true일 경우), MainView로 복귀 및 갱신'
+}
+
+Table UpdateTodo {
+  id integer [pk]
+  todoId integer [not null]
+  title text
+  date text
+  time text
+  step integer
+  priority integer
+  hasAlarm boolean
+
+  Note: '사용자 행위: 일정 수정\n트리거: EditTodoView에서 저장 버튼 클릭\n결과: todo 테이블 UPDATE, 알람 업데이트/취소, MainView로 복귀 및 갱신'
+}
+
+Table DeleteTodo {
+  id integer [pk]
+  todoId integer [not null]
+
+  Note: '사용자 행위: 일정 삭제 (소프트 삭제)\n트리거: MainView 또는 EditTodoView에서 삭제 버튼 클릭\n결과: todo → deleted_todo 이동, 알람 취소, MainView 갱신'
+}
+
+Table RestoreTodo {
+  id integer [pk]
+  deletedTodoId integer [not null]
+
+  Note: '사용자 행위: 삭제된 일정 복구\n트리거: DeletedTodosView에서 복구 버튼 클릭\n결과: deleted_todo → todo 이동, 알람은 비활성화 상태로 복구'
+}
+
+Table ToggleDone {
+  id integer [pk]
+  todoId integer [not null]
+  isDone boolean [not null]
+
+  Note: '사용자 행위: 완료 상태 토글\n트리거: MainView에서 체크박스 클릭\n결과: todo.is_done 업데이트'
+}
+
+Table SetAlarm {
+  id integer [pk]
+  todoId integer [not null]
+  hasAlarm boolean [not null]
+  time text
+
+  Note: '사용자 행위: 알람 설정/해제\n트리거: CreateTodoView 또는 EditTodoView에서 알람 스위치 토글\n결과: NotificationService를 통한 알람 등록/취소, todo.has_alarm 업데이트'
+}
+
+// ============================================
+// 4. 앱 데이터/응답 (App Data/Response)
+// ============================================
+
+Table TodoList {
+  id integer [pk]
+  date text [not null]
+  step integer
+
+  Note: '앱 응답: 일정 목록\n생성: DatabaseHandler.queryDataByDate() 또는 queryDataByDateAndStep()\n사용: MainView, DeletedTodosView에서 표시'
+}
+
+Table SummaryRatios {
+  id integer [pk]
+  date text [not null]
+  morningRatio double [not null]
+  noonRatio double [not null]
+  eveningRatio double [not null]
+  anytimeRatio double [not null]
+
+  Note: '앱 응답: Summary Bar 비율 데이터\n생성: CommonUtil.calculateSummaryRatios() - 선택된 날짜의 Todo를 Step별로 계산\n사용: MainView Summary Bar에 표시'
+}
+
+Table CalendarEvents {
+  id integer [pk]
+  date text [not null]
+  eventCount integer [not null]
+
+  Note: '앱 응답: 달력 이벤트 데이터\n생성: DatabaseHandler.queryDataByDate() - 날짜별 Todo 개수 계산\n사용: CustomCalendar에서 날짜 셀에 배지 표시'
+}
+
+Table FilteredTodos {
+  id integer [pk]
+  date text [not null]
+  step integer
+
+  Note: '앱 응답: 필터링된 일정 목록\n생성: FilterByStep 행위 후 DatabaseHandler.queryDataByDateAndStep()\n사용: MainView Todo List에 표시'
+}
+
+// ============================================
+// 5. 관계 정의 (Relationships)
+// ============================================
+
+// 데이터베이스 관계 (실제 외래 키)
+Ref: deleted_todo.original_id > todo.id [delete: restrict]
+
+// 사용자 행위 → 데이터베이스 관계 (실제 컬럼 참조)
+Ref: UpdateTodo.todoId > todo.id
+Ref: DeleteTodo.todoId > todo.id
+Ref: RestoreTodo.deletedTodoId > deleted_todo.id
+Ref: ToggleDone.todoId > todo.id
+Ref: SetAlarm.todoId > todo.id
+
+// 앱 데이터/응답 → 데이터베이스 관계 (실제 컬럼 참조)
+Ref: TodoList.date > todo.date
+Ref: SummaryRatios.date > todo.date
+Ref: CalendarEvents.date > todo.date
+Ref: FilteredTodos.date > todo.date
+Ref: FilteredTodos.step > todo.step
+
+// ============================================
+// 논리적 관계 (Note로 표현)
+// ============================================
+//
+// DBML의 제한사항: Ref는 실제 컬럼 참조가 필요하므로,
+// 논리적 관계는 각 엔티티의 Note에 명시됩니다.
+//
+// 사용자 행위 → 뷰 화면 관계:
+//   - SelectDate → MainView (날짜 선택 행위는 MainView에서 발생)
+//   - FilterByStep → MainView (Step 필터링 행위는 MainView에서 발생)
+//   - CreateTodo → CreateTodoView (일정 생성 행위는 CreateTodoView에서 발생)
+//   - UpdateTodo → EditTodoView (일정 수정 행위는 EditTodoView에서 발생)
+//   - DeleteTodo → MainView, EditTodoView (삭제 행위는 두 화면에서 발생)
+//   - RestoreTodo → DeletedTodosView (복구 행위는 DeletedTodosView에서 발생)
+//   - ToggleDone → MainView (완료 토글 행위는 MainView에서 발생)
+//   - SetAlarm → CreateTodoView, EditTodoView (알람 설정 행위는 두 화면에서 발생)
+//
+// 뷰 화면 → 앱 데이터/응답 관계:
+//   - MainView → TodoList, SummaryRatios, CalendarEvents, FilteredTodos (표시)
+//   - DeletedTodosView → TodoList (표시)
+//   - CreateTodoView → todo (INSERT)
+//   - EditTodoView → todo (UPDATE)
+//
+// 뷰 화면 간 네비게이션 관계:
+//   - MainView ↔ CreateTodoView (양방향 네비게이션)
+//   - MainView ↔ EditTodoView (양방향 네비게이션)
+//   - MainView ↔ DeletedTodosView (양방향 네비게이션)
+//   - MainView ↔ SettingsView (양방향 네비게이션)
+//
+// 사용자 행위 → 데이터베이스 관계:
+//   - CreateTodo → todo (INSERT)
+//   - UpdateTodo → todo (UPDATE)
+//   - DeleteTodo → todo → deleted_todo (소프트 삭제)
+//   - RestoreTodo → deleted_todo → todo (복구)
+//   - ToggleDone → todo.is_done (UPDATE)
+//   - SetAlarm → todo.has_alarm, notification_id (UPDATE)

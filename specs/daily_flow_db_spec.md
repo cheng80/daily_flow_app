@@ -14,7 +14,7 @@ DailyFlow MVP에서 사용하는 SQLite 테이블은 다음 2개를 기본으로
 ### 1.1 테이블 목적
 
 - 현재 사용 중인 모든 "할 일(Todo)"을 저장하는 메인 테이블
-- 하루 단위 조회, Step(아침/낮/저녁/Anytime) 필터, 중요도(1\~5단계), 알람 여부, 완료 여부 등을 관리
+- 하루 단위 조회, Step(오전/오후/저녁/종일) 필터, 중요도(1\~5단계), 알람 여부, 완료 여부 등을 관리
 
 ### 1.2 컬럼 명세
 
@@ -25,7 +25,7 @@ DailyFlow MVP에서 사용하는 SQLite 테이블은 다음 2개를 기본으로
 | `memo`            | TEXT    | ✖        | NULL          | 메모(상세 내용)                                      |
 | `date`            | TEXT    | ✔        |               | 일정 날짜, 형식: `YYYY-MM-DD`                        |
 | `time`            | TEXT    | ✖        | NULL          | 일정 시간(있을 경우), 형식: `HH:MM`                      |
-| `step`            | INTEGER | ✔        | 3             | 시간대 분류: `0=아침, 1=낮, 2=저녁, 3=Anytime`           |
+| `step`            | INTEGER | ✔        | 3             | 시간대 분류: `0=오전, 1=오후, 2=저녁, 3=종일`           |
 | `priority`        | INTEGER | ✔        | 3             | 중요도 1\~5단계 (1:매우낮음 \~ 5:매우높음)                  |
 | `is_done`         | INTEGER | ✔        | 0             | 완료 여부: `0=미완료`, `1=완료`                         |
 | `has_alarm`       | INTEGER | ✔        | 0             | 알람 활성 여부: `0=알람 없음`, `1=알람 있음`                 |
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS todo (
   memo            TEXT,
   date            TEXT    NOT NULL,           -- 'YYYY-MM-DD'
   time            TEXT,                       -- 'HH:MM' (NULL 허용)
-  step            INTEGER NOT NULL DEFAULT 3, -- 0:아침,1:낮,2:저녁,3:Anytime
+  step            INTEGER NOT NULL DEFAULT 3, -- 0:오전,1:오후,2:저녁,3:종일
   priority        INTEGER NOT NULL DEFAULT 3, -- 1~5
   is_done         INTEGER NOT NULL DEFAULT 0, -- 0:false, 1:true
   has_alarm       INTEGER NOT NULL DEFAULT 0, -- 0:false, 1:true
@@ -96,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_todo_date_step
 | `memo`        | TEXT    | ✖        | NULL          | 메모 내용                       |
 | `date`        | TEXT    | ✔        |               | 일정 날짜 `YYYY-MM-DD`          |
 | `time`        | TEXT    | ✖        | NULL          | 일정 시간(있을 경우) `HH:MM`        |
-| `step`        | INTEGER | ✔        | 3             | 0=아침,1=낮,2=저녁,3=Anytime     |
+| `step`        | INTEGER | ✔        | 3             | 0=오전,1=오후,2=저녁,3=종일     |
 | `priority`    | INTEGER | ✔        | 3             | 중요도 1\~5단계                  |
 | `is_done`     | INTEGER | ✔        | 0             | 삭제 시점의 완료 여부 (0/1)          |
 | `deleted_at`  | TEXT    | ✔        |               | 삭제 일시 `YYYY-MM-DD HH:MM:SS` |
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS deleted_todo (
   memo         TEXT,
   date         TEXT    NOT NULL,           -- 'YYYY-MM-DD'
   time         TEXT,                       -- 'HH:MM'
-  step         INTEGER NOT NULL DEFAULT 3, -- 0:아침,1:낮,2:저녁,3:Anytime
+  step         INTEGER NOT NULL DEFAULT 3, -- 0:오전,1:오후,2:저녁,3:종일
   priority     INTEGER NOT NULL DEFAULT 3, -- 1~5
   is_done      INTEGER NOT NULL DEFAULT 0, -- 0:false,1:true
   deleted_at   TEXT    NOT NULL            -- 'YYYY-MM-DD HH:MM:SS'
@@ -193,7 +193,7 @@ CREATE INDEX IF NOT EXISTS idx_deleted_todo_deleted_at
 
 ```dbml
 // DailyFlow – SQLite schema (todo / deleted_todo)
-// step: 0=아침,1=낮,2=저녁,3=Anytime
+// step: 0=오전,1=오후,2=저녁,3=종일
 // priority: 1=매우낮음 ~ 5=매우높음
 // is_done, has_alarm: 0=false, 1=true
 
@@ -203,7 +203,7 @@ Table todo {
   memo            text                    // 메모 (nullable)
   date            text   [not null]       // 'YYYY-MM-DD'
   time            text                    // 'HH:MM' (nullable)
-  step            integer [not null, default: 3] // 0=아침,1=낮,2=저녁,3=Anytime
+  step            integer [not null, default: 3] // 0=오전,1=오후,2=저녁,3=종일
   priority        integer [not null, default: 3] // 1~5 중요도
   is_done         integer [not null, default: 0] // 0=미완료,1=완료
   has_alarm       integer [not null, default: 0] // 0=알람 없음,1=알람 있음
@@ -211,7 +211,7 @@ Table todo {
   created_at      text   [not null]       // 'YYYY-MM-DD HH:MM:SS'
   updated_at      text   [not null]       // 'YYYY-MM-DD HH:MM:SS'
 
-  Note: 'step: 0=아침,1=낮,2=저녁,3=Anytime; priority:1~5; is_done/has_alarm:0/1'
+  Note: 'step: 0=오전,1=오후,2=저녁,3=종일; priority:1~5; is_done/has_alarm:0/1'
 
   Indexes {
     (date) [name: 'idx_todo_date']
@@ -226,7 +226,7 @@ Table deleted_todo {
   memo         text                          // 메모
   date         text    [not null]           // 'YYYY-MM-DD'
   time         text                          // 'HH:MM'
-  step         integer [not null, default: 3] // 0=아침,1=낮,2=저녁,3=Anytime
+  step         integer [not null, default: 3] // 0=오전,1=오후,2=저녁,3=종일
   priority     integer [not null, default: 3] // 1~5 중요도
   is_done      integer [not null, default: 0] // 삭제 시점 완료 여부
   deleted_at   text    [not null]           // 'YYYY-MM-DD HH:MM:SS'

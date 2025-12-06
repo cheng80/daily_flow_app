@@ -1,5 +1,6 @@
 import 'custom_text.dart';
 import 'custom_common_util.dart';
+import 'utils_core.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart'; // PaletteContext extension 사용
 
@@ -181,7 +182,7 @@ class CustomDrawer extends StatelessWidget {
                           selected: item.selected,
                           selectedTileColor: item.selectedColor ?? (_getThemePrimaryColor(context) ?? Colors.blue).withValues(alpha: 0.1),
                           onTap: () {
-                            Navigator.pop(context);
+                            CustomNavigationUtil.back(context);
                             item.onTap?.call();
                           },
                         );

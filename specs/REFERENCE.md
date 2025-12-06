@@ -46,7 +46,7 @@
 3. **실제 디자인 페이지 구성 (후순위)**
    - 모든 필요한 모듈이 완성되고 테스트 완료 후 진행
    - 사용자가 모듈들을 직접 사용해 본 후 필요시 화면 구성 도움 요청
-   - 실제 화면은 `lib/view/main/`, `lib/view/create_todo/` 등에 구현
+   - 실제 화면은 `lib/view/main_view.dart`, `lib/view/create_todo_view.dart` 등에 구현
 
 #### 작업 흐름 예시
 
@@ -74,7 +74,7 @@
 #### 참고사항
 
 - `lib/view/home.dart`는 모듈 테스트/프로토타이핑 용도로만 사용
-- 실제 메인 화면은 `lib/view/main/main_view.dart`에서 별도 구현
+- 실제 메인 화면은 `lib/view/main_view.dart`에서 별도 구현
 - 각 모듈 개발 완료 후 `home.dart`에서 테스트
 - 모든 모듈이 완료되면 실제 화면 구성 단계로 진행
 
@@ -245,17 +245,19 @@ class _HomeTest[기능명]State extends State<HomeTest[기능명]> {
 
 ### 테스트 페이지 작성 규칙
 
-1. **필수 요소**:
+작업 순서에 따라 다음 단계를 진행합니다:
 
-   - `onToggleTheme` 콜백 함수를 생성자 파라미터로 받음
-   - 앱바에 테마 토글 스위치 포함
-   - `_themeBool` 상태 변수로 테마 모드 관리
-
-2. **명명 규칙**:
+1. **명명 규칙 확인**:
 
    - 파일명: `home_test_[기능명].dart` (snake_case)
    - 클래스명: `HomeTest[기능명]` (PascalCase)
    - 예: `home_test_calendar.dart` → `HomeTestCalendar`
+
+2. **필수 요소 구현**:
+
+   - `onToggleTheme` 콜백 함수를 생성자 파라미터로 받음
+   - `_themeBool` 상태 변수로 테마 모드 관리
+   - 기본 위젯 구조 작성 (위의 "테스트 페이지 공통 구조" 참고)
 
 3. **테마 토글 구현**:
 
@@ -263,14 +265,17 @@ class _HomeTest[기능명]State extends State<HomeTest[기능명]> {
    - `Switch`의 `value`는 `_themeBool` 상태 사용
    - `onChanged`에서 `_themeBool` 업데이트 및 `widget.onToggleTheme()` 호출
 
-4. **home.dart에 등록**:
-   - 새로운 테스트 페이지 생성 시 `home.dart`에 버튼 추가
+4. **⚠️ home.dart에 자동 등록 (필수)**:
+   - **새로운 테스트 페이지를 생성하면 반드시 `home.dart`에 버튼을 추가해야 합니다.**
+   - 테스트 페이지 생성과 동시에 `home.dart`에 등록하는 것이 필수입니다.
+   - 버튼은 `SizedBox(width: double.infinity)`와 `Padding(padding: EdgeInsets.symmetric(horizontal: 16.0))`로 감싸서 동일한 너비로 정렬
    - 버튼 클릭 시 `Navigator.push()`로 테스트 페이지로 이동
+   - 등록하지 않으면 테스트 페이지에 접근할 수 없으므로 반드시 등록해야 합니다.
 
 ### 실제 메인 화면과의 관계
 
 - **테스트 페이지**: 모듈 개발 및 검증용 (임시)
-- **실제 메인 화면**: `lib/view/main/main_view.dart`에서 별도 구현
+- **실제 메인 화면**: `lib/view/main_view.dart`에서 별도 구현
 - 각 모듈 개발 완료 후, 완성된 커스텀 모듈과 함수를 사용하여 실제 화면 구성
 
 ---
@@ -332,10 +337,10 @@ class _HomeTest[기능명]State extends State<HomeTest[기능명]> {
 
 - **Summary Bar 색상:**
 
-  - ProgressMorning (아침) - 라이트: 주황색, 다크: 밝은 주황색
-  - ProgressNoon (낮) - 라이트: 밝은 노란색, 다크: 밝은 노란색
+  - ProgressMorning (오전) - 라이트: 주황색, 다크: 밝은 주황색
+  - ProgressNoon (오후) - 라이트: 밝은 노란색, 다크: 밝은 노란색
   - ProgressEvening (저녁) - 라이트: 청록색, 다크: 밝은 청록색
-  - ProgressAnytime (Anytime) - 라이트: 보라색, 다크: 밝은 보라색
+  - ProgressAnytime (종일) - 라이트: 보라색, 다크: 밝은 보라색
 
 - **중요도 색상:**
   - PriorityVeryLow (1단계: 매우 낮음) - 라이트: 회색, 다크: 밝은 회색
@@ -384,17 +389,17 @@ Container(color: p.priorityHigh) // 중요도 표시
 
 ### Step 값
 
-- `0`: 아침
-- `1`: 낮
+- `0`: 오전
+- `1`: 오후
 - `2`: 저녁
-- `3`: Anytime (기본값)
+- `3`: 종일 (기본값)
 
 ### 시간 → Step 자동 매핑 규칙 (제안)
 
-- **아침 (0)**: 06:00 ~ 11:59
-- **낮 (1)**: 12:00 ~ 17:59
+- **오전 (0)**: 06:00 ~ 11:59
+- **오후 (1)**: 12:00 ~ 17:59
 - **저녁 (2)**: 18:00 ~ 23:59
-- **Anytime (3)**: 00:00 ~ 05:59 (새벽) 또는 시간 없음
+- **종일 (3)**: 00:00 ~ 05:59 (새벽) 또는 시간 없음
 
 **참고:** 이 규칙은 차후 조정 가능합니다.
 

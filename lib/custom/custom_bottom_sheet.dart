@@ -1,5 +1,6 @@
 import 'custom_text.dart';
 import 'custom_common_util.dart';
+import 'utils_core.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart'; // PaletteContext extension 사용
 
@@ -98,7 +99,10 @@ class CustomBottomSheet {
       context: context,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
-      backgroundColor: backgroundColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
+      backgroundColor:
+          backgroundColor ??
+          _getThemeCardBackgroundColor(context) ??
+          Colors.white,
       isScrollControlled: isScrollControlled,
       shape: borderRadius != null
           ? RoundedRectangleBorder(
@@ -133,7 +137,9 @@ class CustomBottomSheet {
                             title,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: _getThemeTextPrimaryColor(context) ?? Colors.black,
+                            color:
+                                _getThemeTextPrimaryColor(context) ??
+                                Colors.black,
                           ),
                         if (message != null) ...[
                           if (title != null) const SizedBox(height: 4),
@@ -141,7 +147,9 @@ class CustomBottomSheet {
                             message,
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: _getThemeTextSecondaryColor(context) ?? Colors.grey.shade600,
+                            color:
+                                _getThemeTextSecondaryColor(context) ??
+                                Colors.grey.shade600,
                           ),
                         ],
                       ],
@@ -149,8 +157,7 @@ class CustomBottomSheet {
                   ),
 
                 // 구분선
-                if (title != null || message != null)
-                  const Divider(height: 20),
+                if (title != null || message != null) const Divider(height: 20),
 
                 // 항목들
                 ...items!.map((item) {
@@ -164,7 +171,9 @@ class CustomBottomSheet {
                       fontWeight: FontWeight.normal,
                       color: item.isDestructive
                           ? Colors.red
-                          : (item.textColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black),
+                          : (item.textColor ??
+                                _getThemeTextPrimaryColor(context) ??
+                                Colors.black),
                     );
                   } else {
                     // Widget인 경우 그대로 사용
@@ -177,12 +186,14 @@ class CustomBottomSheet {
                             item.icon,
                             color: item.isDestructive
                                 ? Colors.red
-                                : (item.textColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black),
+                                : (item.textColor ??
+                                      _getThemeTextPrimaryColor(context) ??
+                                      Colors.black),
                           )
                         : null,
                     title: labelWidget,
                     onTap: () {
-                      Navigator.pop(ctx, item.onTap);
+                      CustomNavigationUtil.back(ctx, result: item.onTap);
                       item.onTap?.call();
                     },
                   );
@@ -202,4 +213,3 @@ class CustomBottomSheet {
     );
   }
 }
-

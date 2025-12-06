@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/app_colors.dart';
+import 'view/create_todo_view.dart';
 import 'view/home.dart';
+import 'view/main_view.dart';
 
 /// 앱 진입점
 ///
@@ -70,7 +72,12 @@ class _MyAppState extends State<MyApp> {
       ],
 
       initialRoute: '/', // 처음 화면 지정
-      routes: {'/': (context) => Home(onToggleTheme: _toggleTheme)},
+      routes: {
+        '/': (context) => Home(onToggleTheme: _toggleTheme),
+        '/main_view': (context) => MainView(onToggleTheme: _toggleTheme),
+        '/create_todo_view': (context) =>
+            CreateTodoView(onToggleTheme: _toggleTheme),
+      },
     );
   }
 }

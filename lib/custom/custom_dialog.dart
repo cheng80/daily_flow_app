@@ -1,6 +1,7 @@
 import 'custom_button.dart';
 import 'custom_text.dart';
 import 'custom_common_util.dart';
+import 'utils_core.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart'; // PaletteContext extension 사용
 
@@ -326,7 +327,7 @@ class CustomDialog {
                 action.onTapWithContext?.call(ctx);
                 action.onTap?.call();
                 if (action.autoDismiss) {
-                  Navigator.pop(ctx);
+                  CustomNavigationUtil.back(ctx);
                 }
               },
             ),
@@ -385,7 +386,7 @@ class CustomDialog {
                 action.onTapWithContext?.call(ctx);
                 action.onTap?.call();
                 if (action.autoDismiss) {
-                  Navigator.pop(ctx);
+                  CustomNavigationUtil.back(ctx);
                 }
               },
             );
@@ -404,7 +405,7 @@ class CustomDialog {
             onConfirmWithContext?.call(ctx);
             onConfirm?.call();
             if (autoDismissOnConfirm) {
-              Navigator.pop(ctx);
+              CustomNavigationUtil.back(ctx);
             }
           },
         ),
@@ -422,7 +423,7 @@ class CustomDialog {
             onCancelWithContext?.call(ctx);
             onCancel?.call();
             if (autoDismissOnCancel) {
-              Navigator.pop(ctx);
+              CustomNavigationUtil.back(ctx);
             }
           },
         ),
@@ -435,7 +436,7 @@ class CustomDialog {
             onConfirmWithContext?.call(ctx);
             onConfirm?.call();
             if (autoDismissOnConfirm) {
-              Navigator.pop(ctx);
+              CustomNavigationUtil.back(ctx);
             }
           },
         ),
