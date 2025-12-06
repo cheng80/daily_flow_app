@@ -13,6 +13,7 @@ import 'create_todo_view.dart';
 import 'edit_todo_view.dart';
 import 'deleted_todos_view.dart';
 import 'todo_detail_dialog.dart';
+import 'home.dart';
 
 /// 함수 타입 enum
 enum FunctionType { update, delete }
@@ -163,72 +164,94 @@ class _MainViewState extends State<MainView> {
           "DailyFlow",
           style: TextStyle(color: p.textOnPrimary, fontSize: 24),
         ),
-        actions: [
-          Switch(
-            value: _themeBool,
-            onChanged: (value) {
-              setState(() {
-                _themeBool = value;
-              });
-              widget.onToggleTheme();
-            },
-          ),
-          CustomIconButton(
-            icon: Icons.delete_outline,
-            iconColor: p.textOnPrimary,
-            onPressed: _navigateToDeletedTodos,
-          ),
-        ],
+        actions: [],
       ),
 
-      /*------------------ Drawer ---------------------*/
+      /*------------------ Drawer (설정 화면) ---------------------*/
       drawer: CustomDrawer(
         header: DrawerHeader(
-          decoration: BoxDecoration(color: p.cardBackground),
-          // padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(color: p.primary),
           child: CustomColumn(
             width: double.infinity,
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 4,
+            spacing: 8,
             children: [
-              CustomText("테마 변경"),
-              CustomSwitch(
-                value: _themeBool,
-                onChanged: (value) {
-                  setState(() {
-                    _themeBool = value;
-                  });
-                  widget.onToggleTheme();
-                },
+              Icon(Icons.settings_outlined, size: 48, color: p.textOnPrimary),
+              CustomText(
+                "설정",
+                style: TextStyle(
+                  color: p.textOnPrimary,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-
-              //-----------
             ],
           ),
         ),
-        items: [],
-        middleChildren: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: CustomColumn(
+        items: [
+          // 다크 모드 토글
+          DrawerItem(
+            label: CustomRow(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CustomButton(
-                  btnText: "Home",
-                  onCallBack: () {
-                    CustomNavigationUtil.back(context);
-                    CustomNavigationUtil.back(context);
+                CustomRow(
+                  spacing: 12,
+                  children: [
+                    Icon(
+                      _themeBool
+                          ? Icons.dark_mode_outlined
+                          : Icons.light_mode_outlined,
+                      color: p.textPrimary,
+                    ),
+                    CustomText(
+                      "다크 모드",
+                      style: TextStyle(color: p.textPrimary, fontSize: 16),
+                    ),
+                  ],
+                ),
+                Switch(
+                  value: _themeBool,
+                  onChanged: (value) {
+                    setState(() {
+                      _themeBool = value;
+                    });
+                    widget.onToggleTheme();
                   },
                 ),
               ],
             ),
+            onTap: () {
+              setState(() {
+                _themeBool = !_themeBool;
+              });
+              widget.onToggleTheme();
+            },
+          ),
+          // 삭제 보관함
+          DrawerItem(
+            label: "삭제 보관함",
+            icon: Icons.delete_outline,
+            onTap: _navigateToDeletedTodos,
+          ),
+          // TODO: 삭제 예정 - 임시 Home 버튼
+          DrawerItem(
+            label: "Home (임시)",
+            icon: Icons.home_outlined,
+            onTap: _navigateToHome,
           ),
         ],
         footer: Container(
-          height: MediaQuery.of(context).size.height * 0.1,
           padding: const EdgeInsets.all(16),
           child: CustomColumn(
             mainAxisAlignment: MainAxisAlignment.end,
-            children: [CustomText("DailyFlow v1.0.0")],
+            spacing: 4,
+            children: [
+              Divider(color: p.textSecondary.withValues(alpha: 0.2)),
+              CustomText(
+                "DailyFlow v1.0.0",
+                style: TextStyle(color: p.textSecondary, fontSize: 12),
+              ),
+            ],
           ),
         ),
       ),
@@ -920,6 +943,14 @@ class _MainViewState extends State<MainView> {
     await CustomNavigationUtil.to(
       context,
       DeletedTodosView(onToggleTheme: widget.onToggleTheme),
+    );
+  }
+
+  /// TODO: 삭제 예정 - 임시 Home 화면으로 이동
+  Future<void> _navigateToHome() async {
+    await CustomNavigationUtil.to(
+      context,
+      Home(onToggleTheme: widget.onToggleTheme),
     );
   }
 
