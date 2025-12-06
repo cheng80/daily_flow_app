@@ -154,16 +154,19 @@ class Todo {
   /// 
   /// [id] 일정 고유 ID
   /// [title] 일정 제목
-  /// [memo] 메모 내용
+  /// [memo] 메모 내용 (null을 명시적으로 설정하려면 clearMemo: true 사용)
   /// [date] 일정 날짜
-  /// [time] 일정 시간
+  /// [time] 일정 시간 (null을 명시적으로 설정하려면 clearTime: true 사용)
   /// [step] 시간대 분류
   /// [priority] 중요도
   /// [isDone] 완료 여부
   /// [hasAlarm] 알람 활성 여부
-  /// [notificationId] 알림 ID
+  /// [notificationId] 알림 ID (null을 명시적으로 설정하려면 clearNotificationId: true 사용)
   /// [createdAt] 생성 시각
   /// [updatedAt] 수정 시각
+  /// [clearMemo] memo를 null로 설정할지 여부
+  /// [clearTime] time을 null로 설정할지 여부
+  /// [clearNotificationId] notificationId를 null로 설정할지 여부
   /// 반환값: 복사된 Todo 객체
   Todo copyWith({
     int? id,
@@ -178,18 +181,21 @@ class Todo {
     int? notificationId,
     String? createdAt,
     String? updatedAt,
+    bool clearMemo = false,
+    bool clearTime = false,
+    bool clearNotificationId = false,
   }) {
     return Todo(
       id: id ?? this.id,
       title: title ?? this.title,
-      memo: memo ?? this.memo,
+      memo: clearMemo ? null : (memo ?? this.memo),
       date: date ?? this.date,
-      time: time ?? this.time,
+      time: clearTime ? null : (time ?? this.time),
       step: step ?? this.step,
       priority: priority ?? this.priority,
       isDone: isDone ?? this.isDone,
       hasAlarm: hasAlarm ?? this.hasAlarm,
-      notificationId: notificationId ?? this.notificationId,
+      notificationId: clearNotificationId ? null : (notificationId ?? this.notificationId),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

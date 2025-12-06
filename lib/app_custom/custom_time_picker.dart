@@ -112,7 +112,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
                   icon: Icons.close,
                   iconColor: p.textSecondary,
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    CustomNavigationUtil.back(context);
                   },
                   tooltip: "취소",
                 ),
@@ -137,8 +137,9 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
               buttonType: ButtonType.elevated,
               backgroundColor: p.primary,
               onCallBack: () {
-                Navigator.of(context).pop(
-                  TimeOfDay(
+                CustomNavigationUtil.back(
+                  context,
+                  result: TimeOfDay(
                     hour: _selectedDateTime.hour,
                     minute: _selectedDateTime.minute,
                   ),

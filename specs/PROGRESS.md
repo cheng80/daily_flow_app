@@ -184,6 +184,8 @@
   - `_formatTime` 함수를 `CustomCommonUtil.formatTime`으로 통합
   - `_formatDateDisplay` 함수 제거, `CustomCommonUtil.formatDate` 직접 사용
   - 일정 등록/수정 화면에서 중복 코드 제거
+  - 우선순위 관련 함수 통합 (`getPriorityColor`, `getPriorityText`를 `app_common_util.dart`로 이동)
+  - 모든 파일에서 중복 함수 제거 (todo_detail_dialog, create_todo_view, edit_todo_view, main_view, deleted_todos_view)
 
 - ✅ 데이터 갱신 로직 개선
   - `_reloadData()`에 `_loadCalendarEvents()`와 `_calculateSummaryRatios()` 포함
@@ -198,6 +200,50 @@
   - 일정 등록/수정 후 데이터 반영 안되는 문제 수정
     - 다이얼로그 닫힌 후 화면 닫기 로직 개선
     - `await CustomDialog.show()` 완료 후 `Navigator.pop(true)` 호출
+  - "종일" 선택 시 시간 초기화 문제 수정
+    - `Todo.copyWith`에 `clearTime` 플래그 추가
+    - DB 저장 시 "종일"이면 time을 null로 강제 설정
+
+#### 2.12 Todo 상세보기 다이얼로그 구현
+
+- ✅ `lib/view/todo_detail_dialog.dart` 생성
+  - Todo 상세 정보 표시 (제목, 날짜, 시간, 메모, 중요도, 완료 상태)
+  - 시간대 표시 (종일일 때도 표시)
+  - 알람 정보 표시
+  - Edit 버튼 (수정 화면으로 이동)
+  - 높이 고정 및 스크롤 지원
+  - 공용 함수 사용 (날짜 포맷팅, 우선순위 관련 함수)
+
+#### 2.13 시간대 시스템 개선
+
+- ✅ 야간 시간대 추가
+  - `StepMapperUtil`에 야간(00:00-05:59) 추가 (stepNight = 3)
+  - 종일을 stepAnytime = 4로 변경
+  - 관련 색상 및 함수 업데이트 (progressNight 색상 추가)
+  - Summary Bar에 야간 비율 추가
+  - 모든 관련 파일 업데이트 (create_todo_view, edit_todo_view, main_view, home 등)
+
+#### 2.14 네비게이션 통일 및 코드 개선
+
+- ✅ 네비게이션 유틸리티 통일
+  - 모든 화면에서 `CustomNavigationUtil.to` 사용 (기본 Navigator.push 제거)
+  - 모든 화면에서 `CustomNavigationUtil.back` 사용 (기본 Navigator.pop 제거)
+  - `main.dart`의 라우트 정의를 `onGenerateRoute`로 변경하여 arguments 처리 가능하도록 개선
+  - 타입 안전성 향상 및 코드 일관성 확보
+
+- ✅ 우선순위 관련 함수 통합
+  - `getPriorityColor`, `getPriorityText`를 `app_common_util.dart`로 이동
+  - 모든 파일에서 중복 함수 제거 (todo_detail_dialog, create_todo_view, edit_todo_view, main_view, deleted_todos_view)
+
+- ✅ "종일" 선택 시 시간 초기화 로직 개선
+  - `Todo.copyWith`에 `clearTime` 플래그 추가
+  - DB 저장 시 "종일"이면 time을 null로 강제 설정
+  - 시간 선택 버튼은 활성화 상태 유지 (사용자가 다시 시간 선택 가능)
+
+- ✅ Todo 상세보기 다이얼로그 개선
+  - 높이 고정 및 스크롤 지원
+  - 시간대 표시 개선 (종일일 때도 시간대 표시)
+  - 공용 함수 사용 (날짜 포맷팅, 우선순위 관련 함수)
 
 ### 3. 문서 업데이트 ✅
 

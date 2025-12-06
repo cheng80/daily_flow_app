@@ -93,7 +93,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
                 ),
                 IconButton(
                   icon: Icon(Icons.close, color: p.textSecondary),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => CustomNavigationUtil.back(context),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
                     minWidth: 48,
@@ -169,6 +169,6 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
   }
 
   void _onConfirmPressed() {
-    Navigator.of(context).pop(_selectedDate);
+    CustomNavigationUtil.back(context, result: _selectedDate);
   }
 }

@@ -11,6 +11,8 @@ import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
 import 'create_todo_view.dart';
 import 'edit_todo_view.dart';
+import 'deleted_todos_view.dart';
+import 'todo_detail_dialog.dart';
 
 /// 함수 타입 enum
 enum FunctionType { update, delete }
@@ -149,6 +151,8 @@ class _MainViewState extends State<MainView> {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.endFloat, // 위치 지정
       backgroundColor: p.background,
+      // 드로워 슬라이드 제스처 비활성화
+      drawerEnableOpenDragGesture: false,
       appBar: CustomAppBar(
         // drawerIconColor: p.textOnPrimary,
         // drawerIcon: Icons.menu_rounded,
@@ -170,11 +174,9 @@ class _MainViewState extends State<MainView> {
             },
           ),
           CustomIconButton(
-            icon: Icons.calendar_today_rounded,
+            icon: Icons.delete_outline,
             iconColor: p.textOnPrimary,
-            onPressed: () {
-              _goToToday();
-            },
+            onPressed: _navigateToDeletedTodos,
           ),
         ],
       ),
@@ -456,8 +458,7 @@ class _MainViewState extends State<MainView> {
                               ),
                               child: GestureDetector(
                                 onTap: () {
-                                  // TODO: 상세 페이지로 이동
-                                  // _gotoDetail(sortedData, index);
+                                  _showTodoDetail(sortedData[index]);
                                 },
                                 child: _buildTodoCardFromList(
                                   sortedData,
@@ -666,28 +667,6 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// 우선순위에 따른 색상 반환
-  ///
-  /// [priority] 우선순위 값 (1~5)
-  /// [p] AppColorScheme 객체
-  /// 반환값: 우선순위에 맞는 색상
-  Color _getPriorityColor(int priority, AppColorScheme p) {
-    switch (priority) {
-      case 1:
-        return p.dailyFlow.priorityVeryLow;
-      case 2:
-        return p.dailyFlow.priorityLow;
-      case 3:
-        return p.dailyFlow.priorityMedium;
-      case 4:
-        return p.dailyFlow.priorityHigh;
-      case 5:
-        return p.dailyFlow.priorityVeryHigh;
-      default:
-        return p.dailyFlow.priorityMedium;
-    }
-  }
-
   /// Todo 카드 위젯 생성
   /// Todo 카드 빌드 (AsyncSnapshot 사용)
   /// Todo 카드 빌드 (List 사용)
@@ -789,19 +768,17 @@ class _MainViewState extends State<MainView> {
                             ),
                           ],
                         ),
-                        // 메모가 있는 경우 표시
-                        if (todo.memo != null && todo.memo!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          CustomText(
-                            '${todo.isDone ? "완료" : "미완료"} : ${todo.memo!}',
-                            style: TextStyle(
-                              color: p.textSecondary,
-                              fontSize: 14,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        // 메모 표시 (항상 표시하여 카드 크기 일관성 유지)
+                        const SizedBox(height: 2),
+                        CustomText(
+                          '메모 : ${todo.memo != null && todo.memo!.isNotEmpty ? todo.memo! : "없음"}',
+                          style: TextStyle(
+                            color: p.textSecondary,
+                            fontSize: 14,
                           ),
-                        ],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
@@ -811,7 +788,7 @@ class _MainViewState extends State<MainView> {
                   width: priorityStripWidth,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _getPriorityColor(todo.priority, p),
+                      color: getPriorityColor(todo.priority, p),
                       borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(16),
                         bottomRight: Radius.circular(16),
@@ -933,6 +910,39 @@ class _MainViewState extends State<MainView> {
     // 저장 완료 후 데이터 새로고침
     if (result == true) {
       _reloadData();
+    }
+  }
+
+  /// 삭제된 Todo 화면으로 이동
+  ///
+  /// AppBar의 쓰레기통 아이콘 버튼 클릭 시 DeletedTodosView로 이동합니다.
+  Future<void> _navigateToDeletedTodos() async {
+    await CustomNavigationUtil.to(
+      context,
+      DeletedTodosView(onToggleTheme: widget.onToggleTheme),
+    );
+  }
+
+  /// Todo 상세 다이얼로그 표시
+  ///
+  /// [todo] 표시할 Todo 객체
+  Future<void> _showTodoDetail(Todo todo) async {
+    // 다이얼로그 표시
+    final result = await TodoDetailDialog.show(context: context, todo: todo);
+
+    // Edit 버튼을 눌렀을 경우 (result == true)
+    if (result == true) {
+      // 다이얼로그가 닫힌 후 수정 화면으로 이동
+      if (context.mounted) {
+        final editResult = await CustomNavigationUtil.to(
+          context,
+          EditTodoView(onToggleTheme: widget.onToggleTheme, todo: todo),
+        );
+        // 수정 화면에서 돌아올 때 데이터 갱신
+        if (editResult == true) {
+          _reloadData();
+        }
+      }
     }
   }
 }

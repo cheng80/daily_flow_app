@@ -1,5 +1,59 @@
 import 'package:flutter/material.dart';
 
+/// 페이지 전환 애니메이션 타입
+enum PageTransitionType {
+  /// 슬라이드 애니메이션 (기본값)
+  slide,
+  /// 페이드 애니메이션
+  fade,
+  /// 없음 (즉시 전환)
+  none,
+}
+
+/// 스와이프 백 제스처가 비활성화된 PageRoute
+/// fullscreenDialog: true를 사용하여 iOS 스와이프 백을 완전히 차단
+class _NoSwipeBackPageRoute<T> extends PageRouteBuilder<T> {
+  _NoSwipeBackPageRoute({
+    required WidgetBuilder builder,
+    RouteSettings? settings,
+    PageTransitionType transitionType = PageTransitionType.slide,
+  }) : super(
+          pageBuilder: (context, animation, secondaryAnimation) => builder(context),
+          settings: settings,
+          fullscreenDialog: true, // iOS 스와이프 백 완전 차단
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            switch (transitionType) {
+              case PageTransitionType.slide:
+                // 슬라이드 애니메이션
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.ease;
+
+                var tween = Tween(begin: begin, end: end).chain(
+                  CurveTween(curve: curve),
+                );
+
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              case PageTransitionType.fade:
+                // 페이드 애니메이션
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              case PageTransitionType.none:
+                // 애니메이션 없음
+                return child;
+            }
+          },
+          transitionDuration: transitionType == PageTransitionType.none
+              ? Duration.zero
+              : const Duration(milliseconds: 300),
+        );
+}
+
 /// 네비게이션 유틸리티 클래스
 /// GetX의 Get.to, Get.toNamed 등과 유사한 기능을 제공합니다.
 class CustomNavigationUtil {
@@ -9,12 +63,36 @@ class CustomNavigationUtil {
 
   /// 새 페이지로 이동 (Get.to와 유사)
   ///
+  /// [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
+  /// [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
+  ///
   /// 사용 예시:
   /// ```dart
-  /// // 기본 사용
+  /// // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
   /// CustomNavigationUtil.to(
   ///   context,
   ///   const NextPage(),
+  /// );
+  ///
+  /// // 스와이프 백 활성화
+  /// CustomNavigationUtil.to(
+  ///   context,
+  ///   const NextPage(),
+  ///   enableSwipeBack: true,
+  /// );
+  ///
+  /// // 페이드 애니메이션 사용
+  /// CustomNavigationUtil.to(
+  ///   context,
+  ///   const NextPage(),
+  ///   transitionType: PageTransitionType.fade,
+  /// );
+  ///
+  /// // 애니메이션 없음
+  /// CustomNavigationUtil.to(
+  ///   context,
+  ///   const NextPage(),
+  ///   transitionType: PageTransitionType.none,
   /// );
   ///
   /// // .then() 사용
@@ -31,14 +109,27 @@ class CustomNavigationUtil {
     BuildContext context,
     Widget page, {
     RouteSettings? settings,
+    bool enableSwipeBack = false,
+    PageTransitionType transitionType = PageTransitionType.slide,
   }) {
-    return Navigator.push<T>(
-      context,
-      MaterialPageRoute<T>(
-        builder: (context) => page,
-        settings: settings,
-      ),
-    );
+    if (enableSwipeBack) {
+      return Navigator.push<T>(
+        context,
+        MaterialPageRoute<T>(
+          builder: (context) => page,
+          settings: settings,
+        ),
+      );
+    } else {
+      return Navigator.push<T>(
+        context,
+        _NoSwipeBackPageRoute<T>(
+          builder: (context) => page,
+          settings: settings,
+          transitionType: transitionType,
+        ),
+      );
+    }
   }
 
   /// 라우트 이름으로 이동 (Get.toNamed와 유사)
@@ -75,25 +166,56 @@ class CustomNavigationUtil {
 
   /// 현재 페이지를 대체하고 이동 (Get.off와 유사)
   ///
+  /// [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
+  /// [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
+  ///
   /// 사용 예시:
   /// ```dart
+  /// // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
   /// CustomNavigationUtil.off(
   ///   context,
   ///   const NextPage(),
+  /// );
+  ///
+  /// // 스와이프 백 활성화
+  /// CustomNavigationUtil.off(
+  ///   context,
+  ///   const NextPage(),
+  ///   enableSwipeBack: true,
+  /// );
+  ///
+  /// // 페이드 애니메이션 사용
+  /// CustomNavigationUtil.off(
+  ///   context,
+  ///   const NextPage(),
+  ///   transitionType: PageTransitionType.fade,
   /// );
   /// ```
   static Future<T?> off<T extends Object?>(
     BuildContext context,
     Widget page, {
     RouteSettings? settings,
+    bool enableSwipeBack = false,
+    PageTransitionType transitionType = PageTransitionType.slide,
   }) {
-    return Navigator.pushReplacement<T, void>(
-      context,
-      MaterialPageRoute<T>(
-        builder: (context) => page,
-        settings: settings,
-      ),
-    );
+    if (enableSwipeBack) {
+      return Navigator.pushReplacement<T, void>(
+        context,
+        MaterialPageRoute<T>(
+          builder: (context) => page,
+          settings: settings,
+        ),
+      );
+    } else {
+      return Navigator.pushReplacement<T, void>(
+        context,
+        _NoSwipeBackPageRoute<T>(
+          builder: (context) => page,
+          settings: settings,
+          transitionType: transitionType,
+        ),
+      );
+    }
   }
 
   /// 현재 페이지를 대체하고 라우트로 이동 (Get.offNamed와 유사)
@@ -122,26 +244,58 @@ class CustomNavigationUtil {
 
   /// 모든 페이지를 제거하고 이동 (Get.offAll와 유사)
   ///
+  /// [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
+  /// [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
+  ///
   /// 사용 예시:
   /// ```dart
+  /// // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
   /// CustomNavigationUtil.offAll(
   ///   context,
   ///   const HomePage(),
+  /// );
+  ///
+  /// // 스와이프 백 활성화
+  /// CustomNavigationUtil.offAll(
+  ///   context,
+  ///   const HomePage(),
+  ///   enableSwipeBack: true,
+  /// );
+  ///
+  /// // 페이드 애니메이션 사용
+  /// CustomNavigationUtil.offAll(
+  ///   context,
+  ///   const HomePage(),
+  ///   transitionType: PageTransitionType.fade,
   /// );
   /// ```
   static Future<T?> offAll<T extends Object?>(
     BuildContext context,
     Widget page, {
     RouteSettings? settings,
+    bool enableSwipeBack = false,
+    PageTransitionType transitionType = PageTransitionType.slide,
   }) {
-    return Navigator.pushAndRemoveUntil<T>(
-      context,
-      MaterialPageRoute<T>(
-        builder: (context) => page,
-        settings: settings,
-      ),
-      (route) => false,
-    );
+    if (enableSwipeBack) {
+      return Navigator.pushAndRemoveUntil<T>(
+        context,
+        MaterialPageRoute<T>(
+          builder: (context) => page,
+          settings: settings,
+        ),
+        (route) => false,
+      );
+    } else {
+      return Navigator.pushAndRemoveUntil<T>(
+        context,
+        _NoSwipeBackPageRoute<T>(
+          builder: (context) => page,
+          settings: settings,
+          transitionType: transitionType,
+        ),
+        (route) => false,
+      );
+    }
   }
 
   /// 모든 페이지를 제거하고 라우트로 이동 (Get.offAllNamed와 유사)

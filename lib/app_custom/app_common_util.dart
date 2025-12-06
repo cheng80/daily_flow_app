@@ -272,3 +272,58 @@ Future<void> calculateAndUpdateSummaryRatios(
     '종일: ${(ratios.anytimeRatio * 100).toStringAsFixed(1)}%',
   );
 }
+
+/// 우선순위에 따른 색상 반환
+///
+/// [priority] 우선순위 값 (1~5)
+/// [p] AppColorScheme 객체
+///
+/// 반환값: 우선순위에 맞는 색상
+///
+/// 사용 예시:
+/// ```dart
+/// final color = getPriorityColor(5, context.palette);
+/// ```
+Color getPriorityColor(int priority, AppColorScheme p) {
+  switch (priority) {
+    case 1:
+      return p.dailyFlow.priorityVeryLow;
+    case 2:
+      return p.dailyFlow.priorityLow;
+    case 3:
+      return p.dailyFlow.priorityMedium;
+    case 4:
+      return p.dailyFlow.priorityHigh;
+    case 5:
+      return p.dailyFlow.priorityVeryHigh;
+    default:
+      return p.dailyFlow.priorityMedium;
+  }
+}
+
+/// 우선순위에 따른 텍스트 반환
+///
+/// [priority] 우선순위 값 (1~5)
+///
+/// 반환값: 우선순위에 맞는 한국어 텍스트
+///
+/// 사용 예시:
+/// ```dart
+/// final text = getPriorityText(5); // "매우 높음"
+/// ```
+String getPriorityText(int priority) {
+  switch (priority) {
+    case 1:
+      return "매우 낮음";
+    case 2:
+      return "낮음";
+    case 3:
+      return "보통";
+    case 4:
+      return "높음";
+    case 5:
+      return "매우 높음";
+    default:
+      return "보통";
+  }
+}

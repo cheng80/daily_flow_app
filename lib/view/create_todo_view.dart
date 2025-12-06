@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_custom/custom_calendar_picker.dart';
 import '../app_custom/custom_time_picker.dart';
+import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/step_mapper_util.dart';
@@ -84,6 +85,8 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     return Scaffold(
       // FAB는 body 밖에서 자동으로 고정됨
       backgroundColor: p.background,
+      // 드로워 슬라이드 제스처 비활성화
+      drawerEnableOpenDragGesture: false,
       appBar: CustomAppBar(
         foregroundColor: p.textOnPrimary,
         toolbarHeight: 50,
@@ -182,7 +185,6 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                                       color: p.primary,
                                       size: 24,
                                     ),
-
                                     Flexible(
                                       child: CustomText(
                                         _selectedTime != null
@@ -301,21 +303,27 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                             onChanged: (value) {
                               if (value != null) {
                                 setState(() {
-                                  // 현재 선택한 시간의 시간대 확인
-                                  int? currentTimeStep;
-                                  if (_selectedTime != null) {
-                                    currentTimeStep =
-                                        StepMapperUtil.mapTimeToStep(
-                                          _selectedTime!,
-                                        );
-                                  }
-
-                                  // 선택한 시간대가 현재 시간의 시간대와 다르면
-                                  // 시간 초기화 및 알람 비활성화
-                                  if (currentTimeStep != null &&
-                                      value != currentTimeStep) {
+                                  // "종일"로 변경하면 무조건 시간 초기화
+                                  if (value == StepMapperUtil.stepAnytime) {
                                     _selectedTime = null;
                                     _hasAlarm = false;
+                                  } else {
+                                    // 현재 선택한 시간의 시간대 확인
+                                    int? currentTimeStep;
+                                    if (_selectedTime != null) {
+                                      currentTimeStep =
+                                          StepMapperUtil.mapTimeToStep(
+                                            _selectedTime!,
+                                          );
+                                    }
+
+                                    // 선택한 시간대가 현재 시간의 시간대와 다르면
+                                    // 시간 초기화 및 알람 비활성화
+                                    if (currentTimeStep != null &&
+                                        value != currentTimeStep) {
+                                      _selectedTime = null;
+                                      _hasAlarm = false;
+                                    }
                                   }
 
                                   _selectedStep = value;
@@ -385,7 +393,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                                   style: TextStyle(color: p.textSecondary),
                                 );
                               }
-                              final priorityColor = _getPriorityColor(value, p);
+                              final priorityColor = getPriorityColor(value, p);
                               return CustomRow(
                                 spacing: 6,
                                 children: [
@@ -398,7 +406,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                                   ),
                                   Flexible(
                                     child: CustomText(
-                                      _getPriorityLabel(value),
+                                      getPriorityText(value),
                                       style: TextStyle(
                                         color: p.textPrimary,
                                         fontSize: 16,
@@ -410,7 +418,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                               );
                             },
                             itemBuilder: (item) {
-                              final priorityColor = _getPriorityColor(item, p);
+                              final priorityColor = getPriorityColor(item, p);
                               return CustomRow(
                                 spacing: 6,
                                 children: [
@@ -423,7 +431,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                                   ),
                                   Flexible(
                                     child: CustomText(
-                                      _getPriorityLabel(item),
+                                      getPriorityText(item),
                                       style: TextStyle(
                                         color: p.textPrimary,
                                         fontSize: 16,
@@ -541,41 +549,6 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     }
   }
 
-  /// 우선순위에 따른 색상 반환
-  Color _getPriorityColor(int priority, AppColorScheme p) {
-    switch (priority) {
-      case 1:
-        return p.dailyFlow.priorityVeryLow;
-      case 2:
-        return p.dailyFlow.priorityLow;
-      case 3:
-        return p.dailyFlow.priorityMedium;
-      case 4:
-        return p.dailyFlow.priorityHigh;
-      case 5:
-        return p.dailyFlow.priorityVeryHigh;
-      default:
-        return p.dailyFlow.priorityMedium;
-    }
-  }
-
-  /// 우선순위 라벨 반환
-  String _getPriorityLabel(int priority) {
-    switch (priority) {
-      case 1:
-        return "매우 낮음";
-      case 2:
-        return "낮음";
-      case 3:
-        return "보통";
-      case 4:
-        return "높음";
-      case 5:
-        return "매우 높음";
-      default:
-        return "보통";
-    }
-  }
 
   /// Todo 저장
   Future<void> _saveTodo() async {
@@ -594,27 +567,44 @@ class _CreateTodoViewState extends State<CreateTodoView> {
       // 실패 다이얼로그 테스트를 위해 주석 해제
       // throw Exception("테스트용 강제 실패");
 
-      // 시간이 선택된 경우 Step 자동 매핑
-      if (_selectedTime != null) {
+      // "종일"이면 시간을 null로 강제 설정
+      String? finalTime = _selectedTime;
+      if (_selectedStep == StepMapperUtil.stepAnytime) {
+        finalTime = null;
+        _hasAlarm = false; // 종일이면 알람도 무조건 false
+      } else if (_selectedTime != null) {
+        // 시간이 선택된 경우 Step 자동 매핑
         _selectedStep = StepMapperUtil.mapTimeToStep(_selectedTime);
       }
 
-      // Todo 생성
+      // Todo 생성 (createNew는 이미 null을 허용하므로 별도 처리 불필요)
       final todo = Todo.createNew(
         title: _titleController.text.trim(),
         memo: _memoController.text.trim().isEmpty
             ? null
             : _memoController.text.trim(),
         date: CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd'),
-        time: _selectedTime,
+        time: finalTime, // null이면 그대로 null로 전달됨
         step: _selectedStep,
         priority: _selectedPriority,
-        hasAlarm: _hasAlarm && _selectedTime != null,
+        hasAlarm: _hasAlarm && finalTime != null,
       );
+
+      // 디버그: 저장할 데이터 확인
+      print("=== Todo 저장 ===");
+      print("todo: id=${todo.id}, step=${todo.step}, time=${todo.time}, hasAlarm=${todo.hasAlarm}");
+      print("_selectedStep: $_selectedStep, finalTime: $finalTime");
 
       // 데이터베이스에 저장
       final id = await _handler.insertData(todo);
       print("Todo 저장 완료: id=$id");
+
+      // 디버그: 저장 후 데이터 확인
+      final verifyTodo = await _handler.queryDataById(id);
+      if (verifyTodo != null) {
+        print("=== 저장 후 DB 확인 ===");
+        print("DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}");
+      }
 
       // 저장 성공 다이얼로그
       if (context.mounted) {
@@ -628,7 +618,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
         );
         // 다이얼로그가 닫힌 후 화면도 닫기
         if (context.mounted) {
-          Navigator.of(context).pop(true); // main_view로 복귀
+          CustomNavigationUtil.back(context, result: true); // main_view로 복귀
         }
       }
     } catch (e) {
@@ -643,7 +633,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
           confirmText: "확인",
           barrierDismissible: false, // 배경 터치로 닫기 방지
           onConfirm: () {
-            Navigator.of(context).pop(); // 다이얼로그만 닫기
+            CustomNavigationUtil.back(context); // 다이얼로그만 닫기
           },
         );
       }

@@ -29,7 +29,8 @@
 - [x] `lib/util/step_mapper_util.dart` 생성
   - [x] `mapTimeToStep(String? time)` 메서드 구현
   - [x] `stepToKorean(int step)` 메서드 구현
-  - [x] 시간대 구분 규칙 적용 (06:00-11:59=오전, 12:00-17:59=오후, 18:00-23:59=저녁, 나머지=종일)
+  - [x] 시간대 구분 규칙 적용 (06:00-11:59=오전, 12:00-17:59=오후, 18:00-23:59=저녁, 00:00-05:59=야간, 나머지=종일)
+  - [x] 야간 시간대 추가 (stepNight = 3, stepAnytime = 4)
   - [x] 단위 테스트 작성 및 통과 (`test/util/step_mapper_util_test.dart`)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2.2 섹션
@@ -113,9 +114,8 @@
     - [x] 주말(토/일) 색상 구분 (일요일 붉은색, 토요일 Primary)
   - [x] 날짜 선택 이벤트 처리 (`onDaySelected` 구현)
     - [x] 선택된 날짜 상태 관리
-    - [ ] 날짜 선택 시 Summary Bar 갱신 (차후 구현)
-    - [ ] 날짜 선택 시 Todo List 갱신 (차후 구현)
-    - [ ] 날짜 선택 시 필터 초기화 (전체로 리셋) (차후 구현)
+    - [x] 날짜 선택 시 Summary Bar 갱신
+    - [x] 날짜 선택 시 Todo List 갱신
   - [x] 테마 색상 적용
     - [x] `context.palette`를 통한 동적 색상 적용
     - [x] 라이트/다크 모드 자동 전환 지원
@@ -243,6 +243,8 @@
     - [x] 제목 필수 입력 검증
     - [x] 저장 성공/실패 다이얼로그
     - [x] DatabaseHandler와 연동 (Todo 저장)
+    - [x] "종일" 선택 시 시간 초기화 로직
+    - [x] copyWith에 clearTime 플래그 추가
     - [ ] NotificationService와 연동 (알람 등록) - 알람 기능 모듈 완료 후
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2장
@@ -257,24 +259,39 @@
     - [x] 제목 필수 입력 검증
     - [x] 수정 성공/실패 다이얼로그
     - [x] DatabaseHandler와 연동 (Todo 수정)
+    - [x] "종일" 선택 시 시간 초기화 로직
     - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리) - 메인 화면에서 Slidable로 처리 중
     - [ ] 삭제 확인 Dialog (CustomDialog) - 메인 화면에서 처리 중
     - [ ] NotificationService와 연동 (알람 업데이트/취소) - 알람 기능 모듈 완료 후
 
 **참고:** 설계서 `dailyflow_design_spec.md` 3장
 
-### 9. 하루 상세 화면
+### 9. 삭제 보관함 화면
 
-- [ ] `lib/view/deleted_todos_view.dart` 생성
-  - [ ] 삭제된 Todo 리스트 표시
-  - [ ] 필터 칩 (전체/오늘/7일/30일)
-  - [ ] 복구 기능
-  - [ ] 완전 삭제 기능
-  - [ ] Slidable (좌: 복구 / 우: 완전 삭제)
+- [x] `lib/view/deleted_todos_view.dart` 생성
+  - [x] 삭제된 Todo 리스트 표시
+  - [x] 필터 라디오 (전체/오늘/7일/30일)
+  - [x] 정렬 기능 (시간순/중요도순)
+  - [x] 복구 기능
+  - [x] 완전 삭제 기능
+  - [x] Slidable (좌: 복구 / 우: 완전 삭제)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 6장
 
-### 10. 설정 화면
+### 10. Todo 상세보기 다이얼로그
+
+- [x] `lib/view/todo_detail_dialog.dart` 생성
+  - [x] Todo 상세 정보 표시
+  - [x] 제목, 날짜, 시간, 메모, 중요도, 완료 상태 표시
+  - [x] 시간대 표시 (종일일 때도 표시)
+  - [x] 알람 정보 표시
+  - [x] Edit 버튼 (수정 화면으로 이동)
+  - [x] 높이 고정 및 스크롤 지원
+  - [x] 공용 함수 사용 (날짜 포맷팅, 우선순위 관련 함수)
+
+**참고:** 설계서 `dailyflow_design_spec.md` 4.5 섹션
+
+### 11. 설정 화면
 
 - [ ] `lib/view/settings_view.dart` 생성
   - [ ] 라이트/다크 모드 토글 (현재는 홈 화면 앱바에 임시 구현됨)
@@ -327,6 +344,17 @@
   - [x] 모든 사용처 import 경로 업데이트
   - [x] `lib/util/common_util.dart`는 범용 함수/클래스를 담는 공간으로 문서화
   - [x] `lib/app_custom/app_common_util.dart`는 앱 전용 공용 함수/클래스를 담는 공간으로 문서화
+  - [x] 우선순위 관련 함수 통합
+    - [x] `getPriorityColor`, `getPriorityText`를 `app_common_util.dart`로 이동
+    - [x] 모든 파일에서 중복 함수 제거 (todo_detail_dialog, create_todo_view, edit_todo_view, main_view, deleted_todos_view)
+
+### 네비게이션 통일
+
+- [x] 네비게이션 유틸리티 통일
+  - [x] 모든 화면에서 `CustomNavigationUtil.to` 사용 (기본 Navigator.push 제거)
+  - [x] 모든 화면에서 `CustomNavigationUtil.back` 사용 (기본 Navigator.pop 제거)
+  - [x] `main.dart`의 라우트 정의를 `onGenerateRoute`로 변경하여 arguments 처리 가능하도록 개선
+  - [x] 타입 안전성 향상 및 코드 일관성 확보
 
 ### 성능 최적화
 

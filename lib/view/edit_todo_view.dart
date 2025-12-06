@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_custom/custom_time_picker.dart';
+import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/step_mapper_util.dart';
@@ -91,6 +92,8 @@ class _EditTodoViewState extends State<EditTodoView> {
 
     return Scaffold(
       backgroundColor: p.background,
+      // 드로워 슬라이드 제스처 비활성화
+      drawerEnableOpenDragGesture: false,
       appBar: CustomAppBar(
         foregroundColor: p.textOnPrimary,
         toolbarHeight: 50,
@@ -290,21 +293,27 @@ class _EditTodoViewState extends State<EditTodoView> {
                             onChanged: (value) {
                               if (value != null) {
                                 setState(() {
-                                  // 현재 선택한 시간의 시간대 확인
-                                  int? currentTimeStep;
-                                  if (_selectedTime != null) {
-                                    currentTimeStep =
-                                        StepMapperUtil.mapTimeToStep(
-                                          _selectedTime!,
-                                        );
-                                  }
-
-                                  // 선택한 시간대가 현재 시간의 시간대와 다르면
-                                  // 시간 초기화 및 알람 비활성화
-                                  if (currentTimeStep != null &&
-                                      value != currentTimeStep) {
+                                  // "종일"로 변경하면 무조건 시간 초기화
+                                  if (value == StepMapperUtil.stepAnytime) {
                                     _selectedTime = null;
                                     _hasAlarm = false;
+                                  } else {
+                                    // 현재 선택한 시간의 시간대 확인
+                                    int? currentTimeStep;
+                                    if (_selectedTime != null) {
+                                      currentTimeStep =
+                                          StepMapperUtil.mapTimeToStep(
+                                            _selectedTime!,
+                                          );
+                                    }
+
+                                    // 선택한 시간대가 현재 시간의 시간대와 다르면
+                                    // 시간 초기화 및 알람 비활성화
+                                    if (currentTimeStep != null &&
+                                        value != currentTimeStep) {
+                                      _selectedTime = null;
+                                      _hasAlarm = false;
+                                    }
                                   }
 
                                   _selectedStep = value;
@@ -374,7 +383,7 @@ class _EditTodoViewState extends State<EditTodoView> {
                                   style: TextStyle(color: p.textSecondary),
                                 );
                               }
-                              final priorityColor = _getPriorityColor(value, p);
+                              final priorityColor = getPriorityColor(value, p);
                               return CustomRow(
                                 spacing: 6,
                                 children: [
@@ -387,7 +396,7 @@ class _EditTodoViewState extends State<EditTodoView> {
                                   ),
                                   Flexible(
                                     child: CustomText(
-                                      _getPriorityLabel(value),
+                                      getPriorityText(value),
                                       style: TextStyle(
                                         color: p.textPrimary,
                                         fontSize: 16,
@@ -399,7 +408,7 @@ class _EditTodoViewState extends State<EditTodoView> {
                               );
                             },
                             itemBuilder: (item) {
-                              final priorityColor = _getPriorityColor(item, p);
+                              final priorityColor = getPriorityColor(item, p);
                               return CustomRow(
                                 spacing: 6,
                                 children: [
@@ -412,7 +421,7 @@ class _EditTodoViewState extends State<EditTodoView> {
                                   ),
                                   Flexible(
                                     child: CustomText(
-                                      _getPriorityLabel(item),
+                                      getPriorityText(item),
                                       style: TextStyle(
                                         color: p.textPrimary,
                                         fontSize: 16,
@@ -516,42 +525,6 @@ class _EditTodoViewState extends State<EditTodoView> {
     }
   }
 
-  /// 우선순위에 따른 색상 반환
-  Color _getPriorityColor(int priority, AppColorScheme p) {
-    switch (priority) {
-      case 1:
-        return p.dailyFlow.priorityVeryLow;
-      case 2:
-        return p.dailyFlow.priorityLow;
-      case 3:
-        return p.dailyFlow.priorityMedium;
-      case 4:
-        return p.dailyFlow.priorityHigh;
-      case 5:
-        return p.dailyFlow.priorityVeryHigh;
-      default:
-        return p.dailyFlow.priorityMedium;
-    }
-  }
-
-  /// 우선순위 라벨 반환
-  String _getPriorityLabel(int priority) {
-    switch (priority) {
-      case 1:
-        return "매우 낮음";
-      case 2:
-        return "낮음";
-      case 3:
-        return "보통";
-      case 4:
-        return "높음";
-      case 5:
-        return "매우 높음";
-      default:
-        return "보통";
-    }
-  }
-
   /// Todo 수정
   Future<void> _updateTodo() async {
     // 제목 필수 입력 검증
@@ -569,8 +542,15 @@ class _EditTodoViewState extends State<EditTodoView> {
       // 실패 다이얼로그 테스트를 위해 주석 해제
       // throw Exception("테스트용 강제 실패");
 
-      // 시간이 선택된 경우 Step 자동 매핑
-      if (_selectedTime != null) {
+      // "종일"이면 시간을 null로 강제 설정
+      String? finalTime = _selectedTime;
+      bool shouldClearTime = false;
+      if (_selectedStep == StepMapperUtil.stepAnytime) {
+        finalTime = null;
+        shouldClearTime = true; // 종일이면 시간을 명시적으로 null로 설정
+        _hasAlarm = false; // 종일이면 알람도 무조건 false
+      } else if (_selectedTime != null) {
+        // 시간이 선택된 경우 Step 자동 매핑
         _selectedStep = StepMapperUtil.mapTimeToStep(_selectedTime);
       }
 
@@ -581,19 +561,42 @@ class _EditTodoViewState extends State<EditTodoView> {
             ? null
             : _memoController.text.trim(),
         date: CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd'),
-        time: _selectedTime,
+        time: finalTime,
+        clearTime: shouldClearTime, // 종일일 때 시간을 명시적으로 null로 설정
         step: _selectedStep,
         priority: _selectedPriority,
-        hasAlarm: _hasAlarm && _selectedTime != null,
+        hasAlarm: _hasAlarm && finalTime != null,
         updatedAt: CustomCommonUtil.formatDate(
           DateTime.now(),
           'yyyy-MM-dd HH:mm:ss',
         ),
       );
 
+      // 디버그: 업데이트 전 데이터 확인
+      print("=== Todo 업데이트 전 ===");
+      print(
+        "기존 Todo: id=${widget.todo.id}, step=${widget.todo.step}, time=${widget.todo.time}, hasAlarm=${widget.todo.hasAlarm}",
+      );
+      print("=== 업데이트할 데이터 ===");
+      print(
+        "updatedTodo: id=${updatedTodo.id}, step=${updatedTodo.step}, time=${updatedTodo.time}, hasAlarm=${updatedTodo.hasAlarm}",
+      );
+      print("_selectedStep: $_selectedStep, finalTime: $finalTime");
+
       // 데이터베이스에 업데이트
-      await _handler.updateData(updatedTodo);
-      print("Todo 수정 완료: id=${updatedTodo.id}");
+      final result = await _handler.updateData(updatedTodo);
+      print("Todo 수정 완료: id=${updatedTodo.id}, 수정된 레코드 수: $result");
+
+      // 디버그: 업데이트 후 데이터 확인
+      if (updatedTodo.id != null) {
+        final verifyTodo = await _handler.queryDataById(updatedTodo.id!);
+        if (verifyTodo != null) {
+          print("=== 업데이트 후 DB 확인 ===");
+          print(
+            "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}",
+          );
+        }
+      }
 
       // 수정 성공 다이얼로그
       if (context.mounted) {
@@ -607,7 +610,7 @@ class _EditTodoViewState extends State<EditTodoView> {
         );
         // 다이얼로그가 닫힌 후 화면도 닫기
         if (context.mounted) {
-          Navigator.of(context).pop(true); // main_view로 복귀
+          CustomNavigationUtil.back(context, result: true); // main_view로 복귀
         }
       }
     } catch (e) {
@@ -622,7 +625,7 @@ class _EditTodoViewState extends State<EditTodoView> {
           confirmText: "확인",
           barrierDismissible: false, // 배경 터치로 닫기 방지
           onConfirm: () {
-            Navigator.of(context).pop(); // 다이얼로그만 닫기
+            CustomNavigationUtil.back(context); // 다이얼로그만 닫기
           },
         );
       }

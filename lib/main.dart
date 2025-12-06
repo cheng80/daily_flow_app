@@ -72,11 +72,36 @@ class _MyAppState extends State<MyApp> {
       ],
 
       initialRoute: '/', // 처음 화면 지정
-      routes: {
-        '/': (context) => Home(onToggleTheme: _toggleTheme),
-        '/main_view': (context) => MainView(onToggleTheme: _toggleTheme),
-        '/create_todo_view': (context) =>
-            CreateTodoView(onToggleTheme: _toggleTheme),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(
+              builder: (context) => Home(onToggleTheme: _toggleTheme),
+            );
+          case '/main_view':
+            return MaterialPageRoute(
+              builder: (context) => MainView(onToggleTheme: _toggleTheme),
+            );
+          case '/create_todo_view':
+            // arguments에서 initialDate를 받을 수 있음
+            final args = settings.arguments;
+            DateTime? initialDate;
+            if (args is Map<String, dynamic> && args['initialDate'] != null) {
+              initialDate = args['initialDate'] as DateTime;
+            } else if (args is DateTime) {
+              initialDate = args;
+            }
+            return MaterialPageRoute(
+              builder: (context) => CreateTodoView(
+                onToggleTheme: _toggleTheme,
+                initialDate: initialDate,
+              ),
+            );
+          default:
+            return MaterialPageRoute(
+              builder: (context) => Home(onToggleTheme: _toggleTheme),
+            );
+        }
       },
     );
   }

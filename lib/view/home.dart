@@ -6,11 +6,13 @@ import 'home_test_summary_bar.dart';
 import 'home_test_step_mapper.dart';
 import 'home_test_filter_radio.dart';
 import 'home_test_calendar_test.dart';
-
+import 'main_view.dart';
+import 'create_todo_view.dart';
 import 'home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
+import '../custom/custom_common_util.dart';
 
 /// 모듈 테스트용 홈 화면 위젯 (인덱스)
 ///
@@ -146,10 +148,9 @@ class _HomeState extends State<Home> {
               CustomButton(
                 btnText: "MainView 이동",
                 onCallBack: () {
-                  CustomNavigationUtil.toNamed(
+                  CustomNavigationUtil.to(
                     context,
-                    "/main_view",
-                    arguments: widget.onToggleTheme,
+                    MainView(onToggleTheme: widget.onToggleTheme),
                   );
                 },
               ),
@@ -157,10 +158,9 @@ class _HomeState extends State<Home> {
               CustomButton(
                 btnText: "CreateTodoView 이동",
                 onCallBack: () {
-                  CustomNavigationUtil.toNamed(
+                  CustomNavigationUtil.to(
                     context,
-                    "/create_todo_view",
-                    arguments: widget.onToggleTheme,
+                    CreateTodoView(onToggleTheme: widget.onToggleTheme),
                   );
                 },
               ),
@@ -209,6 +209,20 @@ class _HomeState extends State<Home> {
                 btnText: "2025년 12월 더미 데이터 삽입",
                 onCallBack: () async {
                   await _insertDummyData(context);
+                },
+              ),
+
+              CustomButton(
+                btnText: "삭제된 Todo 더미 데이터 삽입",
+                onCallBack: () async {
+                  await _insertDeletedDummyData(context);
+                },
+              ),
+
+              CustomButton(
+                btnText: "삭제된 Todo 데이터 삭제",
+                onCallBack: () async {
+                  await _clearDeletedData(context);
                 },
               ),
 
@@ -663,6 +677,266 @@ class _HomeState extends State<Home> {
         CustomSnackBar.show(
           context,
           message: '더미 데이터 삽입 중 오류 발생: $e',
+          duration: const Duration(seconds: 3),
+        );
+      }
+    }
+  }
+
+  /// 삭제된 Todo 더미 데이터 삽입 함수
+  ///
+  /// deleted_todo 테이블에 더미 데이터를 삽입합니다.
+  /// - 7일 전 데이터 5개
+  /// - 30일 전 데이터 10개
+  Future<void> _insertDeletedDummyData(BuildContext context) async {
+    final dbHandler = DatabaseHandler();
+    final now = DateTime.now();
+    final db = await dbHandler.initializeDB();
+
+    try {
+      int successCount = 0;
+      int failCount = 0;
+
+      // 7일 전 데이터 5개
+      final sevenDaysAgo = now.subtract(const Duration(days: 7));
+      final sevenDaysAgoDate = CustomCommonUtil.formatDate(
+        sevenDaysAgo,
+        'yyyy-MM-dd',
+      );
+      final sevenDaysAgoDeletedAt = CustomCommonUtil.formatDate(
+        sevenDaysAgo,
+        'yyyy-MM-dd HH:mm:ss',
+      );
+
+      final List<Map<String, dynamic>> sevenDaysData = [
+        {
+          'title': '7일 전 일정 1',
+          'memo': '7일 전 삭제된 메모 1',
+          'date': sevenDaysAgoDate,
+          'time': '09:00',
+          'step': StepMapperUtil.stepMorning,
+          'priority': 3,
+          'is_done': 0,
+          'deleted_at': sevenDaysAgoDeletedAt,
+        },
+        {
+          'title': '7일 전 일정 2',
+          'memo': '7일 전 삭제된 메모 2',
+          'date': sevenDaysAgoDate,
+          'time': '14:00',
+          'step': StepMapperUtil.stepNoon,
+          'priority': 4,
+          'is_done': 0,
+          'deleted_at': sevenDaysAgoDeletedAt,
+        },
+        {
+          'title': '7일 전 일정 3',
+          'memo': '7일 전 삭제된 메모 3',
+          'date': sevenDaysAgoDate,
+          'time': '19:00',
+          'step': StepMapperUtil.stepEvening,
+          'priority': 2,
+          'is_done': 1,
+          'deleted_at': sevenDaysAgoDeletedAt,
+        },
+        {
+          'title': '7일 전 일정 4',
+          'memo': '7일 전 삭제된 메모 4',
+          'date': sevenDaysAgoDate,
+          'time': '02:00',
+          'step': StepMapperUtil.stepNight,
+          'priority': 5,
+          'is_done': 0,
+          'deleted_at': sevenDaysAgoDeletedAt,
+        },
+        {
+          'title': '7일 전 일정 5',
+          'memo': '7일 전 삭제된 메모 5',
+          'date': sevenDaysAgoDate,
+          'time': null,
+          'step': StepMapperUtil.stepAnytime,
+          'priority': 1,
+          'is_done': 0,
+          'deleted_at': sevenDaysAgoDeletedAt,
+        },
+      ];
+
+      // 30일 전 데이터 10개
+      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+      final thirtyDaysAgoDate = CustomCommonUtil.formatDate(
+        thirtyDaysAgo,
+        'yyyy-MM-dd',
+      );
+      final thirtyDaysAgoDeletedAt = CustomCommonUtil.formatDate(
+        thirtyDaysAgo,
+        'yyyy-MM-dd HH:mm:ss',
+      );
+
+      final List<Map<String, dynamic>> thirtyDaysData = [
+        {
+          'title': '30일 전 일정 1',
+          'memo': '30일 전 삭제된 메모 1',
+          'date': thirtyDaysAgoDate,
+          'time': '08:00',
+          'step': StepMapperUtil.stepMorning,
+          'priority': 3,
+          'is_done': 0,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 2',
+          'memo': '30일 전 삭제된 메모 2',
+          'date': thirtyDaysAgoDate,
+          'time': '10:00',
+          'step': StepMapperUtil.stepMorning,
+          'priority': 4,
+          'is_done': 1,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 3',
+          'memo': '30일 전 삭제된 메모 3',
+          'date': thirtyDaysAgoDate,
+          'time': '13:00',
+          'step': StepMapperUtil.stepNoon,
+          'priority': 2,
+          'is_done': 0,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 4',
+          'memo': '30일 전 삭제된 메모 4',
+          'date': thirtyDaysAgoDate,
+          'time': '15:00',
+          'step': StepMapperUtil.stepNoon,
+          'priority': 5,
+          'is_done': 0,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 5',
+          'memo': '30일 전 삭제된 메모 5',
+          'date': thirtyDaysAgoDate,
+          'time': '18:00',
+          'step': StepMapperUtil.stepEvening,
+          'priority': 1,
+          'is_done': 1,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 6',
+          'memo': '30일 전 삭제된 메모 6',
+          'date': thirtyDaysAgoDate,
+          'time': '20:00',
+          'step': StepMapperUtil.stepEvening,
+          'priority': 3,
+          'is_done': 0,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 7',
+          'memo': '30일 전 삭제된 메모 7',
+          'date': thirtyDaysAgoDate,
+          'time': '01:00',
+          'step': StepMapperUtil.stepNight,
+          'priority': 4,
+          'is_done': 0,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 8',
+          'memo': '30일 전 삭제된 메모 8',
+          'date': thirtyDaysAgoDate,
+          'time': '03:00',
+          'step': StepMapperUtil.stepNight,
+          'priority': 2,
+          'is_done': 1,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 9',
+          'memo': '30일 전 삭제된 메모 9',
+          'date': thirtyDaysAgoDate,
+          'time': null,
+          'step': StepMapperUtil.stepAnytime,
+          'priority': 5,
+          'is_done': 0,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+        {
+          'title': '30일 전 일정 10',
+          'memo': '30일 전 삭제된 메모 10',
+          'date': thirtyDaysAgoDate,
+          'time': null,
+          'step': StepMapperUtil.stepAnytime,
+          'priority': 1,
+          'is_done': 1,
+          'deleted_at': thirtyDaysAgoDeletedAt,
+        },
+      ];
+
+      // 7일 전 데이터 삽입
+      for (var data in sevenDaysData) {
+        try {
+          await db.insert('deleted_todo', data);
+          successCount++;
+        } catch (e) {
+          print('7일 전 더미 데이터 삽입 실패: ${data['title']} - $e');
+          failCount++;
+        }
+      }
+
+      // 30일 전 데이터 삽입
+      for (var data in thirtyDaysData) {
+        try {
+          await db.insert('deleted_todo', data);
+          successCount++;
+        } catch (e) {
+          print('30일 전 더미 데이터 삽입 실패: ${data['title']} - $e');
+          failCount++;
+        }
+      }
+
+      if (context.mounted) {
+        CustomSnackBar.show(
+          context,
+          message:
+              '삭제된 Todo 더미 데이터 삽입 완료!\n성공: $successCount개, 실패: $failCount개',
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        CustomSnackBar.show(
+          context,
+          message: '삭제된 Todo 더미 데이터 삽입 중 오류 발생: $e',
+          duration: const Duration(seconds: 3),
+        );
+      }
+    }
+  }
+
+  /// 삭제된 Todo 데이터 삭제 함수
+  ///
+  /// deleted_todo 테이블의 모든 데이터를 삭제합니다.
+  Future<void> _clearDeletedData(BuildContext context) async {
+    final dbHandler = DatabaseHandler();
+
+    try {
+      await dbHandler.allClearDeletedData();
+
+      if (context.mounted) {
+        CustomSnackBar.show(
+          context,
+          message: '삭제된 Todo 데이터가 모두 삭제되었습니다.',
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        CustomSnackBar.show(
+          context,
+          message: '삭제된 Todo 데이터 삭제 중 오류 발생: $e',
           duration: const Duration(seconds: 3),
         );
       }
