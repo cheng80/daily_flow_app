@@ -4,7 +4,7 @@ import '../app_custom/custom_filter_radio.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/custom_calendar.dart';
-import '../util/common_util.dart';
+import '../app_custom/app_common_util.dart';
 import '../util/step_mapper_util.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
@@ -216,30 +216,35 @@ class _MainViewState extends State<MainView> {
             //-- Calendar
             //----------------------------------
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
-              // height: 420,
+              // width는 제거: CustomCalendar가 calendarHeight를 기준으로 자동으로 1:1 비율로 너비를 계산함
+              height: MediaQuery.of(context).size.width * 0.9,
               child: CustomCalendar(
+                calendarHeight: MediaQuery.of(context).size.width * 0.9,
+                cellAspectRatio: 1.0,
                 selectedDay: _selectedDay,
                 focusedDay: _focusedDay,
                 onDaySelected: (selectedDay, focusedDay) {
-                  final previousMonth = _focusedDay.month;
-                  final previousYear = _focusedDay.year;
-
                   setState(() {
                     _selectedDay = selectedDay;
                     _focusedDay = focusedDay;
                   });
 
-                  // 월이 변경된 경우 이벤트 데이터 다시 로드
-                  if (previousMonth != focusedDay.month ||
-                      previousYear != focusedDay.year) {
-                    _loadCalendarEvents();
-                  }
-
                   // 날짜 선택 시 Summary Bar 비율 재계산
                   _calculateSummaryRatios();
 
                   print('선택된 날짜: ${_selectedDay.toString().split(' ')[0]}');
+                },
+                onTodayPressed: () {
+                  _goToToday();
+                  _loadCalendarEvents();
+                  _calculateSummaryRatios();
+                },
+                onPageChanged: (focusedDay) {
+                  setState(() {
+                    _focusedDay = focusedDay;
+                  });
+                  // 월 변경 시 이벤트 데이터 다시 로드
+                  _loadCalendarEvents();
                 },
                 eventLoader: (day) {
                   // 날짜를 'YYYY-MM-DD' 형식으로 변환
@@ -421,7 +426,7 @@ class _MainViewState extends State<MainView> {
 
   /// 선택된 날짜의 일정을 Step별로 비율 계산하여 Summary Bar에 적용
   ///
-  /// common_util.dart의 calculateAndUpdateSummaryRatios 함수를 사용하여
+  /// app_common_util.dart의 calculateAndUpdateSummaryRatios 함수를 사용하여
   /// 비율을 계산하고 상태 변수에 저장합니다.
   Future<void> _calculateSummaryRatios() async {
     await calculateAndUpdateSummaryRatios(
@@ -438,6 +443,42 @@ class _MainViewState extends State<MainView> {
     );
   }
 
+  /// 완료 상태에 따른 제목 텍스트 스타일 반환
+  ///
+  /// [isDone] 완료 여부
+  /// [p] AppColorScheme 객체
+  /// 반환값: 완료된 경우 취소선이 적용된 TextStyle, 미완료인 경우 일반 TextStyle
+  TextStyle _getTitleTextStyle(bool isDone, AppColorScheme p) {
+    return TextStyle(
+      color: p.textPrimary,
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      decoration: isDone ? TextDecoration.lineThrough : TextDecoration.none,
+    );
+  }
+
+  /// 우선순위에 따른 색상 반환
+  ///
+  /// [priority] 우선순위 값 (1~5)
+  /// [p] AppColorScheme 객체
+  /// 반환값: 우선순위에 맞는 색상
+  Color _getPriorityColor(int priority, AppColorScheme p) {
+    switch (priority) {
+      case 1:
+        return p.dailyFlow.priorityVeryLow;
+      case 2:
+        return p.dailyFlow.priorityLow;
+      case 3:
+        return p.dailyFlow.priorityMedium;
+      case 4:
+        return p.dailyFlow.priorityHigh;
+      case 5:
+        return p.dailyFlow.priorityVeryHigh;
+      default:
+        return p.dailyFlow.priorityMedium;
+    }
+  }
+
   /// Todo 카드 위젯 생성
   Widget _buildTodoCard(
     AsyncSnapshot<List<Todo>> snapshot,
@@ -445,83 +486,131 @@ class _MainViewState extends State<MainView> {
     AppColorScheme p,
   ) {
     final todo = snapshot.data![index];
+
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.zero,
       elevation: 4,
       borderRadius: 16,
       color: p.cardBackground,
-      child: CustomColumn(
-        spacing: 8,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 제목
-          CustomText(
-            todo.title,
-            style: TextStyle(
-              color: p.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          // 날짜와 시간대
-          CustomRow(
-            spacing: 8,
-            children: [
-              CustomText(
-                todo.date,
-                style: TextStyle(color: p.textSecondary, fontSize: 14),
-              ),
-              if (todo.time != null) ...[
-                CustomText("•", style: TextStyle(color: p.textSecondary)),
-                CustomText(
-                  todo.time!,
-                  style: TextStyle(color: p.textSecondary, fontSize: 14),
+      child: Builder(
+        builder: (context) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          const checkboxWidth = 48.0;
+          const priorityStripWidth = 60.0;
+          const cardMargin = 16.0 * 2; // 좌우 마진
+          final contentWidth =
+              screenWidth - checkboxWidth - priorityStripWidth - cardMargin;
+
+          return IntrinsicHeight(
+            child: CustomRow(
+              spacing: 0,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. 체크박스 영역 (고정 크기)
+                SizedBox(
+                  width: checkboxWidth,
+                  child: CustomPadding(
+                    padding: const EdgeInsets.only(top: 0, left: 16),
+                    child: CustomCheckbox(
+                      value: todo.isDone,
+                      onChanged: (value) => _toggleTodoDone(todo, value),
+                    ),
+                  ),
+                ),
+                // 2. 내용 영역 (계산된 크기)
+                SizedBox(
+                  width: contentWidth,
+                  child: CustomPadding(
+                    padding: const EdgeInsets.only(
+                      left: 12,
+                      top: 12,
+                      bottom: 10,
+                      right: 12,
+                    ),
+                    child: CustomColumn(
+                      spacing: 0,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 제목
+                        CustomText(
+                          todo.title,
+                          style: _getTitleTextStyle(todo.isDone, p),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        // 날짜와 시간대
+                        CustomRow(
+                          spacing: 8,
+                          children: [
+                            CustomText(
+                              todo.date,
+                              style: TextStyle(
+                                color: p.textSecondary,
+                                fontSize: 14,
+                              ),
+                            ),
+                            if (todo.time != null) ...[
+                              CustomText(
+                                "•",
+                                style: TextStyle(color: p.textSecondary),
+                              ),
+                              CustomText(
+                                todo.time!,
+                                style: TextStyle(
+                                  color: p.textSecondary,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                            CustomText(
+                              "•",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                            CustomText(
+                              StepMapperUtil.stepToKorean(todo.step),
+                              style: TextStyle(
+                                color: p.textSecondary,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // 메모가 있는 경우 표시
+                        if (todo.memo != null && todo.memo!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          CustomText(
+                            '${todo.isDone ? "완료" : "미완료"} : ${todo.memo!}',
+                            style: TextStyle(
+                              color: p.textSecondary,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                // 3. 우선순위 띠 영역 (고정 크기)
+                SizedBox(
+                  width: priorityStripWidth,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _getPriorityColor(todo.priority, p),
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                    ),
+                  ),
                 ),
               ],
-              CustomText("•", style: TextStyle(color: p.textSecondary)),
-              CustomText(
-                StepMapperUtil.stepToKorean(todo.step),
-                style: TextStyle(color: p.textSecondary, fontSize: 14),
-              ),
-            ],
-          ),
-          // 메모가 있는 경우 표시
-          if (todo.memo != null && todo.memo!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            CustomText(
-              todo.memo!,
-              style: TextStyle(color: p.textSecondary, fontSize: 14),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
-          ],
-          // 우선순위와 완료 상태
-          const SizedBox(height: 8),
-          CustomRow(
-            spacing: 8,
-            children: [
-              CustomText(
-                "우선순위: ${todo.priority}",
-                style: TextStyle(color: p.textSecondary, fontSize: 12),
-              ),
-              CustomText("•", style: TextStyle(color: p.textSecondary)),
-              CustomText(
-                todo.isDone ? "완료" : "미완료",
-                style: TextStyle(
-                  color: todo.isDone
-                      ? p.dailyFlow.priorityMedium
-                      : p.textSecondary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -533,6 +622,18 @@ class _MainViewState extends State<MainView> {
   /// 데이터 다시 로드
   void _reloadData() {
     setState(() {});
+  }
+
+  /// Todo 완료 상태 토글
+  ///
+  /// [todo] 완료 상태를 변경할 Todo 객체
+  /// [value] 새로운 완료 상태 (null일 수 있음)
+  Future<void> _toggleTodoDone(Todo todo, bool? value) async {
+    if (todo.id != null) {
+      await _handler.toggleDone(todo.id!, value ?? false);
+      _reloadData();
+      _calculateSummaryRatios();
+    }
   }
 
   /// 데이터 변경 함수 (수정/삭제)

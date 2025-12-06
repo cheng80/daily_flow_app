@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../util/common_util.dart';
+import '../app_custom/app_common_util.dart';
 
 /// 서머리바 위젯 테스트 화면
 ///

@@ -51,6 +51,14 @@
     - [x] FutureBuilder로 데이터 조회
     - [x] CustomCard로 Todo 표시
     - [x] Slidable로 수정/삭제 액션 구현
+    - [x] Todo 카드 UI 개선
+      - [x] Stack 제거하고 Row로 재구성 (체크박스, 내용, 우선순위 띠 3개 영역)
+      - [x] 제목과 메모 한 줄 표시 (말줄임표 적용)
+      - [x] 제목 글자 크기 증가 (18 → 20)
+      - [x] 줄간격 및 카드 높이 최적화
+      - [x] 완료 여부 텍스트 추가 (메모 앞에 "완료 : " 또는 "미완료 : ")
+      - [x] 체크박스 onChanged 로직을 별도 함수로 분리 (`_toggleTodoDone`)
+      - [x] Padding을 CustomPadding으로 교체
   - [x] FloatingActionButton 구현
   - [x] 날짜 선택 시 데이터 갱신 로직
     - [x] 달력 이벤트 캐싱 및 자동 로드
@@ -223,30 +231,30 @@
 #### 8-1. 일정 등록 화면
 
 - [ ] `lib/view/create_todo_view.dart` 생성
-  - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
-  - [ ] 시간 선택 (TimePicker 또는 드롭다운)
-  - [ ] 제목 입력 (CustomTextField)
-  - [ ] 메모 입력 (CustomTextField, 멀티라인)
-  - [ ] Step 선택 (CustomDropdownButton)
-  - [ ] 중요도 선택 (1~5단계)
-  - [ ] 알람 설정 (Switch)
-  - [ ] 저장 버튼 (CustomButton)
-  - [ ] 시간 → Step 자동 매핑 로직
-  - [ ] NotificationService와 연동 (알람 등록)
-  - [ ] DatabaseHandler와 연동 (Todo 저장)
+    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+    - [ ] 시간 선택 (TimePicker 또는 드롭다운)
+    - [ ] 제목 입력 (CustomTextField)
+    - [ ] 메모 입력 (CustomTextField, 멀티라인)
+    - [ ] Step 선택 (CustomDropdownButton)
+    - [ ] 중요도 선택 (1~5단계)
+    - [ ] 알람 설정 (Switch)
+    - [ ] 저장 버튼 (CustomButton)
+    - [ ] 시간 → Step 자동 매핑 로직
+    - [ ] NotificationService와 연동 (알람 등록)
+    - [ ] DatabaseHandler와 연동 (Todo 저장)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2장
 
 #### 8-2. 일정 수정 화면
 
 - [ ] `lib/view/edit_todo_view.dart` 생성
-  - [ ] 기존 데이터 로드
-  - [ ] 수정 기능 (등록 화면과 유사)
-  - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
-  - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
-  - [ ] 삭제 확인 Dialog (CustomDialog)
-  - [ ] NotificationService와 연동 (알람 업데이트/취소)
-  - [ ] DatabaseHandler와 연동 (Todo 수정/삭제)
+    - [ ] 기존 데이터 로드
+    - [ ] 수정 기능 (등록 화면과 유사)
+    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+    - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
+    - [ ] 삭제 확인 Dialog (CustomDialog)
+    - [ ] NotificationService와 연동 (알람 업데이트/취소)
+    - [ ] DatabaseHandler와 연동 (Todo 수정/삭제)
 
 **참고:** 설계서 `dailyflow_design_spec.md` 3장
 
@@ -305,6 +313,15 @@
   - [x] DatabaseHandler를 직접 사용하는 현재 구조 유지
   - [x] Repository 레이어는 추가하지 않음 (단순한 CRUD 작업, SQLite만 사용)
   - [x] 향후 네트워크 동기화나 복잡한 비즈니스 로직 추가 시 재검토
+
+### 유틸리티 파일 구조 개선
+
+- [x] 앱 전용 공용 함수/클래스 분리
+  - [x] `lib/util/common_util.dart` → `lib/app_custom/app_common_util.dart`로 이동
+  - [x] `SummaryRatios` 클래스를 `AppSummaryRatios`로 변경
+  - [x] 모든 사용처 import 경로 업데이트
+  - [x] `lib/util/common_util.dart`는 범용 함수/클래스를 담는 공간으로 문서화
+  - [x] `lib/app_custom/app_common_util.dart`는 앱 전용 공용 함수/클래스를 담는 공간으로 문서화
 
 ### 성능 최적화
 

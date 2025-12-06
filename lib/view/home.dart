@@ -5,7 +5,9 @@ import 'home_test_calendar.dart';
 import 'home_test_summary_bar.dart';
 import 'home_test_step_mapper.dart';
 import 'home_test_filter_radio.dart';
-import 'home_test_calendar_picker.dart';
+import 'home_test_calendar_test.dart';
+
+import 'home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
 import '../util/step_mapper_util.dart';
@@ -203,12 +205,25 @@ class _HomeState extends State<Home> {
                   await _insertDummyData(context);
                 },
               ),
+
               CustomButton(
-                btnText: "날짜 선택 위젯 테스트",
+                btnText: "테스트용 날짜 선택 다이얼로그",
                 onCallBack: () {
                   CustomNavigationUtil.to(
                     context,
-                    HomeTestCalendarPicker(onToggleTheme: widget.onToggleTheme),
+                    HomeTestCalendarPickerDialogTest(
+                      onToggleTheme: widget.onToggleTheme,
+                    ),
+                  );
+                },
+              ),
+
+              CustomButton(
+                btnText: "테스트용 달력 (크기 조절 가능)",
+                onCallBack: () {
+                  CustomNavigationUtil.to(
+                    context,
+                    HomeTestCalendarTest(onToggleTheme: widget.onToggleTheme),
                   );
                 },
               ),
@@ -352,11 +367,13 @@ class _HomeState extends State<Home> {
       },
       {
         'date': '2025-12-06',
-        'title': '쇼핑',
+        'title':
+            '이것은 매우 긴 제목입니다. 이 제목은 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 이 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다.',
         'time': null,
         'step': StepMapperUtil.stepAnytime,
         'priority': 2,
-        'memo': '생활용품 구매',
+        'memo':
+            '이것은 매우 긴 메모입니다. 이 메모도 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 메모 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다. 추가로 더 많은 텍스트를 넣어서 확실하게 말줄임표가 나타나도록 하겠습니다.',
       },
 
       // 12월 중반 (11일~20일)

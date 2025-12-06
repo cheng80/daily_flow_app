@@ -26,7 +26,7 @@
   - CustomSnackBar/Dialog 통합
   - 스펙 문서 기준 테이블 구조 구현
   - 인덱스 4개 생성 (idx_todo_date, idx_todo_date_step, idx_deleted_todo_date, idx_deleted_todo_deleted_at)
-
+  
 **주요 기능:**
 
 - Todo CRUD: 조회, 생성, 수정, 완료 토글
@@ -99,6 +99,14 @@
   - Todo List 구현 (CustomListView + Slidable)
   - 날짜 선택 시 데이터 자동 갱신 로직
   - DatabaseHandler API 문서 생성 (`lib/vm/DATABASE_HANDLER_API.md`)
+  - Todo 카드 UI 개선
+    - Stack 제거하고 Row로 재구성 (체크박스, 내용, 우선순위 띠 3개 영역)
+    - 제목과 메모 한 줄 표시 (말줄임표 적용)
+    - 제목 글자 크기 증가 (18 → 20)
+    - 줄간격 및 카드 높이 최적화
+    - 완료 여부 텍스트 추가 (메모 앞에 "완료 : " 또는 "미완료 : ")
+    - 체크박스 onChanged 로직을 별도 함수로 분리 (`_toggleTodoDone`)
+    - Padding을 CustomPadding으로 교체
 
 #### 2.7 네비게이션 유틸리티 통합
 
@@ -114,6 +122,15 @@
   - 오늘 날짜 데이터 자동 포함
   - 중복 삽입 방지 로직 추가
 - ✅ 모든 데이터 삭제 기능 추가 (드로어에 배치)
+
+#### 2.9 유틸리티 파일 구조 개선
+
+- ✅ 앱 전용 공용 함수/클래스 분리
+  - `lib/util/common_util.dart` → `lib/app_custom/app_common_util.dart`로 이동
+  - `SummaryRatios` 클래스를 `AppSummaryRatios`로 변경
+  - 모든 사용처 import 경로 업데이트 (`main_view.dart`, `home_test_summary_bar.dart`)
+  - `lib/util/common_util.dart`는 범용 함수/클래스를 담는 공간으로 문서화
+  - `lib/app_custom/app_common_util.dart`는 앱 전용 공용 함수/클래스를 담는 공간으로 문서화
 
 ### 3. 문서 업데이트 ✅
 
@@ -227,6 +244,25 @@
 ## 📅 작업 일지
 
 ### 2024년 (최근 작업)
+
+#### 메인 화면 Todo 카드 UI 개선
+
+- Todo 카드 레이아웃 개선
+  - Stack 제거하고 Row로 재구성 (체크박스, 내용, 우선순위 띠 3개 영역)
+  - 제목과 메모 한 줄 표시 (말줄임표 적용)
+  - 제목 글자 크기 증가 (18 → 20)
+  - 줄간격 및 카드 높이 최적화
+  - 완료 여부 텍스트 추가 (메모 앞에 "완료 : " 또는 "미완료 : ")
+  - 체크박스 onChanged 로직을 별도 함수로 분리 (`_toggleTodoDone`)
+  - Padding을 CustomPadding으로 교체
+
+#### 유틸리티 파일 구조 개선
+
+- 앱 전용 공용 함수/클래스 분리
+  - `lib/util/common_util.dart` → `lib/app_custom/app_common_util.dart`로 이동
+  - `SummaryRatios` 클래스를 `AppSummaryRatios`로 변경
+  - 모든 사용처 import 경로 업데이트
+  - 파일 목적 및 용도 문서화
 
 #### 테스트 페이지 구조 개선 및 코드 정리
 
