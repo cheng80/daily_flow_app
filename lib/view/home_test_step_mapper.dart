@@ -61,7 +61,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
     final korean = StepMapperUtil.stepToKorean(step);
 
     setState(() {
-      _timeToStepResult = '시간: $time\nStep: $step (${korean})';
+      _timeToStepResult = '시간: $time\nStep: $step ($korean)';
     });
   }
 
@@ -416,7 +416,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
                 final step = StepMapperUtil.mapTimeToStep("08:00");
                 final korean = StepMapperUtil.stepToKorean(step);
                 setState(() {
-                  _timeToStepResult = '시간: 08:00\nStep: $step (${korean})';
+                  _timeToStepResult = '시간: 08:00\nStep: $step ($korean)';
                 });
               },
             ),
@@ -429,7 +429,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
                 final step = StepMapperUtil.mapTimeToStep("14:30");
                 final korean = StepMapperUtil.stepToKorean(step);
                 setState(() {
-                  _timeToStepResult = '시간: 14:30\nStep: $step (${korean})';
+                  _timeToStepResult = '시간: 14:30\nStep: $step ($korean)';
                 });
               },
             ),
@@ -442,7 +442,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
                 final step = StepMapperUtil.mapTimeToStep("20:00");
                 final korean = StepMapperUtil.stepToKorean(step);
                 setState(() {
-                  _timeToStepResult = '시간: 20:00\nStep: $step (${korean})';
+                  _timeToStepResult = '시간: 20:00\nStep: $step ($korean)';
                 });
               },
             ),
