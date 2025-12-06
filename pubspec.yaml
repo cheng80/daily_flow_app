@@ -52,6 +52,9 @@ dependencies:
 
   # 로컬 알람 등록시 필요
   flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.0
+  # 권한 관리
+  permission_handler: ^11.3.1
 
   # 커스텀 달력
   table_calendar: ^3.2.0 

@@ -4,7 +4,6 @@ import '../theme/app_colors.dart';
 import '../model/todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../app_custom/app_common_util.dart';
-import '../custom/custom_common_util.dart';
 
 /// Todo 상세 정보 다이얼로그
 ///

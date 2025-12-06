@@ -327,3 +327,38 @@ String getPriorityText(int priority) {
       return "보통";
   }
 }
+
+/// 날짜와 시간 문자열을 DateTime으로 파싱
+///
+/// [date] 'YYYY-MM-DD' 형식의 날짜 문자열
+/// [time] 'HH:MM' 형식의 시간 문자열
+/// 반환값: 파싱된 DateTime 객체 (실패 시 null)
+///
+/// 사용 예시:
+/// ```dart
+/// final dateTime = parseDateTime('2024-12-07', '14:30');
+/// if (dateTime != null) {
+///   print('파싱된 시간: $dateTime');
+/// }
+/// ```
+DateTime? parseDateTime(String date, String time) {
+  try {
+    final dateParts = date.split('-');
+    final timeParts = time.split(':');
+
+    if (dateParts.length != 3 || timeParts.length != 2) {
+      return null;
+    }
+
+    return DateTime(
+      int.parse(dateParts[0]), // year
+      int.parse(dateParts[1]), // month
+      int.parse(dateParts[2]), // day
+      int.parse(timeParts[0]), // hour
+      int.parse(timeParts[1]), // minute
+    );
+  } catch (e) {
+    print('날짜/시간 파싱 오류: $e');
+    return null;
+  }
+}

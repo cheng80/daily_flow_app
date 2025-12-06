@@ -9,6 +9,8 @@ import '../app_custom/app_common_util.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
+import '../service/notification_service.dart';
+import '../custom/util/log/custom_log_util.dart';
 import 'create_todo_view.dart';
 import 'edit_todo_view.dart';
 import 'deleted_todos_view.dart';
@@ -124,7 +126,7 @@ class _MainViewState extends State<MainView> {
         final todos = await _handler.queryDataByDate(dateStr);
         newCache[dateStr] = todos;
       } catch (e) {
-        print("Error loading events for $dateStr: $e");
+        AppLogger.e("Error loading events for $dateStr", tag: 'MainView', error: e);
         newCache[dateStr] = [];
       }
     }
@@ -430,17 +432,20 @@ class _MainViewState extends State<MainView> {
                     _selectedDay,
                     'yyyy-MM-dd',
                   );
-                  print(
+                  AppLogger.d(
                     "Query date: $queryDate, Selected step: $_selectedStep",
+                    tag: 'MainView',
                   );
-                  print(
+                  AppLogger.d(
                     snapshot.hasData && snapshot.data!.isNotEmpty
                         ? "Data length: ${snapshot.data!.length}"
                         : "No data",
+                    tag: 'MainView',
                   );
                   if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    print(
+                    AppLogger.d(
                       "First todo: ${snapshot.data!.first.title}, date: ${snapshot.data!.first.date}",
+                      tag: 'MainView',
                     );
                   }
 
@@ -577,7 +582,7 @@ class _MainViewState extends State<MainView> {
     // 날짜 선택 시 Summary Bar 비율 재계산
     _calculateSummaryRatios();
 
-    print('선택된 날짜: ${_selectedDay.toString().split(' ')[0]}');
+    AppLogger.d('선택된 날짜: ${_selectedDay.toString().split(' ')[0]}', tag: 'MainView');
   }
 
   /// 오늘 버튼 클릭 콜백
@@ -859,7 +864,7 @@ class _MainViewState extends State<MainView> {
   ) async {
     final todo = todos[index];
 
-    print("Selected todo id: ${todo.id}");
+    AppLogger.d("Selected todo id: ${todo.id}", tag: 'MainView');
 
     if (type == FunctionType.update) {
       // 수정 페이지로 이동
@@ -880,6 +885,13 @@ class _MainViewState extends State<MainView> {
         confirmText: "삭제",
         cancelText: "취소",
         onConfirm: () async {
+          // 알람이 있으면 취소
+          if (todo.notificationId != null) {
+            final notificationService = NotificationService();
+            await notificationService.cancelNotification(todo.notificationId!);
+            AppLogger.s("알람 취소 완료: notificationId=${todo.notificationId}", tag: 'MainView');
+          }
+
           await _handler.deleteData(todo);
           _reloadData();
           if (context.mounted) {

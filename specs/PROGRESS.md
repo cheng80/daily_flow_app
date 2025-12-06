@@ -245,6 +245,29 @@
   - 시간대 표시 개선 (종일일 때도 시간대 표시)
   - 공용 함수 사용 (날짜 포맷팅, 우선순위 관련 함수)
 
+#### 2.15 전역 로깅 시스템 구현
+
+- ✅ `lib/custom/util/log/custom_log_util.dart` 생성
+  - `AppLogger` 클래스 구현
+  - 5가지 로그 레벨 제공 (디버그/정보/경고/에러/성공)
+  - 디버그 모드와 릴리즈 모드 자동 구분
+  - 릴리즈 모드에서도 에러 로그 출력 옵션 제공 (`_enableReleaseErrorLogs`)
+  - 태그 기반 로그 분류 지원
+  - 에러 객체 및 스택 트레이스 출력 지원
+
+- ✅ 모든 `print` 문을 `AppLogger`로 교체
+  - `lib/service/notification_service.dart` (모든 print 문 교체)
+  - `lib/view/create_todo_view.dart` (모든 print 문 교체)
+  - `lib/view/edit_todo_view.dart` (모든 print 문 교체)
+  - `lib/view/main_view.dart` (모든 print 문 교체)
+  - `lib/view/home.dart` (모든 print 문 교체)
+  - `lib/view/deleted_todos_view.dart` (모든 print 문 교체)
+  - `lib/main.dart` (print 문 교체)
+
+- ✅ 릴리즈 빌드에서 로그 확인 방법
+  - Android: `adb logcat | grep ERROR` 명령어로 에러 로그 확인 가능
+  - iOS: Xcode Console에서 디바이스 연결 후 로그 확인 가능
+
 ### 3. 문서 업데이트 ✅
 
 #### 3.1 REFERENCE.md 업데이트
@@ -427,6 +450,23 @@
 - REFERENCE.md 업데이트
   - 테스트 페이지 구조 및 명명 규칙 명시
   - 개발 작업 스타일 및 우선순위 섹션 추가
+
+#### 전역 로깅 시스템 구현 (2024년 12월)
+
+- `AppLogger` 클래스 구현 완료
+  - 디버그/정보/경고/에러/성공 5가지 로그 레벨 제공
+  - 디버그 모드와 릴리즈 모드 자동 구분
+  - 릴리즈 모드에서도 에러 로그 출력 옵션 제공 (`_enableReleaseErrorLogs`)
+  - 태그 기반 로그 분류 및 에러 객체/스택 트레이스 지원
+
+- 모든 `print` 문을 `AppLogger`로 교체 완료
+  - 서비스 레이어: `notification_service.dart` (모든 print 문 교체)
+  - 뷰 레이어: `create_todo_view.dart`, `edit_todo_view.dart`, `main_view.dart`, `home.dart`, `deleted_todos_view.dart` (모든 print 문 교체)
+  - 앱 진입점: `main.dart` (print 문 교체)
+
+- 릴리즈 빌드에서 로그 확인 방법 문서화
+  - Android: `adb logcat | grep ERROR` 명령어로 에러 로그 확인 가능
+  - iOS: Xcode Console에서 디바이스 연결 후 로그 확인 가능
 
 ### 2024년 (이전 작업)
 

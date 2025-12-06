@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../vm/database_handler.dart';
 import '../model/deleted_todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
+import '../custom/util/log/custom_log_util.dart';
 
 /// 삭제된 Todo 화면
 ///
@@ -504,7 +505,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
         setState(() {}); // 데이터 갱신
       }
     } catch (e) {
-      print("Todo 복구 오류: $e");
+      AppLogger.e("Todo 복구 오류", tag: 'DeletedTodos', error: e);
       if (context.mounted) {
         await CustomDialog.show(
           context,
@@ -526,7 +527,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
         setState(() {}); // 데이터 갱신
       }
     } catch (e) {
-      print("Todo 완전 삭제 오류: $e");
+      AppLogger.e("Todo 완전 삭제 오류", tag: 'DeletedTodos', error: e);
       if (context.mounted) {
         await CustomDialog.show(
           context,

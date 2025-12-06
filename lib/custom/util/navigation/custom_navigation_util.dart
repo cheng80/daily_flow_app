@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 enum PageTransitionType {
   /// 슬라이드 애니메이션 (기본값)
   slide,
+
   /// 페이드 애니메이션
   fade,
+
   /// 없음 (즉시 전환)
   none,
 }
@@ -15,68 +17,65 @@ enum PageTransitionType {
 class _NoSwipeBackPageRoute<T> extends PageRouteBuilder<T> {
   _NoSwipeBackPageRoute({
     required WidgetBuilder builder,
-    RouteSettings? settings,
+    super.settings,
     PageTransitionType transitionType = PageTransitionType.slide,
   }) : super(
-          pageBuilder: (context, animation, secondaryAnimation) {
-            // PopScope로 감싸서 스와이프 백 제스처만 차단 (뒤로가기 버튼은 허용)
-            return PopScope(
-              canPop: true, // 뒤로가기 버튼은 허용
-              onPopInvokedWithResult: (bool didPop, dynamic result) {
-                // 스와이프 백 제스처로 인한 pop은 무시
-                // 프로그래밍 방식의 pop(Navigator.pop)은 허용
-                if (didPop) {
-                  // 이미 pop이 발생했으므로 다시 push하여 복구
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (Navigator.canPop(context) == false) {
-                      Navigator.push<T>(
-                        context,
-                        _NoSwipeBackPageRoute<T>(
-                          builder: builder,
-                          settings: settings,
-                          transitionType: transitionType,
-                        ),
-                      );
-                    }
-                  });
-                }
-              },
-              child: builder(context),
-            );
-          },
-          settings: settings,
-          // fullscreenDialog: true 제거 (이것이 X 아이콘을 표시하는 원인)
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            switch (transitionType) {
-              case PageTransitionType.slide:
-                // 슬라이드 애니메이션
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.ease;
+         pageBuilder: (context, animation, secondaryAnimation) {
+           // PopScope로 감싸서 스와이프 백 제스처만 차단 (뒤로가기 버튼은 허용)
+           return PopScope(
+             canPop: true, // 뒤로가기 버튼은 허용
+             onPopInvokedWithResult: (bool didPop, dynamic result) {
+               // 스와이프 백 제스처로 인한 pop은 무시
+               // 프로그래밍 방식의 pop(Navigator.pop)은 허용
+               if (didPop) {
+                 // 이미 pop이 발생했으므로 다시 push하여 복구
+                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                   if (Navigator.canPop(context) == false) {
+                     Navigator.push<T>(
+                       context,
+                       _NoSwipeBackPageRoute<T>(
+                         builder: builder,
+                         settings: settings,
+                         transitionType: transitionType,
+                       ),
+                     );
+                   }
+                 });
+               }
+             },
+             child: builder(context),
+           );
+         },
+         // fullscreenDialog: true 제거 (이것이 X 아이콘을 표시하는 원인)
+         transitionsBuilder: (context, animation, secondaryAnimation, child) {
+           switch (transitionType) {
+             case PageTransitionType.slide:
+               // 슬라이드 애니메이션
+               const begin = Offset(1.0, 0.0);
+               const end = Offset.zero;
+               const curve = Curves.ease;
 
-                var tween = Tween(begin: begin, end: end).chain(
-                  CurveTween(curve: curve),
-                );
+               var tween = Tween(
+                 begin: begin,
+                 end: end,
+               ).chain(CurveTween(curve: curve));
 
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              case PageTransitionType.fade:
-                // 페이드 애니메이션
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              case PageTransitionType.none:
-                // 애니메이션 없음
-                return child;
-            }
-          },
-          transitionDuration: transitionType == PageTransitionType.none
-              ? Duration.zero
-              : const Duration(milliseconds: 300),
-        );
+               return SlideTransition(
+                 position: animation.drive(tween),
+                 child: child,
+               );
+             case PageTransitionType.fade:
+               // 페이드 애니메이션
+               return FadeTransition(opacity: animation, child: child);
+             case PageTransitionType.none:
+               // 애니메이션 없음
+               return child;
+           }
+         },
+         transitionDuration: transitionType == PageTransitionType.none
+             ? Duration.zero
+             : const Duration(milliseconds: 300),
+       );
 }
 
 /// 네비게이션 유틸리티 클래스
@@ -140,10 +139,7 @@ class CustomNavigationUtil {
     if (enableSwipeBack) {
       return Navigator.push<T>(
         context,
-        MaterialPageRoute<T>(
-          builder: (context) => page,
-          settings: settings,
-        ),
+        MaterialPageRoute<T>(builder: (context) => page, settings: settings),
       );
     } else {
       return Navigator.push<T>(
@@ -182,11 +178,7 @@ class CustomNavigationUtil {
     String routeName, {
     Object? arguments,
   }) {
-    return Navigator.pushNamed<T>(
-      context,
-      routeName,
-      arguments: arguments,
-    );
+    return Navigator.pushNamed<T>(context, routeName, arguments: arguments);
   }
 
   /// 현재 페이지를 대체하고 이동 (Get.off와 유사)
@@ -226,10 +218,7 @@ class CustomNavigationUtil {
     if (enableSwipeBack) {
       return Navigator.pushReplacement<T, void>(
         context,
-        MaterialPageRoute<T>(
-          builder: (context) => page,
-          settings: settings,
-        ),
+        MaterialPageRoute<T>(builder: (context) => page, settings: settings),
       );
     } else {
       return Navigator.pushReplacement<T, void>(
@@ -304,10 +293,7 @@ class CustomNavigationUtil {
     if (enableSwipeBack) {
       return Navigator.pushAndRemoveUntil<T>(
         context,
-        MaterialPageRoute<T>(
-          builder: (context) => page,
-          settings: settings,
-        ),
+        MaterialPageRoute<T>(builder: (context) => page, settings: settings),
         (route) => false,
       );
     } else {
@@ -354,10 +340,7 @@ class CustomNavigationUtil {
   ///   result: '반환값',
   /// );
   /// ```
-  static void back<T extends Object?>(
-    BuildContext context, {
-    T? result,
-  }) {
+  static void back<T extends Object?>(BuildContext context, {T? result}) {
     Navigator.pop<T>(context, result);
   }
 
@@ -386,14 +369,8 @@ class CustomNavigationUtil {
   ///   '/home',
   /// );
   /// ```
-  static void untilNamed(
-    BuildContext context,
-    String routeName,
-  ) {
-    Navigator.popUntil(
-      context,
-      (route) => route.settings.name == routeName,
-    );
+  static void untilNamed(BuildContext context, String routeName) {
+    Navigator.popUntil(context, (route) => route.settings.name == routeName);
   }
 
   /// 첫 번째 페이지까지 뒤로 가기
@@ -460,4 +437,3 @@ class CustomNavigationUtil {
     return count;
   }
 }
-

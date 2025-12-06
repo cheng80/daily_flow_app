@@ -336,6 +336,20 @@
   - [x] Repository 레이어는 추가하지 않음 (단순한 CRUD 작업, SQLite만 사용)
   - [x] 향후 네트워크 동기화나 복잡한 비즈니스 로직 추가 시 재검토
 
+- [x] 전역 로깅 시스템 구현
+  - [x] `lib/custom/util/log/custom_log_util.dart` 생성
+  - [x] `AppLogger` 클래스 구현 (디버그/정보/경고/에러/성공 레벨)
+  - [x] 디버그 모드와 릴리즈 모드 자동 구분
+  - [x] 릴리즈 모드에서도 에러 로그 출력 옵션 제공
+  - [x] 모든 `print` 문을 `AppLogger`로 교체
+    - [x] `lib/service/notification_service.dart`
+    - [x] `lib/view/create_todo_view.dart`
+    - [x] `lib/view/edit_todo_view.dart`
+    - [x] `lib/view/main_view.dart`
+    - [x] `lib/view/home.dart`
+    - [x] `lib/view/deleted_todos_view.dart`
+    - [x] `lib/main.dart`
+
 ### 유틸리티 파일 구조 개선
 
 - [x] 앱 전용 공용 함수/클래스 분리

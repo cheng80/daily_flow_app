@@ -7,6 +7,8 @@ import '../theme/app_colors.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
+import '../service/notification_service.dart';
+import '../custom/util/log/custom_log_util.dart';
 
 /// 함수 타입 enum
 enum FunctionType { update, delete }
@@ -596,22 +598,90 @@ class _CreateTodoViewState extends State<CreateTodoView> {
       );
 
       // 디버그: 저장할 데이터 확인
-      print("=== Todo 저장 ===");
-      print(
+      AppLogger.d("=== Todo 저장 ===", tag: 'CreateTodo');
+      AppLogger.d(
         "todo: id=${todo.id}, step=${todo.step}, time=${todo.time}, hasAlarm=${todo.hasAlarm}",
+        tag: 'CreateTodo',
       );
-      print("_selectedStep: $_selectedStep, finalTime: $finalTime");
+      AppLogger.d(
+        "_selectedStep: $_selectedStep, finalTime: $finalTime",
+        tag: 'CreateTodo',
+      );
+
+      // 알람 등록 (hasAlarm=true이고 time이 있을 때만)
+      // 알람이 설정된 경우, DB 저장 전에 시간 체크
+      if (todo.hasAlarm && todo.time != null) {
+        // 알람 시간이 현재 시간보다 2분 이후인지 먼저 체크
+        final alarmDateTime = parseDateTime(todo.date, todo.time!);
+        if (alarmDateTime != null) {
+          final now = DateTime.now();
+          final duration = alarmDateTime.difference(now);
+
+          if (duration.inMinutes < 2) {
+            // 2분 미만이면 다이얼로그 표시하고 저장 중단 (scheduleNotification 호출하지 않음)
+            AppLogger.w("[일정 등록] 알람 시간이 2분 미만 - 저장 중단", tag: 'CreateTodo');
+            if (context.mounted) {
+              await CustomDialog.show(
+                context,
+                title: "알람 등록 불가",
+                message: "알람 등록은 현재 시간보다 2분 이후만 가능합니다.",
+                type: DialogType.single,
+                confirmText: "확인",
+                barrierDismissible: false,
+              );
+            }
+            return; // 저장 중단 (DB 저장도 안 함, scheduleNotification도 호출 안 함)
+          }
+        }
+      }
 
       // 데이터베이스에 저장
       final id = await _handler.insertData(todo);
-      print("Todo 저장 완료: id=$id");
+      AppLogger.s("Todo 저장 완료: id=$id", tag: 'CreateTodo');
+
+      // 알람 등록 (hasAlarm=true이고 time이 있을 때만)
+      // DB 저장 후 알람 등록
+      if (todo.hasAlarm && todo.time != null) {
+        AppLogger.d(
+          "[일정 등록] 알람 등록 시작: 제목=${todo.title}, 날짜=${todo.date}, 시간=${todo.time}",
+          tag: 'CreateTodo',
+        );
+        final notificationService = NotificationService();
+
+        // 저장된 Todo로 알람 등록
+        final savedTodo = await _handler.queryDataById(id);
+        if (savedTodo != null) {
+          final notificationId = await notificationService.scheduleNotification(
+            savedTodo,
+          );
+
+          if (notificationId != null) {
+            final updatedTodo = savedTodo.copyWith(
+              notificationId: notificationId,
+            );
+            await _handler.updateData(updatedTodo);
+            AppLogger.s(
+              "[일정 등록] 알람 등록 완료: notificationId=$notificationId",
+              tag: 'CreateTodo',
+            );
+          } else {
+            AppLogger.e("[일정 등록] 알람 등록 실패", tag: 'CreateTodo');
+          }
+        }
+      } else {
+        AppLogger.i(
+          "[일정 등록] 알람 미설정: hasAlarm=${todo.hasAlarm}, time=${todo.time}",
+          tag: 'CreateTodo',
+        );
+      }
 
       // 디버그: 저장 후 데이터 확인
       final verifyTodo = await _handler.queryDataById(id);
       if (verifyTodo != null) {
-        print("=== 저장 후 DB 확인 ===");
-        print(
-          "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}",
+        AppLogger.d("=== 저장 후 DB 확인 ===", tag: 'CreateTodo');
+        AppLogger.d(
+          "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}, notificationId=${verifyTodo.notificationId}",
+          tag: 'CreateTodo',
         );
       }
 
@@ -631,7 +701,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
         }
       }
     } catch (e) {
-      print("Todo 저장 오류: $e");
+      AppLogger.e("Todo 저장 오류", tag: 'CreateTodo', error: e);
       // 저장 실패 다이얼로그
       if (context.mounted) {
         await CustomDialog.show(

@@ -6,6 +6,8 @@ import '../theme/app_colors.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
+import '../service/notification_service.dart';
+import '../custom/util/log/custom_log_util.dart';
 
 /// 일정 수정 화면
 ///
@@ -579,27 +581,144 @@ class _EditTodoViewState extends State<EditTodoView> {
       );
 
       // 디버그: 업데이트 전 데이터 확인
-      print("=== Todo 업데이트 전 ===");
-      print(
+      AppLogger.d("=== Todo 업데이트 전 ===", tag: 'EditTodo');
+      AppLogger.d(
         "기존 Todo: id=${widget.todo.id}, step=${widget.todo.step}, time=${widget.todo.time}, hasAlarm=${widget.todo.hasAlarm}",
+        tag: 'EditTodo',
       );
-      print("=== 업데이트할 데이터 ===");
-      print(
+      AppLogger.d("=== 업데이트할 데이터 ===", tag: 'EditTodo');
+      AppLogger.d(
         "updatedTodo: id=${updatedTodo.id}, step=${updatedTodo.step}, time=${updatedTodo.time}, hasAlarm=${updatedTodo.hasAlarm}",
+        tag: 'EditTodo',
       );
-      print("_selectedStep: $_selectedStep, finalTime: $finalTime");
+      AppLogger.d(
+        "_selectedStep: $_selectedStep, finalTime: $finalTime",
+        tag: 'EditTodo',
+      );
+
+      // 알람 업데이트 처리 (DB 업데이트 전에 시간 체크)
+      AppLogger.d(
+        "[일정 수정] 알람 업데이트 시작: 제목=${updatedTodo.title}, 날짜=${updatedTodo.date}, 시간=${updatedTodo.time}, hasAlarm=${updatedTodo.hasAlarm}",
+        tag: 'EditTodo',
+      );
+      final notificationService = NotificationService();
+
+      // 기존 알람이 있으면 취소
+      if (widget.todo.notificationId != null) {
+        AppLogger.d(
+          "[일정 수정] 기존 알람 취소: notificationId=${widget.todo.notificationId}, 제목=${widget.todo.title}",
+          tag: 'EditTodo',
+        );
+        await notificationService.cancelNotification(
+          widget.todo.notificationId!,
+        );
+        AppLogger.s(
+          "[일정 수정] 기존 알람 취소 완료: notificationId=${widget.todo.notificationId}",
+          tag: 'EditTodo',
+        );
+      }
+
+      // 새 알람 등록 또는 알람 비활성화 처리
+      int? newNotificationId;
+      if (updatedTodo.hasAlarm && updatedTodo.time != null) {
+        // 알람 시간이 현재 시간보다 2분 이후인지 먼저 체크
+        final alarmDateTime = parseDateTime(
+          updatedTodo.date,
+          updatedTodo.time!,
+        );
+        if (alarmDateTime != null) {
+          final now = DateTime.now();
+          final duration = alarmDateTime.difference(now);
+
+          if (duration.inMinutes < 2) {
+            // 2분 미만이면 다이얼로그 표시하고 수정 중단
+            AppLogger.w("[일정 수정] 알람 시간이 2분 미만 - 수정 중단", tag: 'EditTodo');
+            if (context.mounted) {
+              await CustomDialog.show(
+                context,
+                title: "알람 등록 불가",
+                message: "알람 등록은 현재 시간보다 2분 이후만 가능합니다.",
+                type: DialogType.single,
+                confirmText: "확인",
+                barrierDismissible: false,
+              );
+            }
+            return; // 수정 중단 (scheduleNotification 호출하지 않음)
+          }
+        }
+
+        // 알람 활성화: 새 알람 등록 (DB 업데이트 전에 시도)
+        AppLogger.d(
+          "[일정 수정] 새 알람 등록 시작: 제목=${updatedTodo.title}, 날짜=${updatedTodo.date}, 시간=${updatedTodo.time}",
+          tag: 'EditTodo',
+        );
+        newNotificationId = await notificationService.scheduleNotification(
+          updatedTodo,
+        );
+
+        if (newNotificationId == null) {
+          // 알람 등록 실패 시 다이얼로그 표시하고 수정 중단
+          AppLogger.e("[일정 수정] 알람 등록 실패 - 수정 중단", tag: 'EditTodo');
+          if (context.mounted) {
+            await CustomDialog.show(
+              context,
+              title: "알람 등록 실패",
+              message: "알람 등록에 실패했습니다.",
+              type: DialogType.single,
+              confirmText: "확인",
+              barrierDismissible: false,
+            );
+          }
+          return; // 수정 중단
+        }
+        AppLogger.s(
+          "[일정 수정] 알람 등록 성공: notificationId=$newNotificationId",
+          tag: 'EditTodo',
+        );
+      } else {
+        // 알람 비활성화: notificationId는 나중에 제거
+        AppLogger.i(
+          "[일정 수정] 알람 비활성화: hasAlarm=${updatedTodo.hasAlarm}, time=${updatedTodo.time}",
+          tag: 'EditTodo',
+        );
+      }
 
       // 데이터베이스에 업데이트
-      final result = await _handler.updateData(updatedTodo);
-      print("Todo 수정 완료: id=${updatedTodo.id}, 수정된 레코드 수: $result");
+      // 알람이 활성화된 경우 notificationId 포함하여 업데이트
+      final todoToUpdate = newNotificationId != null
+          ? updatedTodo.copyWith(notificationId: newNotificationId)
+          : (updatedTodo.notificationId != null ||
+                    widget.todo.notificationId != null
+                ? updatedTodo.copyWith(clearNotificationId: true)
+                : updatedTodo);
+
+      final result = await _handler.updateData(todoToUpdate);
+      AppLogger.s(
+        "Todo 수정 완료: id=${updatedTodo.id}, 수정된 레코드 수: $result",
+        tag: 'EditTodo',
+      );
+
+      if (newNotificationId != null) {
+        AppLogger.s(
+          "[일정 수정] 알람 등록 완료: notificationId=$newNotificationId, 제목=${updatedTodo.title}, 날짜=${updatedTodo.date}, 시간=${updatedTodo.time}",
+          tag: 'EditTodo',
+        );
+      } else if (updatedTodo.notificationId != null ||
+          widget.todo.notificationId != null) {
+        AppLogger.i(
+          "[일정 수정] 알람 비활성화 완료: 제목=${updatedTodo.title}, 기존 notificationId=${widget.todo.notificationId ?? updatedTodo.notificationId}",
+          tag: 'EditTodo',
+        );
+      }
 
       // 디버그: 업데이트 후 데이터 확인
       if (updatedTodo.id != null) {
         final verifyTodo = await _handler.queryDataById(updatedTodo.id!);
         if (verifyTodo != null) {
-          print("=== 업데이트 후 DB 확인 ===");
-          print(
-            "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}",
+          AppLogger.d("=== 업데이트 후 DB 확인 ===", tag: 'EditTodo');
+          AppLogger.d(
+            "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}, notificationId=${verifyTodo.notificationId}",
+            tag: 'EditTodo',
           );
         }
       }
@@ -620,7 +739,7 @@ class _EditTodoViewState extends State<EditTodoView> {
         }
       }
     } catch (e) {
-      print("Todo 수정 오류: $e");
+      AppLogger.e("Todo 수정 오류", tag: 'EditTodo', error: e);
       // 수정 실패 다이얼로그
       if (context.mounted) {
         await CustomDialog.show(

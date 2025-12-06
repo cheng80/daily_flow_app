@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
+import '../custom/util/log/custom_log_util.dart';
 import 'test_view/home_test_calendar.dart';
 import 'test_view/home_test_summary_bar.dart';
 import 'test_view/home_test_step_mapper.dart';
@@ -12,7 +13,7 @@ import 'test_view/home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
-import '../custom/custom_common_util.dart';
+import '../service/notification_service.dart';
 
 /// 모듈 테스트용 홈 화면 위젯 (인덱스)
 ///
@@ -247,6 +248,53 @@ class _HomeState extends State<Home> {
                   );
                 },
               ),
+
+              const SizedBox(height: 20),
+
+              // 알람 테스트 섹션
+              CustomText(
+                "알람 테스트",
+                style: TextStyle(
+                  color: p.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              CustomButton(
+                btnText: "알람 등록 테스트 (1분 후)",
+                onCallBack: () async {
+                  await _testScheduleNotification(context);
+                },
+              ),
+
+              CustomButton(
+                btnText: "알람 취소 테스트",
+                onCallBack: () async {
+                  await _testCancelNotification(context);
+                },
+              ),
+
+              CustomButton(
+                btnText: "모든 알람 취소",
+                onCallBack: () async {
+                  await _testCancelAllNotifications(context);
+                },
+              ),
+
+              CustomButton(
+                btnText: "즉시 알람 테스트",
+                onCallBack: () async {
+                  await _testShowNotification(context);
+                },
+              ),
+
+              CustomButton(
+                btnText: "등록된 알람 목록 확인",
+                onCallBack: () async {
+                  await _testCheckPendingNotifications(context);
+                },
+              ),
             ],
           ),
         ),
@@ -307,7 +355,7 @@ class _HomeState extends State<Home> {
         return;
       }
     } catch (e) {
-      print("Error checking existing data: $e");
+      AppLogger.e("Error checking existing data", tag: 'Home', error: e);
     }
 
     // 2025년 12월 더미 데이터 리스트
@@ -661,7 +709,7 @@ class _HomeState extends State<Home> {
           }
         } catch (e) {
           failCount++;
-          print('더미 데이터 삽입 실패: ${data['title']} - $e');
+          AppLogger.e('더미 데이터 삽입 실패: ${data['title']}', tag: 'Home', error: e);
         }
       }
 
@@ -881,7 +929,7 @@ class _HomeState extends State<Home> {
           await db.insert('deleted_todo', data);
           successCount++;
         } catch (e) {
-          print('7일 전 더미 데이터 삽입 실패: ${data['title']} - $e');
+          AppLogger.e('7일 전 더미 데이터 삽입 실패: ${data['title']}', tag: 'Home', error: e);
           failCount++;
         }
       }
@@ -892,7 +940,7 @@ class _HomeState extends State<Home> {
           await db.insert('deleted_todo', data);
           successCount++;
         } catch (e) {
-          print('30일 전 더미 데이터 삽입 실패: ${data['title']} - $e');
+          AppLogger.e('30일 전 더미 데이터 삽입 실패: ${data['title']}', tag: 'Home', error: e);
           failCount++;
         }
       }
@@ -913,6 +961,148 @@ class _HomeState extends State<Home> {
           duration: const Duration(seconds: 3),
         );
       }
+    }
+  }
+
+  /// 알람 등록 테스트 (1분 후 알람)
+  Future<void> _testScheduleNotification(BuildContext context) async {
+    final notificationService = NotificationService();
+
+    // 1분 후 시간 계산
+    final now = DateTime.now();
+    final oneMinuteLater = now.add(const Duration(minutes: 1));
+    final dateStr = CustomCommonUtil.formatDate(oneMinuteLater, 'yyyy-MM-dd');
+    final timeStr = CustomCommonUtil.formatDate(oneMinuteLater, 'HH:mm');
+
+    // 테스트용 Todo 생성
+    final testTodo = Todo.createNew(
+      title: '알람 테스트',
+      memo: '1분 후 알람이 울립니다.',
+      date: dateStr,
+      time: timeStr,
+      step: StepMapperUtil.mapTimeToStep(timeStr),
+      priority: 3,
+      hasAlarm: true,
+    );
+
+    final notificationId = await notificationService.scheduleNotification(
+      testTodo,
+    );
+
+    if (context.mounted) {
+      if (notificationId != null) {
+        CustomSnackBar.show(
+          context,
+          message: '알람 등록 완료: notificationId=$notificationId\n시간: $timeStr',
+          duration: const Duration(seconds: 3),
+        );
+      } else {
+        CustomSnackBar.show(
+          context,
+          message: '알람 등록 실패',
+          duration: const Duration(seconds: 2),
+        );
+      }
+    }
+  }
+
+  /// 알람 취소 테스트
+  Future<void> _testCancelNotification(BuildContext context) async {
+    final notificationService = NotificationService();
+
+    // 가장 최근에 등록된 알람의 ID를 찾기 위해 DB 조회
+    final dbHandler = DatabaseHandler();
+    final todos = await dbHandler.queryData();
+
+    // notificationId가 있는 Todo 찾기
+    Todo? todoWithNotification;
+    for (final todo in todos) {
+      if (todo.notificationId != null) {
+        todoWithNotification = todo;
+        break;
+      }
+    }
+
+    if (todoWithNotification == null ||
+        todoWithNotification.notificationId == null) {
+      if (context.mounted) {
+        CustomSnackBar.show(
+          context,
+          message: '취소할 알람이 없습니다.',
+          duration: const Duration(seconds: 2),
+        );
+      }
+      return;
+    }
+
+    await notificationService.cancelNotification(
+      todoWithNotification.notificationId!,
+    );
+
+    if (context.mounted) {
+      CustomSnackBar.show(
+        context,
+        message:
+            '알람 취소 완료: notificationId=${todoWithNotification.notificationId}',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  /// 모든 알람 취소 테스트
+  Future<void> _testCancelAllNotifications(BuildContext context) async {
+    final notificationService = NotificationService();
+    await notificationService.cancelAllNotifications();
+
+    if (context.mounted) {
+      CustomSnackBar.show(
+        context,
+        message: '모든 알람이 취소되었습니다.',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  /// 즉시 알람 테스트
+  Future<void> _testShowNotification(BuildContext context) async {
+    final notificationService = NotificationService();
+
+    // 권한 확인
+    final hasPermission = await notificationService.requestPermission();
+    if (!hasPermission) {
+      if (context.mounted) {
+        CustomSnackBar.show(
+          context,
+          message: '알람 권한이 거부되었습니다.\n설정에서 권한을 허용해주세요.',
+          duration: const Duration(seconds: 3),
+        );
+      }
+      return;
+    }
+
+    // 즉시 알람 표시
+    await notificationService.showTestNotification();
+
+    if (context.mounted) {
+      CustomSnackBar.show(
+        context,
+        message: '즉시 알람을 표시했습니다.',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  /// 등록된 알람 목록 확인
+  Future<void> _testCheckPendingNotifications(BuildContext context) async {
+    final notificationService = NotificationService();
+    await notificationService.checkPendingNotifications();
+
+    if (context.mounted) {
+      CustomSnackBar.show(
+        context,
+        message: '콘솔에서 등록된 알람 목록을 확인하세요.',
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 
