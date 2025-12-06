@@ -1,3 +1,5 @@
+import '../custom/custom_common_util.dart';
+
 /// Todo 모델 클래스
 /// 
 /// 활성 일정을 나타내는 데이터 모델입니다.
@@ -217,12 +219,7 @@ class Todo {
     bool hasAlarm = false,
   }) {
     final now = DateTime.now();
-    final dateTimeStr = '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')} '
-        '${now.hour.toString().padLeft(2, '0')}:'
-        '${now.minute.toString().padLeft(2, '0')}:'
-        '${now.second.toString().padLeft(2, '0')}';
+    final dateTimeStr = CustomCommonUtil.formatDate(now, 'yyyy-MM-dd HH:mm:ss');
     
     return Todo(
       title: title,

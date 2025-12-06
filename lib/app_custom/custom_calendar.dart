@@ -89,7 +89,7 @@ class CustomCalendar extends StatelessWidget {
   final List<dynamic> Function(DateTime day) eventLoader;
 
   /// 달력 위젯의 높이 (픽셀)
-  /// 
+  ///
   /// 높이만 지정하면 너비는 자동으로 높이와 동일하게 계산되어 정사각형이 됩니다.
   final double? calendarHeight;
 
@@ -109,7 +109,7 @@ class CustomCalendar extends StatelessWidget {
   final double? headerHeight;
 
   /// 셀의 세로 기준 비율 (기본값: 1.0 = 정사각형)
-  /// 
+  ///
   /// 예: 1.0 = 정사각형, 1.2 = 세로가 가로보다 1.2배 긴 직사각형
   /// 비율이 1.2면 달력의 세로 길이와 셀의 세로 길이가 1.2배가 됩니다.
   final double cellAspectRatio;
@@ -164,26 +164,36 @@ class CustomCalendar extends StatelessWidget {
         effectiveHeight = calendarHeight! * cellAspectRatio;
         effectiveWidth = calendarHeight!; // 가로는 원래 높이와 동일
       }
-      
+
       // 사용 가능한 크기 계산
       final availableHeight = effectiveHeight - 16.0;
       final availableWidth = effectiveWidth - 16.0;
-      
+
       if (cellAspectRatio == 1.0) {
         // 정사각형인 경우: 셀도 정사각형이 되도록 정확히 계산
         // 셀 너비와 높이가 같아야 함
         final cellAreaWidth = availableWidth / 7.0; // 가로: 7일로 나눔
-        final cellAreaHeight = availableHeight / 8.0; // 세로: 헤더(12%) + 요일헤더(10%) + 셀(78%) = 100%, 셀은 6주
-        
+        final cellAreaHeight =
+            availableHeight /
+            8.0; // 세로: 헤더(12%) + 요일헤더(10%) + 셀(78%) = 100%, 셀은 6주
+
         // 정사각형 셀: 너비와 높이 중 작은 값을 사용
-        final cellSize = cellAreaWidth < cellAreaHeight ? cellAreaWidth : cellAreaHeight;
-        
+        final cellSize = cellAreaWidth < cellAreaHeight
+            ? cellAreaWidth
+            : cellAreaHeight;
+
         // 헤더와 요일 헤더 높이를 셀 크기에 맞춰 역산
         final totalCellHeight = cellSize * 6.0;
         final headerAndDaysHeight = availableHeight - totalCellHeight;
-        final headerH = (headerAndDaysHeight * 0.545).clamp(40.0, 60.0); // 12% / (12% + 10%) ≈ 0.545
-        final daysH = (headerAndDaysHeight * 0.455).clamp(30.0, 50.0); // 10% / (12% + 10%) ≈ 0.455
-        
+        final headerH = (headerAndDaysHeight * 0.545).clamp(
+          40.0,
+          60.0,
+        ); // 12% / (12% + 10%) ≈ 0.545
+        final daysH = (headerAndDaysHeight * 0.455).clamp(
+          30.0,
+          50.0,
+        ); // 10% / (12% + 10%) ≈ 0.455
+
         calculatedHeaderHeight = headerH;
         calculatedDaysOfWeekHeight = daysH;
         calculatedRowHeight = cellSize.clamp(30.0, 80.0);
@@ -192,25 +202,26 @@ class CustomCalendar extends StatelessWidget {
         // 헤더와 요일 헤더 높이 계산 (전체 높이의 비율)
         final headerH = (availableHeight * 0.12).clamp(40.0, 60.0);
         final daysH = (availableHeight * 0.10).clamp(30.0, 50.0);
-        
+
         // 셀 영역 계산
         final cellAreaWidth = availableWidth / 7.0; // 가로: 7일로 나눔
-        final cellAreaHeight = (availableHeight - headerH - daysH) / 6.0; // 세로: 6주로 나눔
-        
+        final cellAreaHeight =
+            (availableHeight - headerH - daysH) / 6.0; // 세로: 6주로 나눔
+
         // 셀 비율에 맞춰 행 높이 계산: 셀 세로 = 셀 가로 * 비율
         // 비율이 1.2면 셀 세로가 셀 가로보다 1.2배가 되어야 함
         // 즉, 셀 세로 = 셀 가로 * 비율
         final calculatedCellHeight = cellAreaWidth * cellAspectRatio;
-        
+
         // 셀 높이가 사용 가능한 높이를 초과하지 않도록 조정
         final maxCellHeight = cellAreaHeight;
-        final finalCellHeight = calculatedCellHeight < maxCellHeight 
-            ? calculatedCellHeight 
+        final finalCellHeight = calculatedCellHeight < maxCellHeight
+            ? calculatedCellHeight
             : maxCellHeight;
-        
+
         // 실제 행 높이는 계산된 셀 높이로 설정 (비율이 적용됨)
         calculatedRowHeight = finalCellHeight.clamp(30.0, 80.0);
-        
+
         // 헤더와 요일 헤더 높이 설정
         calculatedHeaderHeight = headerH;
         calculatedDaysOfWeekHeight = daysH;
@@ -227,7 +238,7 @@ class CustomCalendar extends StatelessWidget {
       final headerH = 50.0;
       final daysH = 40.0;
       effectiveHeight = headerH + daysH + (rowH * 6) + 16.0;
-      
+
       // 헤더와 요일 헤더 높이 설정
       calculatedHeaderHeight = headerH;
       calculatedDaysOfWeekHeight = daysH;
@@ -246,19 +257,9 @@ class CustomCalendar extends StatelessWidget {
             // 이전 월 이동 버튼
             IconButton(
               icon: Icon(Icons.chevron_left, color: p.primary, size: 28),
-              onPressed: () {
-                final previousMonth = DateTime(
-                  focusedDay.year,
-                  focusedDay.month - 1,
-                  focusedDay.day,
-                );
-                onPageChanged?.call(previousMonth);
-              },
+              onPressed: () => _onPreviousMonthPressed(focusedDay),
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 48,
-                minHeight: 48,
-              ),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             ),
             // 월/연도 표시 및 오늘로 가기 버튼
             Flexible(
@@ -304,19 +305,9 @@ class CustomCalendar extends StatelessWidget {
             // 다음 월 이동 버튼
             IconButton(
               icon: Icon(Icons.chevron_right, color: p.primary, size: 28),
-              onPressed: () {
-                final nextMonth = DateTime(
-                  focusedDay.year,
-                  focusedDay.month + 1,
-                  focusedDay.day,
-                );
-                onPageChanged?.call(nextMonth);
-              },
+              onPressed: () => _onNextMonthPressed(focusedDay),
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 48,
-                minHeight: 48,
-              ),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
             ),
           ],
         ),
@@ -457,7 +448,9 @@ class CustomCalendar extends StatelessWidget {
 
           // 주말 색상 결정
           final textColor = isSunday
-              ? Colors.red.shade600 // 일요일: 붉은 계열
+              ? Colors
+                    .red
+                    .shade600 // 일요일: 붉은 계열
               : p.primary; // 토요일: Primary 색상
 
           // 주말 날짜 셀 커스터마이징
@@ -492,8 +485,12 @@ class CustomCalendar extends StatelessWidget {
 
           // 주말 색상 결정
           final textColor = isSunday
-              ? Colors.red.shade600 // 일요일: 붉은 계열
-              : (isSaturday ? p.primary : p.primary); // 토요일: Primary, 평일: Primary
+              ? Colors
+                    .red
+                    .shade600 // 일요일: 붉은 계열
+              : (isSaturday
+                    ? p.primary
+                    : p.primary); // 토요일: Primary, 평일: Primary
 
           // 선택된 날짜인 경우 선택 스타일 우선 적용
           if (isSelected) {
@@ -551,8 +548,12 @@ class CustomCalendar extends StatelessWidget {
 
           // 주말 색상 결정
           final textColor = isSunday
-              ? Colors.red.shade700 // 일요일: 더 진한 붉은 계열
-              : (isSaturday ? p.primary : p.primary); // 토요일: Primary, 평일: Primary
+              ? Colors
+                    .red
+                    .shade700 // 일요일: 더 진한 붉은 계열
+              : (isSaturday
+                    ? p.primary
+                    : p.primary); // 토요일: Primary, 평일: Primary
 
           // 선택된 날짜 스타일 (배경색 + 테두리)
           return Container(
@@ -622,7 +623,9 @@ class CustomCalendar extends StatelessWidget {
                     decoration: BoxDecoration(
                       // 배지 배경색: 10개 이상이면 붉은 계열, 9개 이하는 Primary 색상
                       color: eventCount >= 10
-                          ? Colors.red.shade600 // 10개 이상: 붉은 계열
+                          ? Colors
+                                .red
+                                .shade600 // 10개 이상: 붉은 계열
                           : p.primary, // 9개 이하: Primary 색상
                       shape: BoxShape.circle,
                     ),
@@ -663,11 +666,11 @@ class CustomCalendar extends StatelessWidget {
     );
 
     // Container 생성 (높이와 너비 제약 설정)
-    // 
+    //
     // 제약 동작 방식:
     // - calendarHeight만 지정: 너비는 항상 높이와 동일하게 자동 계산 (정사각형)
     // - calendarHeight가 null: 화면 크기 기준으로 셀 비율 계산
-    
+
     // 정확한 크기를 유지하기 위해 SizedBox로 감싸기
     return SizedBox(
       width: effectiveWidth, // 정확한 너비
@@ -684,5 +687,32 @@ class CustomCalendar extends StatelessWidget {
       ),
     );
   }
-}
 
+  //----------------------------------
+  //-- Function
+  //----------------------------------
+
+  /// 이전 월 이동 버튼 클릭 콜백
+  ///
+  /// [focusedDay] 현재 포커스된 날짜
+  void _onPreviousMonthPressed(DateTime focusedDay) {
+    final previousMonth = DateTime(
+      focusedDay.year,
+      focusedDay.month - 1,
+      focusedDay.day,
+    );
+    onPageChanged?.call(previousMonth);
+  }
+
+  /// 다음 월 이동 버튼 클릭 콜백
+  ///
+  /// [focusedDay] 현재 포커스된 날짜
+  void _onNextMonthPressed(DateTime focusedDay) {
+    final nextMonth = DateTime(
+      focusedDay.year,
+      focusedDay.month + 1,
+      focusedDay.day,
+    );
+    onPageChanged?.call(nextMonth);
+  }
+}

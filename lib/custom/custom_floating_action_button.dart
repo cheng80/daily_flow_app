@@ -41,9 +41,9 @@ class CustomFloatingActionButton extends StatelessWidget {
     this.foregroundColor,
     this.tooltip,
     this.location,
-  })  : type = FloatingActionButtonType.regular,
-        label = null,
-        assert(icon != null, 'icon은 필수입니다.');
+  }) : type = FloatingActionButtonType.regular,
+       label = null,
+       assert(icon != null, 'icon은 필수입니다.');
 
   /// 작은 크기의 FloatingActionButton 생성자
   const CustomFloatingActionButton.small({
@@ -54,9 +54,9 @@ class CustomFloatingActionButton extends StatelessWidget {
     this.foregroundColor,
     this.tooltip,
     this.location,
-  })  : type = FloatingActionButtonType.small,
-        label = null,
-        assert(icon != null, 'icon은 필수입니다.');
+  }) : type = FloatingActionButtonType.small,
+       label = null,
+       assert(icon != null, 'icon은 필수입니다.');
 
   /// 확장형 FloatingActionButton 생성자
   const CustomFloatingActionButton.extended({
@@ -81,6 +81,9 @@ class CustomFloatingActionButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           tooltip: tooltip,
+          elevation: 12,
+          highlightElevation: 16,
+          shape: CircleBorder(side: BorderSide(color: Colors.white, width: 3)),
           child: icon != null ? Icon(icon) : null,
         );
         break;
@@ -90,6 +93,11 @@ class CustomFloatingActionButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           tooltip: tooltip,
+          elevation: 12,
+          highlightElevation: 16,
+          shape: CircleBorder(
+            side: BorderSide(color: Colors.white, width: 2.5),
+          ),
           child: icon != null ? Icon(icon) : null,
         );
         break;
@@ -99,6 +107,12 @@ class CustomFloatingActionButton extends StatelessWidget {
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
           tooltip: tooltip,
+          elevation: 12,
+          highlightElevation: 16,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+            side: BorderSide(color: Colors.white, width: 3),
+          ),
           label: Text(label ?? ''),
           icon: icon != null ? Icon(icon) : null,
         );
@@ -120,4 +134,3 @@ enum FloatingActionButtonType {
   /// 확장형 FloatingActionButton (라벨 포함)
   extended,
 }
-

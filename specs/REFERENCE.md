@@ -572,6 +572,64 @@ Navigator.push(
 - `dart format` 실행 권장
 - 린터 에러 해결 필수
 
+### 인라인 함수 지양 원칙
+
+**⚠️ 핵심 규칙: 인라인 함수를 지양하고, 기능이 포함된 콜백은 모두 하단 함수 섹션으로 분리**
+
+- 단순히 `setState()`만 호출하는 경우가 아니라면, 기능이 포함된 모든 콜백 함수는 인라인으로 작성하지 않고 하단의 함수 섹션에 로컬 함수로 분리합니다.
+- 이는 코드 가독성, 유지보수성, 재사용성을 향상시키기 위한 필수 규칙입니다.
+
+**예시:**
+
+```dart
+// ❌ 나쁜 예: 인라인 함수 사용
+CustomButton(
+  onCallBack: () {
+    CustomNavigationUtil.to(
+      context,
+      CreateTodoView(
+        onToggleTheme: widget.onToggleTheme,
+        initialDate: _selectedDay,
+      ),
+    ).then((result) {
+      if (result == true) {
+        _loadCalendarEvents();
+        _calculateSummaryRatios();
+      }
+    });
+  },
+)
+
+// ✅ 좋은 예: 함수로 분리
+CustomButton(
+  onCallBack: _navigateToCreateTodo,
+)
+
+// 하단 함수 섹션에 정의
+Future<void> _navigateToCreateTodo() async {
+  final result = await CustomNavigationUtil.to(
+    context,
+    CreateTodoView(
+      onToggleTheme: widget.onToggleTheme,
+      initialDate: _selectedDay,
+    ),
+  );
+
+  if (result == true) {
+    _loadCalendarEvents();
+    _calculateSummaryRatios();
+  }
+}
+```
+
+**적용 범위:**
+
+- 위젯의 `onPressed`, `onCallBack`, `onChanged`, `onTap` 등의 콜백
+- 네비게이션 로직이 포함된 경우
+- 데이터 처리 로직이 포함된 경우
+- 여러 단계의 작업이 포함된 경우
+- 단순 `setState()` 호출만 있는 경우는 예외 (간단한 상태 변경만 있는 경우)
+
 ---
 
 ## 🔗 관련 문서

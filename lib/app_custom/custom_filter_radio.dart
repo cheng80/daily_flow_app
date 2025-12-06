@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import '../util/step_mapper_util.dart';
+import 'step_mapper_util.dart';
 import '../custom/custom_container.dart';
 import '../custom/custom_text.dart';
 
@@ -11,7 +11,7 @@ class FilterRadioOption {
   /// 옵션에 표시할 라벨
   final String label;
 
-  /// Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=종일)
+  /// Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
   final int? step;
 
   /// 배경색 가져오기 함수
@@ -59,6 +59,12 @@ class FilterRadioUtil {
         label: "저녁",
         step: StepMapperUtil.stepEvening,
         getBackgroundColor: (p) => p.progressEvening,
+        getTextColor: (p) => p.chipSelectedText,
+      ),
+      FilterRadioOption(
+        label: "야간",
+        step: StepMapperUtil.stepNight,
+        getBackgroundColor: (p) => p.progressNight,
         getTextColor: (p) => p.chipSelectedText,
       ),
       FilterRadioOption(
@@ -117,13 +123,13 @@ class CustomFilterRadio extends StatelessWidget {
   /// 필터 라디오 옵션 정보
   final FilterRadioOption option;
 
-  /// 현재 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=종일)
+  /// 현재 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
   final int? selectedStep;
 
   /// Step 선택 시 호출되는 콜백 함수
   final void Function(int? step) onStepSelected;
 
-  /// 컨테이너 패딩 (기본값: EdgeInsets.symmetric(horizontal: 12, vertical: 8))
+  /// 컨테이너 패딩 (기본값: EdgeInsets.symmetric(horizontal: 16, vertical: 10))
   final EdgeInsets? padding;
 
   /// 컨테이너 모서리 둥글기 (기본값: 16.0)
@@ -147,7 +153,7 @@ class CustomFilterRadio extends StatelessWidget {
   /// 라벨 텍스트 스타일 (기본값: null, 선택 상태에 따라 자동 설정)
   final TextStyle? labelStyle;
 
-  /// 라벨 폰트 크기 (기본값: 14.0)
+  /// 라벨 폰트 크기 (기본값: 16.0)
   final double? fontSize;
 
   const CustomFilterRadio({
@@ -198,14 +204,12 @@ class CustomFilterRadio extends StatelessWidget {
         : p.chipUnselectedText;
 
     return GestureDetector(
-      onTap: () {
-        onStepSelected(option.step);
-      },
+      onTap: _onTap,
       child: CustomContainer(
         width: width,
         height: height,
         padding:
-            padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         backgroundColor: backgroundColor,
         borderRadius: borderRadius ?? 16.0,
         child: Row(
@@ -228,7 +232,7 @@ class CustomFilterRadio extends StatelessWidget {
                   labelStyle ??
                   TextStyle(
                     color: textColor,
-                    fontSize: fontSize ?? 14.0,
+                    fontSize: fontSize ?? 16.0,
                     fontWeight: isSelected
                         ? FontWeight.w600
                         : FontWeight.normal,
@@ -239,5 +243,13 @@ class CustomFilterRadio extends StatelessWidget {
       ),
     );
   }
-}
 
+  //----------------------------------
+  //-- Function
+  //----------------------------------
+
+  /// 탭 콜백
+  void _onTap() {
+    onStepSelected(option.step);
+  }
+}

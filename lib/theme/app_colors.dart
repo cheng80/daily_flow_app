@@ -56,12 +56,14 @@ class AppColors {
       chipSelectedText: Colors.white, // 흰색 텍스트
       chipUnselectedBg: Color(0xFFE3F2FD), // 연한 파랑 배경
       chipUnselectedText: Color(0xFF1565C0), // 진한 파랑 텍스트
+      textOnPrimary: Colors.white, // Primary 배경에 사용할 흰색 텍스트
     ),
     dailyFlow: DailyFlowColorScheme(
-      progressMorning: Color(0xFFFF9800), // 주황색 (아침)
-      progressNoon: Color(0xFFFFEB3B), // 밝은 노란색 (낮)
+      progressMorning: Color(0xFFFF9800), // 주황색 (오전)
+      progressNoon: Color(0xFFFFEB3B), // 밝은 노란색 (오후)
       progressEvening: Color(0xFF00BCD4), // 청록색 (저녁)
-      progressAnytime: Color(0xFF9C27B0), // 보라색 (Anytime)
+      progressNight: Color(0xFF673AB7), // 보라색 (야간)
+      progressAnytime: Color(0xFF9C27B0), // 보라색 (종일)
       priorityVeryLow: Color(0xFF9E9E9E), // 회색 (매우 낮음)
       priorityLow: Color(0xFF2196F3), // 파란색 (낮음)
       priorityMedium: Color(0xFF4CAF50), // 초록색 (보통)
@@ -88,12 +90,14 @@ class AppColors {
       chipSelectedText: Colors.white, // 흰색 텍스트 (가독성 향상)
       chipUnselectedBg: Color(0xFF2C2C2C), // 약간 밝은 다크 배경
       chipUnselectedText: Color(0xFFB0BEC5), // 밝은 회색 텍스트
+      textOnPrimary: Colors.black, // Primary 배경에 사용할 흰색 텍스트
     ),
     dailyFlow: DailyFlowColorScheme(
-      progressMorning: Color(0xFFFFB74D), // 밝은 주황색 (아침)
-      progressNoon: Color(0xFFFFF59D), // 밝은 노란색 (낮)
+      progressMorning: Color(0xFFFFB74D), // 밝은 주황색 (오전)
+      progressNoon: Color(0xFFFFF59D), // 밝은 노란색 (오후)
       progressEvening: Color(0xFF4DD0E1), // 밝은 청록색 (저녁)
-      progressAnytime: Color(0xFFCE93D8), // 밝은 보라색 (Anytime)
+      progressNight: Color(0xFF9575CD), // 밝은 보라색 (야간)
+      progressAnytime: Color(0xFFCE93D8), // 밝은 보라색 (종일)
       priorityVeryLow: Color(0xFF757575), // 밝은 회색 (매우 낮음)
       priorityLow: Color(0xFF64B5F6), // 밝은 파란색 (낮음)
       priorityMedium: Color(0xFF81C784), // 밝은 초록색 (보통)

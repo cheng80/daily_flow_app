@@ -154,12 +154,14 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 ### 제목 입력
 
 - TextField
-- placeholder: "제목 입력"
+- placeholder: "제목 입력 (최대 50자)"
 - 필수 입력
+- 최대 50자 제한
 
 ### 메모 입력
 
 - 멀티라인 TextField (높이 약 120px)
+- 최대 200자 제한
 
 ### Step 선택
 

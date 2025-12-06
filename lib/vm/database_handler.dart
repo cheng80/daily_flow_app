@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:flutter/material.dart';
 import '../custom/custom_snack_bar.dart';
 import '../custom/custom_dialog.dart';
+import '../custom/custom_common_util.dart';
 
 /// DatabaseHandler 클래스
 ///
@@ -557,18 +558,9 @@ class DatabaseHandler {
   /// [includeTime] 시간 포함 여부 (기본값: true)
   /// 반환값: 포맷팅된 날짜/시간 문자열
   String _formatDateTime(DateTime dateTime, {bool includeTime = true}) {
-    final dateStr =
-        '${dateTime.year.toString().padLeft(4, '0')}-'
-        '${dateTime.month.toString().padLeft(2, '0')}-'
-        '${dateTime.day.toString().padLeft(2, '0')}';
-
     if (includeTime) {
-      return '$dateStr '
-          '${dateTime.hour.toString().padLeft(2, '0')}:'
-          '${dateTime.minute.toString().padLeft(2, '0')}:'
-          '${dateTime.second.toString().padLeft(2, '0')}';
+      return CustomCommonUtil.formatDate(dateTime, 'yyyy-MM-dd HH:mm:ss');
     }
-
-    return dateStr;
+    return CustomCommonUtil.formatDate(dateTime, 'yyyy-MM-dd');
   }
 }

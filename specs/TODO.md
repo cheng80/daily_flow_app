@@ -230,31 +230,36 @@
 
 #### 8-1. 일정 등록 화면
 
-- [ ] `lib/view/create_todo_view.dart` 생성
-    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
-    - [ ] 시간 선택 (TimePicker 또는 드롭다운)
-    - [ ] 제목 입력 (CustomTextField)
-    - [ ] 메모 입력 (CustomTextField, 멀티라인)
-    - [ ] Step 선택 (CustomDropdownButton)
-    - [ ] 중요도 선택 (1~5단계)
-    - [ ] 알람 설정 (Switch)
-    - [ ] 저장 버튼 (CustomButton)
-    - [ ] 시간 → Step 자동 매핑 로직
-    - [ ] NotificationService와 연동 (알람 등록)
-    - [ ] DatabaseHandler와 연동 (Todo 저장)
+- [x] `lib/view/create_todo_view.dart` 생성
+    - [x] 날짜 선택 (CustomCalendarPicker 위젯 사용)
+    - [x] 시간 선택 (CustomTimePicker 다이얼로그 사용, 12시간 형식)
+    - [x] 제목 입력 (CustomTextField, 최대 50자)
+    - [x] 메모 입력 (CustomTextField, 멀티라인, 최대 200자)
+    - [x] Step 선택 (CustomDropdownButton, 시간 범위 표시)
+    - [x] 중요도 선택 (1~5단계)
+    - [x] 알람 설정 (Switch, 시간 설정 시에만 활성화)
+    - [x] 저장 버튼 (CustomButton)
+    - [x] 시간 → Step 자동 매핑 로직
+    - [x] 제목 필수 입력 검증
+    - [x] 저장 성공/실패 다이얼로그
+    - [x] DatabaseHandler와 연동 (Todo 저장)
+    - [ ] NotificationService와 연동 (알람 등록) - 알람 기능 모듈 완료 후
 
 **참고:** 설계서 `dailyflow_design_spec.md` 2장
 
 #### 8-2. 일정 수정 화면
 
-- [ ] `lib/view/edit_todo_view.dart` 생성
-    - [ ] 기존 데이터 로드
-    - [ ] 수정 기능 (등록 화면과 유사)
-    - [ ] 날짜 선택 (CustomCalendarPicker 위젯 사용)
-    - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리)
-    - [ ] 삭제 확인 Dialog (CustomDialog)
-    - [ ] NotificationService와 연동 (알람 업데이트/취소)
-    - [ ] DatabaseHandler와 연동 (Todo 수정/삭제)
+- [x] `lib/view/edit_todo_view.dart` 생성
+    - [x] 기존 데이터 로드
+    - [x] 수정 기능 (등록 화면과 유사)
+    - [x] 날짜 표시 (수정 불가, 텍스트만 표시)
+    - [x] 시간 선택 (CustomTimePicker 다이얼로그 사용)
+    - [x] 제목 필수 입력 검증
+    - [x] 수정 성공/실패 다이얼로그
+    - [x] DatabaseHandler와 연동 (Todo 수정)
+    - [ ] 삭제 버튼 (CustomButton, 빨간색 테두리) - 메인 화면에서 Slidable로 처리 중
+    - [ ] 삭제 확인 Dialog (CustomDialog) - 메인 화면에서 처리 중
+    - [ ] NotificationService와 연동 (알람 업데이트/취소) - 알람 기능 모듈 완료 후
 
 **참고:** 설계서 `dailyflow_design_spec.md` 3장
 

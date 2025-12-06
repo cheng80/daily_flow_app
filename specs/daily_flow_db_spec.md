@@ -21,8 +21,8 @@ DailyFlow MVP에서 사용하는 SQLite 테이블은 다음 2개를 기본으로
 | 컬럼명               | 타입      | NOT NULL | 기본값           | 설명                                             |
 | ----------------- | ------- | -------- | ------------- | ---------------------------------------------- |
 | `id`              | INTEGER | ✔        | AUTOINCREMENT | PK, 일정 고유 ID                                   |
-| `title`           | TEXT    | ✔        |               | 일정 제목                                          |
-| `memo`            | TEXT    | ✖        | NULL          | 메모(상세 내용)                                      |
+| `title`           | TEXT    | ✔        |               | 일정 제목 (최대 50자)                                  |
+| `memo`            | TEXT    | ✖        | NULL          | 메모(상세 내용, 최대 200자)                               |
 | `date`            | TEXT    | ✔        |               | 일정 날짜, 형식: `YYYY-MM-DD`                        |
 | `time`            | TEXT    | ✖        | NULL          | 일정 시간(있을 경우), 형식: `HH:MM`                      |
 | `step`            | INTEGER | ✔        | 3             | 시간대 분류: `0=오전, 1=오후, 2=저녁, 3=종일`           |
@@ -35,6 +35,8 @@ DailyFlow MVP에서 사용하는 SQLite 테이블은 다음 2개를 기본으로
 
 > 비고
 >
+> - `title`은 최대 50자로 제한 (UI에서 입력 제한 적용).
+> - `memo`는 최대 200자로 제한 (UI에서 입력 제한 적용).
 > - `time`은 알람을 사용하지 않는 일정의 경우 NULL 가능.
 > - `step`은 드롭다운 선택 또는 시간 자동 매핑 결과를 저장.
 > - `priority`는 1\~5 정수 값으로, UI에서 색상 라벨과 매핑.
@@ -92,8 +94,8 @@ CREATE INDEX IF NOT EXISTS idx_todo_date_step
 | ------------- | ------- | -------- | ------------- | --------------------------- |
 | `id`          | INTEGER | ✔        | AUTOINCREMENT | PK (휴지통 레코드 ID)             |
 | `original_id` | INTEGER | ✖        | NULL          | 삭제되기 전 `todo.id` 값 (추적용)    |
-| `title`       | TEXT    | ✔        |               | 일정 제목                       |
-| `memo`        | TEXT    | ✖        | NULL          | 메모 내용                       |
+| `title`       | TEXT    | ✔        |               | 일정 제목 (최대 50자)              |
+| `memo`        | TEXT    | ✖        | NULL          | 메모 내용 (최대 200자)              |
 | `date`        | TEXT    | ✔        |               | 일정 날짜 `YYYY-MM-DD`          |
 | `time`        | TEXT    | ✖        | NULL          | 일정 시간(있을 경우) `HH:MM`        |
 | `step`        | INTEGER | ✔        | 3             | 0=오전,1=오후,2=저녁,3=종일     |

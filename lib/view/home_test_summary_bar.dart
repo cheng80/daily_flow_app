@@ -33,10 +33,13 @@ class _HomeTestSummaryBarState extends State<HomeTestSummaryBar> {
   double _noonRatio = 0.3;
 
   /// 저녁 비율 (0.0 ~ 1.0)
-  double _eveningRatio = 0.4;
+  double _eveningRatio = 0.2;
+
+  /// 야간 비율 (0.0 ~ 1.0)
+  double _nightRatio = 0.1;
 
   /// Anytime 비율 (0.0 ~ 1.0)
-  double _anytimeRatio = 0.1;
+  double _anytimeRatio = 0.2;
 
   /// 바 너비 (픽셀)
   double _barWidth = 300.0;
@@ -107,6 +110,7 @@ class _HomeTestSummaryBarState extends State<HomeTestSummaryBar> {
                 morningRatio: _morningRatio,
                 noonRatio: _noonRatio,
                 eveningRatio: _eveningRatio,
+                nightRatio: _nightRatio,
                 anytimeRatio: _anytimeRatio,
               ),
             ),

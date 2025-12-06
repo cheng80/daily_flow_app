@@ -22,9 +22,9 @@ library;
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../vm/database_handler.dart';
-import '../util/step_mapper_util.dart';
+import 'step_mapper_util.dart';
 
-/// 4개 구간(오전, 오후, 저녁, 종일)으로 나뉜 범위 바 위젯을 생성하는 함수
+/// 5개 구간(오전, 오후, 저녁, 야간, 종일)으로 나뉜 범위 바 위젯을 생성하는 함수
 ///
 /// 사용 예시:
 /// ```dart
@@ -34,8 +34,9 @@ import '../util/step_mapper_util.dart';
 ///   barHeight: 40,
 ///   morningRatio: 0.2,
 ///   noonRatio: 0.3,
-///   eveningRatio: 0.4,
-///   anytimeRatio: 0.1,
+///   eveningRatio: 0.2,
+///   nightRatio: 0.1,
+///   anytimeRatio: 0.2,
 /// )
 /// ```
 ClipRRect actionFourRangeBar(
@@ -45,10 +46,12 @@ ClipRRect actionFourRangeBar(
   required double morningRatio,
   required double noonRatio,
   required double eveningRatio,
+  required double nightRatio,
   required double anytimeRatio,
 }) {
   final p = context.palette;
-  double total = morningRatio + noonRatio + eveningRatio + anytimeRatio;
+  double total =
+      morningRatio + noonRatio + eveningRatio + nightRatio + anytimeRatio;
 
   if (total == 0) {
     return ClipRRect(
@@ -86,6 +89,10 @@ ClipRRect actionFourRangeBar(
             child: Container(color: p.progressEvening),
           ),
           Expanded(
+            flex: flex(nightRatio),
+            child: Container(color: p.progressNight),
+          ),
+          Expanded(
             flex: flex(anytimeRatio),
             child: Container(color: p.progressAnytime),
           ),
@@ -108,6 +115,9 @@ class AppSummaryRatios {
   /// 저녁 비율 (0.0 ~ 1.0)
   final double eveningRatio;
 
+  /// 야간 비율 (0.0 ~ 1.0)
+  final double nightRatio;
+
   /// 종일 비율 (0.0 ~ 1.0)
   final double anytimeRatio;
 
@@ -115,6 +125,7 @@ class AppSummaryRatios {
     required this.morningRatio,
     required this.noonRatio,
     required this.eveningRatio,
+    required this.nightRatio,
     required this.anytimeRatio,
   });
 
@@ -123,6 +134,7 @@ class AppSummaryRatios {
     morningRatio: 0.0,
     noonRatio: 0.0,
     eveningRatio: 0.0,
+    nightRatio: 0.0,
     anytimeRatio: 0.0,
   );
 }
@@ -161,6 +173,7 @@ Future<AppSummaryRatios> calculateSummaryRatios(
     int morningCount = 0;
     int noonCount = 0;
     int eveningCount = 0;
+    int nightCount = 0;
     int anytimeCount = 0;
 
     for (var todo in todos) {
@@ -173,6 +186,9 @@ Future<AppSummaryRatios> calculateSummaryRatios(
           break;
         case StepMapperUtil.stepEvening:
           eveningCount++;
+          break;
+        case StepMapperUtil.stepNight:
+          nightCount++;
           break;
         case StepMapperUtil.stepAnytime:
         default:
@@ -193,6 +209,7 @@ Future<AppSummaryRatios> calculateSummaryRatios(
       morningRatio: morningCount / totalCount,
       noonRatio: noonCount / totalCount,
       eveningRatio: eveningCount / totalCount,
+      nightRatio: nightCount / totalCount,
       anytimeRatio: anytimeCount / totalCount,
     );
   } catch (e) {

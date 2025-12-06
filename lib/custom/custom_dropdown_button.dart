@@ -143,19 +143,36 @@ class CustomDropdownButton<T> extends StatelessWidget {
       );
     }).toList();
 
-    // 선택된 아이템 빌더
-    Widget? selectedItemWidget;
+    // 선택된 아이템 빌더 (DropdownButton의 selectedItemBuilder는 List<Widget>을 반환해야 함)
+    List<Widget> Function(BuildContext)? selectedItemListBuilder;
     if (selectedItemBuilder != null) {
-      selectedItemWidget = selectedItemBuilder!(value);
+      selectedItemListBuilder = (context) {
+        return items.map<Widget>((item) {
+          // value와 일치하는 item에 대해서만 selectedItemBuilder 사용
+          if (item == value) {
+            return selectedItemBuilder!(value);
+          }
+          // 다른 item들은 기본 표시
+          return itemBuilder != null
+              ? itemBuilder!(item)
+              : CustomCommonUtil.toWidget(
+                  item,
+                  style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
+                );
+        }).toList();
+      };
     } else if (value != null) {
-      final valueIndex = items.indexOf(value);
-      if (valueIndex >= 0 && valueIndex < items.length) {
-        final item = items[valueIndex];
-        selectedItemWidget = CustomCommonUtil.toWidget(
-          item,
-          style: textStyle ?? const TextStyle(fontSize: 16, color: Colors.black),
-        );
-      }
+      // selectedItemBuilder가 없으면 기본 처리
+      selectedItemListBuilder = (context) {
+        return items.map<Widget>((item) {
+          return itemBuilder != null
+              ? itemBuilder!(item)
+              : CustomCommonUtil.toWidget(
+                  item,
+                  style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
+                );
+        }).toList();
+      };
     }
 
     // 힌트 위젯
@@ -174,9 +191,7 @@ class CustomDropdownButton<T> extends StatelessWidget {
       items: dropdownItems,
       onChanged: isEnabled ? onChanged : null,
       hint: hintWidgetToUse,
-      selectedItemBuilder: selectedItemBuilder != null
-          ? (context) => [selectedItemWidget!]
-          : null,
+      selectedItemBuilder: selectedItemListBuilder,
       style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
       icon: Icon(
         Icons.arrow_drop_down,

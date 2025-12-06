@@ -42,6 +42,9 @@ class CommonColorScheme {
   /// 필터 칩 비선택 텍스트 색
   final Color chipUnselectedText;
 
+  /// Primary 색상 배경에 사용할 텍스트 색 (반전색, 기본: 흰색)
+  final Color textOnPrimary;
+
   const CommonColorScheme({
     required this.background,
     required this.cardBackground,
@@ -54,6 +57,7 @@ class CommonColorScheme {
     required this.chipSelectedText,
     required this.chipUnselectedBg,
     required this.chipUnselectedText,
+    required this.textOnPrimary,
   });
 }
 

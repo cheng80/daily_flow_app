@@ -54,6 +54,9 @@ class AppColorScheme {
   /// 필터 칩 비선택 텍스트 색
   Color get chipUnselectedText => common.chipUnselectedText;
 
+  /// Primary 색상 배경에 사용할 텍스트 색 (반전색, 기본: 흰색)
+  Color get textOnPrimary => common.textOnPrimary;
+
   // ============================================================================
   // 앱 전용 컬러 접근자
   // ============================================================================
@@ -67,7 +70,10 @@ class AppColorScheme {
   /// 요약 Progress Bar - 저녁 색상
   Color get progressEvening => dailyFlow.progressEvening;
 
-  /// 요약 Progress Bar - Anytime 색상
+  /// 요약 Progress Bar - 야간 색상
+  Color get progressNight => dailyFlow.progressNight;
+
+  /// 요약 Progress Bar - 종일 색상
   Color get progressAnytime => dailyFlow.progressAnytime;
 
   /// 중요도 1단계: 매우 낮음

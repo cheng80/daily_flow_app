@@ -133,6 +133,54 @@ class CustomCommonUtil {
     return result;
   }
 
+  /// 시간을 12시간 형식(오전/오후)으로 변환
+  ///
+  /// [time] 변환할 시간 (HH:MM 형식 문자열 또는 TimeOfDay)
+  ///
+  /// 사용 예시:
+  /// ```dart
+  /// CustomCommonUtil.formatTime12Hour("14:30"); // "오후 2:30"
+  /// CustomCommonUtil.formatTime12Hour(TimeOfDay(hour: 9, minute: 15)); // "오전 9:15"
+  /// CustomCommonUtil.formatTime12Hour("00:00"); // "오전 12:00"
+  /// CustomCommonUtil.formatTime12Hour("12:00"); // "오후 12:00"
+  /// ```
+  static String formatTime12Hour(dynamic time) {
+    int hour;
+    int minute;
+
+    if (time is String) {
+      // "HH:MM" 형식 문자열 파싱
+      final parts = time.split(':');
+      hour = int.parse(parts[0]);
+      minute = int.parse(parts[1]);
+    } else if (time is TimeOfDay) {
+      hour = time.hour;
+      minute = time.minute;
+    } else {
+      throw ArgumentError('time은 String (HH:MM 형식) 또는 TimeOfDay여야 합니다.');
+    }
+
+    String period = hour < 12 ? '오전' : '오후';
+    int displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+
+    return '$period $displayHour:${minute.toString().padLeft(2, '0')}';
+  }
+
+  /// 시간을 24시간 형식(HH:MM)으로 변환
+  ///
+  /// [time] 변환할 시간 (TimeOfDay)
+  ///
+  /// 사용 예시:
+  /// ```dart
+  /// CustomCommonUtil.formatTime(TimeOfDay(hour: 9, minute: 15)); // "09:15"
+  /// CustomCommonUtil.formatTime(TimeOfDay(hour: 14, minute: 30)); // "14:30"
+  /// CustomCommonUtil.formatTime(TimeOfDay(hour: 0, minute: 5)); // "00:05"
+  /// ```
+  static String formatTime(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:'
+        '${time.minute.toString().padLeft(2, '0')}';
+  }
+
   /// 날짜가 오늘인지 확인
   ///
   /// 사용 예시:

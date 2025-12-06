@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../app_custom/custom_calendar_picker.dart';
 import '../app_custom/custom_time_picker.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
@@ -7,27 +6,28 @@ import '../app_custom/step_mapper_util.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
 
-/// 함수 타입 enum
-enum FunctionType { update, delete }
-
-class CreateTodoView extends StatefulWidget {
+/// 일정 수정 화면
+///
+/// 기존 Todo 데이터를 수정할 수 있는 화면입니다.
+/// CreateTodoView와 유사한 구조를 가지며, 기존 데이터를 초기값으로 설정합니다.
+class EditTodoView extends StatefulWidget {
   /// 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
-  /// 초기 선택 날짜 (아규먼트로 전달, 없으면 현재 날짜 사용)
-  final DateTime? initialDate;
+  /// 수정할 Todo 객체 (필수)
+  final Todo todo;
 
-  const CreateTodoView({
+  const EditTodoView({
     super.key,
     required this.onToggleTheme,
-    this.initialDate,
+    required this.todo,
   });
 
   @override
-  State<CreateTodoView> createState() => _CreateTodoViewState();
+  State<EditTodoView> createState() => _EditTodoViewState();
 }
 
-class _CreateTodoViewState extends State<CreateTodoView> {
+class _EditTodoViewState extends State<EditTodoView> {
   /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
@@ -38,10 +38,10 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   late DateTime _selectedDay;
 
   /// 제목 입력 컨트롤러
-  final TextEditingController _titleController = TextEditingController();
+  late TextEditingController _titleController;
 
   /// 메모 입력 컨트롤러
-  final TextEditingController _memoController = TextEditingController();
+  late TextEditingController _memoController;
 
   /// 선택된 시간 (HH:MM 형식, null이면 시간 없음)
   String? _selectedTime;
@@ -57,14 +57,24 @@ class _CreateTodoViewState extends State<CreateTodoView> {
 
   /// 위젯 초기화
   ///
-  /// 페이지가 새로 생성될 때 한 번 호출됩니다.
-  /// 테마 상태를 라이트 모드(false)로 초기화하고, 날짜를 오늘로 설정합니다.
+  /// 기존 Todo 데이터를 초기값으로 설정합니다.
   @override
   void initState() {
     super.initState();
     _themeBool = false;
-    _selectedDay = widget.initialDate ?? DateTime.now();
     _handler = DatabaseHandler();
+
+    // 기존 Todo 데이터로 초기화
+    final todo = widget.todo;
+    _selectedDay = DateTime.parse(todo.date);
+    _selectedTime = todo.time;
+    _hasAlarm = todo.hasAlarm;
+    _selectedStep = todo.step;
+    _selectedPriority = todo.priority;
+
+    // 컨트롤러 초기화
+    _titleController = TextEditingController(text: todo.title);
+    _memoController = TextEditingController(text: todo.memo ?? '');
   }
 
   @override
@@ -75,20 +85,17 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   }
 
   /// 위젯 빌드
-  ///
-  /// 테스트 화면 선택 메뉴를 구성합니다.
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근
 
     return Scaffold(
-      // FAB는 body 밖에서 자동으로 고정됨
       backgroundColor: p.background,
       appBar: CustomAppBar(
         foregroundColor: p.textOnPrimary,
         toolbarHeight: 50,
         title: CustomText(
-          "일정 등록",
+          "일정 수정",
           style: TextStyle(color: p.textOnPrimary, fontSize: 24),
         ),
         actions: [
@@ -116,36 +123,19 @@ class _CreateTodoViewState extends State<CreateTodoView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 //----------------------------------
-                //-- 날짜 선택
+                //-- 수정 날짜
                 //----------------------------------
                 CustomText(
-                  "날짜 선택",
+                  "수정 날짜",
                   style: TextStyle(
                     color: p.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                CustomButton(
-                  btnText: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.calendar_today, color: p.primary, size: 24),
-                      const SizedBox(width: 8),
-                      CustomText(
-                        CustomCommonUtil.formatDate(
-                          _selectedDay,
-                          'yyyy년 MM월 dd일',
-                        ),
-                        fontSize: 16,
-                        color: p.textPrimary,
-                      ),
-                    ],
-                  ),
-                  buttonType: ButtonType.outlined,
-                  backgroundColor: p.primary,
-                  onCallBack: _showDatePicker,
-                  minimumSize: const Size(double.infinity, 48),
+                CustomText(
+                  CustomCommonUtil.formatDate(_selectedDay, 'yyyy년 MM월 dd일'),
+                  style: TextStyle(color: p.textPrimary, fontSize: 16),
                 ),
 
                 //----------------------------------
@@ -182,7 +172,6 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                                       color: p.primary,
                                       size: 24,
                                     ),
-
                                     Flexible(
                                       child: CustomText(
                                         _selectedTime != null
@@ -484,10 +473,10 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                 //-- 저장 버튼
                 //----------------------------------
                 CustomButton(
-                  btnText: "저장",
+                  btnText: "수정 완료",
                   buttonType: ButtonType.elevated,
                   backgroundColor: p.primary,
-                  onCallBack: _saveTodo,
+                  onCallBack: _updateTodo,
                   minimumSize: const Size(double.infinity, 48),
                 ),
               ],
@@ -501,20 +490,6 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   //----------------------------------
   //-- Function
   //----------------------------------
-
-  /// 날짜 선택 다이얼로그 표시
-  Future<void> _showDatePicker() async {
-    final selectedDate = await CustomCalendarPicker.showDatePicker(
-      context: context,
-      initialDate: _selectedDay,
-    );
-
-    if (selectedDate != null) {
-      setState(() {
-        _selectedDay = selectedDate;
-      });
-    }
-  }
 
   /// 시간 선택 다이얼로그 표시
   Future<void> _showTimePicker() async {
@@ -577,8 +552,8 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     }
   }
 
-  /// Todo 저장
-  Future<void> _saveTodo() async {
+  /// Todo 수정
+  Future<void> _updateTodo() async {
     // 제목 필수 입력 검증
     if (!CustomTextField.textCheck(context, _titleController)) {
       CustomSnackBar.show(
@@ -599,8 +574,8 @@ class _CreateTodoViewState extends State<CreateTodoView> {
         _selectedStep = StepMapperUtil.mapTimeToStep(_selectedTime);
       }
 
-      // Todo 생성
-      final todo = Todo.createNew(
+      // 기존 Todo의 id와 createdAt을 유지하고 나머지 필드만 업데이트
+      final updatedTodo = widget.todo.copyWith(
         title: _titleController.text.trim(),
         memo: _memoController.text.trim().isEmpty
             ? null
@@ -610,17 +585,21 @@ class _CreateTodoViewState extends State<CreateTodoView> {
         step: _selectedStep,
         priority: _selectedPriority,
         hasAlarm: _hasAlarm && _selectedTime != null,
+        updatedAt: CustomCommonUtil.formatDate(
+          DateTime.now(),
+          'yyyy-MM-dd HH:mm:ss',
+        ),
       );
 
-      // 데이터베이스에 저장
-      final id = await _handler.insertData(todo);
-      print("Todo 저장 완료: id=$id");
+      // 데이터베이스에 업데이트
+      await _handler.updateData(updatedTodo);
+      print("Todo 수정 완료: id=${updatedTodo.id}");
 
-      // 저장 성공 다이얼로그
+      // 수정 성공 다이얼로그
       if (context.mounted) {
         await CustomDialog.show(
           context,
-          title: "저장 완료",
+          title: "수정 완료",
           message: "정상적으로 반영되었습니다.",
           type: DialogType.single,
           confirmText: "확인",
@@ -632,13 +611,13 @@ class _CreateTodoViewState extends State<CreateTodoView> {
         }
       }
     } catch (e) {
-      print("Todo 저장 오류: $e");
-      // 저장 실패 다이얼로그
+      print("Todo 수정 오류: $e");
+      // 수정 실패 다이얼로그
       if (context.mounted) {
         await CustomDialog.show(
           context,
-          title: "저장 실패",
-          message: "저장에 실패하였습니다.",
+          title: "수정 실패",
+          message: "수정에 실패하였습니다.",
           type: DialogType.single,
           confirmText: "확인",
           barrierDismissible: false, // 배경 터치로 닫기 방지

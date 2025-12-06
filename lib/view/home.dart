@@ -10,7 +10,7 @@ import 'home_test_calendar_test.dart';
 import 'home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
-import '../util/step_mapper_util.dart';
+import '../app_custom/step_mapper_util.dart';
 
 /// 모듈 테스트용 홈 화면 위젯 (인덱스)
 ///
@@ -57,7 +57,13 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: p.background,
       appBar: CustomAppBar(
-        title: CustomText("테스트 화면", style: TextStyle(color: p.textPrimary)),
+        drawerIconColor: p.textOnPrimary,
+        drawerIcon: Icons.menu_rounded,
+        toolbarHeight: 50,
+        title: CustomText(
+          "Home",
+          style: TextStyle(color: p.textOnPrimary, fontSize: 24),
+        ),
         actions: [
           Switch(
             value: _themeBool,
@@ -343,6 +349,14 @@ class _HomeState extends State<Home> {
       },
       {
         'date': '2025-12-04',
+        'title': '새벽 운동',
+        'time': '05:00',
+        'step': StepMapperUtil.stepNight,
+        'priority': 3,
+        'memo': '새벽 조깅',
+      },
+      {
+        'date': '2025-12-04',
         'title': '오전 미팅',
         'time': '10:00',
         'step': StepMapperUtil.stepMorning,
@@ -419,6 +433,14 @@ class _HomeState extends State<Home> {
       },
       {
         'date': '2025-12-14',
+        'title': '새벽 공부',
+        'time': '03:30',
+        'step': StepMapperUtil.stepNight,
+        'priority': 4,
+        'memo': '새벽 집중 공부',
+      },
+      {
+        'date': '2025-12-14',
         'title': '주말 여행',
         'time': null,
         'step': StepMapperUtil.stepAnytime,
@@ -448,6 +470,14 @@ class _HomeState extends State<Home> {
         'step': StepMapperUtil.stepEvening,
         'priority': 3,
         'memo': '회사 파티',
+      },
+      {
+        'date': '2025-12-19',
+        'title': '새벽 명상',
+        'time': '04:00',
+        'step': StepMapperUtil.stepNight,
+        'priority': 2,
+        'memo': '새벽 명상 시간',
       },
       {
         'date': '2025-12-18',
@@ -498,6 +528,14 @@ class _HomeState extends State<Home> {
         'step': StepMapperUtil.stepMorning,
         'priority': 5,
         'memo': '가족 모임',
+      },
+      {
+        'date': '2025-12-27',
+        'title': '새벽 기도',
+        'time': '05:30',
+        'step': StepMapperUtil.stepNight,
+        'priority': 3,
+        'memo': '새벽 기도 시간',
       },
       {
         'date': '2025-12-25',
@@ -565,6 +603,9 @@ class _HomeState extends State<Home> {
         todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
       } else if (currentHour >= 18 && currentHour < 24) {
         todayStep = StepMapperUtil.stepEvening;
+        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
+      } else if (currentHour >= 0 && currentHour < 6) {
+        todayStep = StepMapperUtil.stepNight;
         todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
       } else {
         todayStep = StepMapperUtil.stepAnytime;

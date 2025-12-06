@@ -3,6 +3,7 @@ import '../custom/custom.dart';
 import '../app_custom/custom_calendar.dart';
 import '../theme/app_colors.dart';
 import '../vm/database_handler.dart';
+import '../custom/custom_common_util.dart';
 
 /// 테스트용 크기 조절 가능한 달력 위젯 테스트 화면
 ///
@@ -120,7 +121,7 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
 
       for (var day = firstDay.day; day <= lastDay.day; day++) {
         final date = DateTime(year, month, day);
-        final dateStr = _formatDate(date);
+        final dateStr = CustomCommonUtil.formatDate(date, 'yyyy-MM-dd');
         try {
           final todos = await _dbHandler.queryDataByDate(dateStr);
           _eventCache[dateStr] = todos;
@@ -140,7 +141,7 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
       ) {
         if (day > 0) {
           final date = DateTime(year, month - 1, day);
-          final dateStr = _formatDate(date);
+          final dateStr = CustomCommonUtil.formatDate(date, 'yyyy-MM-dd');
           if (!_eventCache.containsKey(dateStr)) {
             try {
               final todos = await _dbHandler.queryDataByDate(dateStr);
@@ -155,7 +156,7 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
       // 다음 달 첫 주
       for (var day = 1; day <= 7; day++) {
         final date = DateTime(year, month + 1, day);
-        final dateStr = _formatDate(date);
+        final dateStr = CustomCommonUtil.formatDate(date, 'yyyy-MM-dd');
         if (!_eventCache.containsKey(dateStr)) {
           try {
             final todos = await _dbHandler.queryDataByDate(dateStr);
@@ -174,16 +175,10 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
     }
   }
 
-  /// 날짜 형식 변환 (DateTime -> 'YYYY-MM-DD')
-  String _formatDate(DateTime date) {
-    return '${date.year.toString().padLeft(4, '0')}-'
-        '${date.month.toString().padLeft(2, '0')}-'
-        '${date.day.toString().padLeft(2, '0')}';
-  }
 
   /// 날짜별 이벤트 로더 (캐시 사용)
   List<dynamic> _eventLoader(DateTime day) {
-    final dateStr = _formatDate(day);
+    final dateStr = CustomCommonUtil.formatDate(day, 'yyyy-MM-dd');
     return _eventCache[dateStr] ?? [];
   }
 
@@ -429,7 +424,7 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
 
                     // 선택된 날짜 표시
                     CustomText(
-                      "선택된 날짜: ${_formatDate(_selectedDay)}",
+                      "선택된 날짜: ${CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd')}",
                       style: TextStyle(
                         color: p.textPrimary,
                         fontSize: 14,

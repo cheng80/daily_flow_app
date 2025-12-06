@@ -15,7 +15,10 @@ class DailyFlowColorScheme {
   /// 요약 Progress Bar - 저녁 색상
   final Color progressEvening;
 
-  /// 요약 Progress Bar - Anytime 색상
+  /// 요약 Progress Bar - 야간 색상
+  final Color progressNight;
+
+  /// 요약 Progress Bar - 종일 색상
   final Color progressAnytime;
 
   /// 중요도 1단계: 매우 낮음
@@ -37,6 +40,7 @@ class DailyFlowColorScheme {
     required this.progressMorning,
     required this.progressNoon,
     required this.progressEvening,
+    required this.progressNight,
     required this.progressAnytime,
     required this.priorityVeryLow,
     required this.priorityLow,

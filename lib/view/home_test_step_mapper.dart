@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../util/step_mapper_util.dart';
+import '../app_custom/step_mapper_util.dart';
 
 /// StepMapperUtil 유틸리티 테스트 화면
 ///
@@ -159,10 +159,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
             const SizedBox(height: 12),
 
             // 변환 버튼
-            CustomButton(
-              btnText: "시간 → Step 변환",
-              onCallBack: _testTimeToStep,
-            ),
+            CustomButton(btnText: "시간 → Step 변환", onCallBack: _testTimeToStep),
 
             const SizedBox(height: 12),
 
@@ -177,10 +174,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
                 ),
                 child: CustomText(
                   _timeToStepResult,
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: p.textPrimary, fontSize: 16),
                 ),
               ),
 
@@ -311,10 +305,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
                 ),
                 child: CustomText(
                   _stepToKoreanResult,
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: p.textPrimary, fontSize: 16),
                 ),
               ),
 
@@ -454,4 +445,3 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
     );
   }
 }
-

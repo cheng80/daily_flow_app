@@ -91,7 +91,7 @@ class CustomExpansionTile extends StatelessWidget {
       collapsedIconColor: collapsedIconColor,
       textColor: textColor,
       collapsedTextColor: collapsedTextColor,
-      tilePadding: tilePadding,
+      tilePadding: tilePadding ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       childrenPadding: childrenPadding ?? const EdgeInsets.all(16),
       shape: borderRadius != null
           ? RoundedRectangleBorder(

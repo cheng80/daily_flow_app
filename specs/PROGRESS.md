@@ -107,6 +107,19 @@
     - 완료 여부 텍스트 추가 (메모 앞에 "완료 : " 또는 "미완료 : ")
     - 체크박스 onChanged 로직을 별도 함수로 분리 (`_toggleTodoDone`)
     - Padding을 CustomPadding으로 교체
+  - 정렬 기능 구현
+    - 시간순/중요도순 정렬 스위치 추가
+    - 시간순: 시간 오름차순, 같으면 중요도 내림차순
+    - 중요도순: 중요도 내림차순, 같으면 시간 오름차순
+  - ExpansionTile을 사용한 UI 개선
+    - 달력과 필터/요약 섹션을 접을 수 있도록 개선
+    - 달력 헤더와 본체 분리 (`CustomCalendarHeader`, `CustomCalendarBody`)
+    - Summary Bar를 ExpansionTile 제목에 통합
+  - 데이터 갱신 로직 개선
+    - `_reloadData()`에 `_loadCalendarEvents()`와 `_calculateSummaryRatios()` 포함
+    - 일정 등록/수정/삭제 후 자동 갱신
+  - Todo 카드에 알람 아이콘 표시
+    - 시간이 있고 알람이 활성화된 경우 알람 아이콘 표시
 
 #### 2.7 네비게이션 유틸리티 통합
 
@@ -131,6 +144,60 @@
   - 모든 사용처 import 경로 업데이트 (`main_view.dart`, `home_test_summary_bar.dart`)
   - `lib/util/common_util.dart`는 범용 함수/클래스를 담는 공간으로 문서화
   - `lib/app_custom/app_common_util.dart`는 앱 전용 공용 함수/클래스를 담는 공간으로 문서화
+
+#### 2.10 일정 등록/수정 화면 구현
+
+- ✅ `lib/view/create_todo_view.dart` 생성
+  - 날짜 선택 (CustomCalendarPicker 다이얼로그 사용)
+  - 시간 선택 (CustomTimePicker 다이얼로그 사용, 12시간 형식)
+  - 제목 입력 (CustomTextField, 최대 50자)
+  - 메모 입력 (CustomTextField, 최대 200자, 멀티라인)
+  - 시간대 선택 (CustomDropdownButton, 시간 범위 표시)
+  - 중요도 선택 (CustomDropdownButton, 1~5단계)
+  - 알람 설정 (Switch, 시간 설정 시에만 활성화)
+  - 저장 버튼 (CustomButton)
+  - 시간 → Step 자동 매핑 로직
+  - 제목 필수 입력 검증 (CustomTextField.textCheck)
+  - 저장 성공/실패 다이얼로그 (CustomDialog)
+  - DatabaseHandler와 연동 (Todo 저장)
+  - 뒤로가기 버튼 색상 설정 (foregroundColor)
+
+- ✅ `lib/view/edit_todo_view.dart` 생성
+  - 기존 데이터 로드 및 표시
+  - 수정 기능 (등록 화면과 유사한 구조)
+  - 날짜 표시 (수정 불가, 텍스트만 표시)
+  - 시간 선택 (CustomTimePicker 다이얼로그 사용)
+  - 수정 완료 버튼 (CustomButton)
+  - 제목 필수 입력 검증
+  - 수정 성공/실패 다이얼로그 (CustomDialog)
+  - DatabaseHandler와 연동 (Todo 수정)
+  - 뒤로가기 버튼 색상 설정 (foregroundColor)
+
+- ✅ `lib/app_custom/custom_time_picker.dart` 생성
+  - CustomCupertinoDatePicker를 사용한 시간 선택 다이얼로그
+  - 12시간 형식 지원
+  - 확인 버튼과 취소(X) 버튼 UI
+
+#### 2.11 코드 리팩토링 및 개선
+
+- ✅ 중복 함수 제거
+  - `_formatTime` 함수를 `CustomCommonUtil.formatTime`으로 통합
+  - `_formatDateDisplay` 함수 제거, `CustomCommonUtil.formatDate` 직접 사용
+  - 일정 등록/수정 화면에서 중복 코드 제거
+
+- ✅ 데이터 갱신 로직 개선
+  - `_reloadData()`에 `_loadCalendarEvents()`와 `_calculateSummaryRatios()` 포함
+  - 일정 등록/수정/삭제/완료 토글 후 자동으로 모든 데이터 갱신
+
+- ✅ UI 개선
+  - 일정 삭제 다이얼로그에서 제목 제거 ("일정을 삭제 하시겠습니까?"만 표시)
+  - 일정 카드에 알람 아이콘 추가 (시간이 있고 알람이 활성화된 경우)
+  - 정렬 로직과 UI 일치 (true: 중요도순, false: 시간순)
+
+- ✅ 버그 수정
+  - 일정 등록/수정 후 데이터 반영 안되는 문제 수정
+    - 다이얼로그 닫힌 후 화면 닫기 로직 개선
+    - `await CustomDialog.show()` 완료 후 `Navigator.pop(true)` 호출
 
 ### 3. 문서 업데이트 ✅
 
@@ -179,11 +246,7 @@
 
 ## 🚧 진행 중인 작업
 
-### 메인 화면 기능 개선
-
-- Summary Bar 비율 계산 로직 구현 완료
-- 달력 이벤트 표시 로직 개선 (캐싱 방식)
-- Todo List Slidable 액션 구현 완료
+### 없음
 
 ---
 
@@ -244,6 +307,39 @@
 ## 📅 작업 일지
 
 ### 2024년 (최근 작업)
+
+#### 일정 등록/수정 화면 구현 및 개선 (2024년 12월)
+
+- 일정 등록 화면 구현 완료
+  - CustomTimePicker를 사용한 시간 선택 (12시간 형식)
+  - 제목/메모 글자 수 제한 (50자/200자)
+  - 시간대 선택 드롭다운에 시간 범위 표시
+  - 알람 설정 (시간 설정 시에만 활성화)
+  - 저장 성공/실패 다이얼로그
+  - 제목 필수 입력 검증
+
+- 일정 수정 화면 구현 완료
+  - 기존 데이터 로드 및 표시
+  - 수정 기능 (등록 화면과 유사한 구조)
+  - 수정 성공/실패 다이얼로그
+  - 제목 필수 입력 검증
+
+- 코드 리팩토링
+  - 중복 함수 제거 (formatTime, formatDateDisplay)
+  - CustomCommonUtil에 formatTime 함수 추가
+  - 데이터 갱신 로직 개선 (_reloadData 통합)
+
+- UI 개선
+  - 일정 삭제 다이얼로그 간소화 (제목 제거)
+  - 일정 카드에 알람 아이콘 추가
+  - 정렬 로직과 UI 일치 (true: 중요도순, false: 시간순)
+  - 뒤로가기 버튼 색상 설정 (foregroundColor)
+
+- 버그 수정
+  - 일정 등록/수정 후 데이터 반영 안되는 문제 수정
+  - 다이얼로그 닫힌 후 화면 닫기 로직 개선
+
+#### 메인 화면 기능 개선
 
 #### 메인 화면 Todo 카드 UI 개선
 
