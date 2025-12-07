@@ -541,3 +541,25 @@
 - `PROGRESS.md` - 진행 상황 문서
 - `REFERENCE.md` - 참고사항 문서
 - `lib_doc/` - 커스텀 위젯 문서
+
+---
+
+## 🔖 커밋 이력
+
+### 1차 개발 완료 (2024-12-07)
+
+**커밋 ID:** `3916701af62412f71b7da7bc795d23cadd50df71`
+
+**작업 내용:**
+- 모든 주요 화면 구현 완료 (MainView, CreateTodoView, EditTodoView, DeletedTodosView, TodoDetailDialog)
+- 알람 기능 완전 구현 (NotificationService)
+- 로깅 시스템 통일 (AppLogger)
+- 설정 기능 Drawer 통합
+- 모든 문서 최신 상태 반영
+
+**주요 변경 사항:**
+- REFERENCE.md: 네비게이션, 로깅, 설정 기능 업데이트
+- daily_flow_db_spec.md: Step 기본값 및 야간 추가 반영
+- daily_flow_class_diagram.dbml: 완성된 앱 기준으로 재편성
+- README.md: 문서 목록 및 현재 상태 업데이트
+- TODO.md: 고도화 개발 예정 항목 추가
