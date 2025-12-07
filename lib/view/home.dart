@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
+import '../vm/database_handler.dart';
+import '../model/todo_model.dart';
+
 import 'test_view/home_test_calendar.dart';
 import 'test_view/home_test_summary_bar.dart';
 import 'test_view/home_test_step_mapper.dart';
 import 'test_view/home_test_filter_radio.dart';
 import 'test_view/home_test_calendar_test.dart';
-import 'test_view/home_test_calendar_range.dart';
-import 'main_view.dart';
-import 'main_range_view.dart';
-import 'main_range_view_v2.dart';
-import 'statistics_range_view.dart';
-import 'create_todo_view.dart';
 import 'test_view/home_test_calendar_picker_dialog.dart';
-import '../vm/database_handler.dart';
-import '../model/todo_model.dart';
+
 import '../app_custom/step_mapper_util.dart';
 import '../app_custom/dummy_data_generator.dart';
 import '../service/notification_service.dart';
+
+import 'main_range_view_v2.dart';
+import 'statistics_range_view.dart';
+import 'create_todo_view.dart';
 
 // 모듈 테스트용 홈 화면 위젯 (인덱스)
 //
@@ -156,28 +156,6 @@ class _HomeState extends State<Home> {
                     spacing: 10,
                     children: [
                       CustomButton(
-                        btnText: "메인 화면",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            MainView(onToggleTheme: widget.onToggleTheme),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "범위 선택 메인 화면",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            MainRangeView(onToggleTheme: widget.onToggleTheme),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
                         btnText: "범위 선택 메인 화면 V2",
                         minimumSize: const Size(double.infinity, 50),
                         onCallBack: () {
@@ -286,19 +264,6 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             HomeTestCalendarTest(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "범위 선택 달력 테스트",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestCalendarRange(
                               onToggleTheme: widget.onToggleTheme,
                             ),
                             transitionType: PageTransitionType.fade,

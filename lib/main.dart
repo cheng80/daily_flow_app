@@ -4,7 +4,6 @@ import 'service/notification_service.dart';
 import 'theme/app_colors.dart';
 import 'view/create_todo_view.dart';
 import 'view/home.dart';
-import 'view/main_view.dart';
 import 'view/splash_page.dart';
 import 'custom/util/log/custom_log_util.dart';
 
@@ -116,11 +115,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           case '/':
             return _fadeRoute(
               Home(onToggleTheme: _toggleTheme),
-              routeSettings: settings,
-            );
-          case '/main_view':
-            return _fadeRoute(
-              MainView(onToggleTheme: _toggleTheme),
               routeSettings: settings,
             );
           case '/create_todo_view':
