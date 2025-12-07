@@ -92,28 +92,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       initialRoute: '/splash',
       onGenerateRoute: (settings) {
         // 페이드 트랜지션을 위한 PageRouteBuilder 생성 함수
-        PageRoute<T> _fadeRoute<T extends Object?>(
+        PageRoute<T> fadeRoute<T extends Object?>(
           Widget page, {
           RouteSettings? routeSettings,
         }) {
           return PageRouteBuilder<T>(
             settings: routeSettings,
             pageBuilder: (context, animation, secondaryAnimation) => page,
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
             transitionDuration: const Duration(milliseconds: 300),
           );
         }
 
         switch (settings.name) {
           case '/splash':
-            return _fadeRoute(
+            return fadeRoute(
               SplashPage(onToggleTheme: _toggleTheme),
               routeSettings: settings,
             );
           case '/':
-            return _fadeRoute(
+            return fadeRoute(
               Home(onToggleTheme: _toggleTheme),
               routeSettings: settings,
             );
@@ -125,7 +126,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             } else if (args is DateTime) {
               initialDate = args;
             }
-            return _fadeRoute(
+            return fadeRoute(
               CreateTodoView(
                 onToggleTheme: _toggleTheme,
                 initialDate: initialDate,
@@ -133,7 +134,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               routeSettings: settings,
             );
           default:
-            return _fadeRoute(
+            return fadeRoute(
               Home(onToggleTheme: _toggleTheme),
               routeSettings: settings,
             );
