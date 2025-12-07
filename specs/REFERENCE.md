@@ -21,13 +21,15 @@
 
 - GetX는 사용하지 않습니다
 - 순수 Flutter (StatefulWidget)를 사용합니다
-- 네비게이션은 `Navigator.push()` 사용
+- 네비게이션은 `CustomNavigationUtil.to` 사용 (기본 `Navigator.push()` 대신) ✅
 
-### 4. 개발 작업 스타일 및 우선순위
+### 4. 개발 작업 스타일 및 우선순위 ✅
 
-**핵심 원칙: 기능 모듈 우선 개발, 화면 구성은 후순위**
+**핵심 원칙: 기능 모듈 우선 개발, 화면 구성은 후순위** (1차 개발 완료)
 
 이 프로젝트는 **화면 구성보다 기능 구현을 위한 모듈들을 먼저 개발**하는 방식을 따릅니다.
+
+**현재 상태:** 모든 주요 기능 모듈 및 화면 구현 완료 ✅
 
 #### 작업 순서
 
@@ -43,10 +45,10 @@
    - 테스트 페이지에서 모듈의 동작, 스타일, 테마 적용 등을 확인
    - 모든 기능이 정상 동작하는지 확인 후 다음 단계로 진행
 
-3. **실제 디자인 페이지 구성 (후순위)**
+3. **실제 디자인 페이지 구성 (후순위)** ✅ 완료
    - 모든 필요한 모듈이 완성되고 테스트 완료 후 진행
-   - 사용자가 모듈들을 직접 사용해 본 후 필요시 화면 구성 도움 요청
-   - 실제 화면은 `lib/view/main_view.dart`, `lib/view/create_todo_view.dart` 등에 구현
+   - 실제 화면은 `lib/view/main_view.dart`, `lib/view/create_todo_view.dart` 등에 구현 ✅
+   - 모든 주요 화면 구현 완료: 메인 화면, 일정 등록/수정, 삭제 보관함, Todo 상세보기
 
 #### 작업 흐름 예시
 
@@ -61,7 +63,7 @@
    ↓
 5. 필요시 수정 및 개선
    ↓
-6. 모든 모듈 완성 후 → 실제 화면 구성 (사용자가 직접 작업 또는 도움 요청)
+6. 모든 모듈 완성 후 → 실제 화면 구성 ✅ (완료됨)
 ```
 
 #### 이 방식의 장점
@@ -71,12 +73,14 @@
 - **유연성**: 화면 구성 전에 모듈의 동작을 충분히 검증 가능
 - **협업 효율**: 모듈 개발과 화면 구성을 분리하여 작업 효율 향상
 
-#### 참고사항
+#### 참고사항 ✅
 
-- `lib/view/home.dart`는 모듈 테스트/프로토타이핑 용도로만 사용
-- 실제 메인 화면은 `lib/view/main_view.dart`에서 별도 구현
-- 각 모듈 개발 완료 후 `home.dart`에서 테스트
-- 모든 모듈이 완료되면 실제 화면 구성 단계로 진행
+- `lib/view/home.dart`는 모듈 테스트/프로토타이핑 용도로만 사용 ✅
+- 실제 메인 화면은 `lib/view/main_view.dart`에서 별도 구현 ✅ (완료됨)
+- 각 모듈 개발 완료 후 `home.dart`에서 테스트 ✅
+- 테스트 페이지는 `lib/view/test_view/` 폴더에 위치 ✅
+- **모든 주요 화면 구현 완료**: 메인 화면, 일정 등록/수정, 삭제 보관함, Todo 상세보기 ✅
+- 향후 추가 기능 개발 시에도 동일한 방식 (모듈 → 테스트 → 화면 구성) 적용
 
 ### 5. 문서 기반 개발 워크플로우
 
@@ -136,17 +140,26 @@ lib/
 │   └── database_handler.dart
 ├── view/                     # 화면
 │   ├── home.dart             # 테스트 페이지 라우팅용 인덱스
-│   ├── home_test_*.dart      # 모듈별 테스트 페이지
-│   ├── main/                 # 실제 메인 화면 (구현 예정)
-│   ├── create_todo/          # 일정 등록 화면 (구현 예정)
-│   ├── edit_todo/            # 일정 수정 화면 (구현 예정)
-│   ├── day_detail/           # 하루 상세 화면 (구현 예정)
-│   └── deleted_todos/        # 삭제 보관함 화면 (구현 예정)
+│   ├── main_view.dart        # 실제 메인 화면 ✅
+│   ├── create_todo_view.dart # 일정 등록 화면 ✅
+│   ├── edit_todo_view.dart   # 일정 수정 화면 ✅
+│   ├── todo_detail_dialog.dart # Todo 상세보기 다이얼로그 ✅
+│   ├── deleted_todos_view.dart # 삭제 보관함 화면 ✅
+│   └── test_view/            # 테스트 페이지 폴더 ✅
+│       ├── home_test_calendar.dart
+│       ├── home_test_summary_bar.dart
+│       ├── home_test_step_mapper.dart
+│       ├── home_test_filter_radio.dart
+│       ├── home_test_calendar_picker_dialog.dart
+│       └── home_test_calendar_test.dart
 ├── app_custom/               # 앱 전용 커스텀 위젯
 │   ├── custom_calendar.dart
-│   └── custom_calendar_picker.dart
-├── service/                  # 서비스 (구현 예정)
-│   └── notification_service.dart
+│   ├── custom_calendar_picker.dart
+│   ├── custom_filter_radio.dart
+│   ├── custom_time_picker.dart
+│   └── app_common_util.dart  # 앱 전용 공용 함수/클래스
+├── service/                  # 서비스 ✅
+│   └── notification_service.dart # 알람 서비스 ✅
 ├── util/                     # 유틸리티
 │   ├── common_util.dart
 │   └── step_mapper_util.dart
@@ -183,11 +196,14 @@ lib/
 #### 2. 모듈별 테스트 페이지
 
 - **명명 규칙**: `home_test_[기능명].dart`
-- **위치**: `lib/view/` 폴더
+- **위치**: `lib/view/test_view/` 폴더
 - **예시**:
-  - `home_test_calendar.dart` - 캘린더 위젯 테스트
-  - `home_test_summary_bar.dart` - 서머리바 테스트
-  - `home_test_calendar_picker.dart` - 날짜 선택 다이얼로그 테스트 (필요 시)
+  - `home_test_calendar.dart` - 캘린더 위젯 테스트 ✅
+  - `home_test_summary_bar.dart` - 서머리바 테스트 ✅
+  - `home_test_step_mapper.dart` - Step 매핑 유틸리티 테스트 ✅
+  - `home_test_filter_radio.dart` - 필터 라디오 테스트 ✅
+  - `home_test_calendar_picker_dialog.dart` - 날짜 선택 다이얼로그 테스트 ✅
+  - `home_test_calendar_test.dart` - 캘린더 테스트 ✅
 
 ### 테스트 페이지 공통 구조
 
@@ -269,14 +285,15 @@ class _HomeTest[기능명]State extends State<HomeTest[기능명]> {
    - **새로운 테스트 페이지를 생성하면 반드시 `home.dart`에 버튼을 추가해야 합니다.**
    - 테스트 페이지 생성과 동시에 `home.dart`에 등록하는 것이 필수입니다.
    - 버튼은 `SizedBox(width: double.infinity)`와 `Padding(padding: EdgeInsets.symmetric(horizontal: 16.0))`로 감싸서 동일한 너비로 정렬
-   - 버튼 클릭 시 `Navigator.push()`로 테스트 페이지로 이동
+   - 버튼 클릭 시 `CustomNavigationUtil.to()`로 테스트 페이지로 이동 ✅
    - 등록하지 않으면 테스트 페이지에 접근할 수 없으므로 반드시 등록해야 합니다.
 
-### 실제 메인 화면과의 관계
+### 실제 메인 화면과의 관계 ✅
 
-- **테스트 페이지**: 모듈 개발 및 검증용 (임시)
-- **실제 메인 화면**: `lib/view/main_view.dart`에서 별도 구현
-- 각 모듈 개발 완료 후, 완성된 커스텀 모듈과 함수를 사용하여 실제 화면 구성
+- **테스트 페이지**: 모듈 개발 및 검증용 (임시) - `lib/view/test_view/` 폴더에 위치
+- **실제 메인 화면**: `lib/view/main_view.dart`에서 별도 구현 ✅ (완료됨)
+- 각 모듈 개발 완료 후, 완성된 커스텀 모듈과 함수를 사용하여 실제 화면 구성 ✅
+- 모든 주요 화면 구현 완료: 메인 화면, 일정 등록/수정, 삭제 보관함, Todo 상세보기
 
 ---
 
@@ -340,6 +357,7 @@ class _HomeTest[기능명]State extends State<HomeTest[기능명]> {
   - ProgressMorning (오전) - 라이트: 주황색, 다크: 밝은 주황색
   - ProgressNoon (오후) - 라이트: 밝은 노란색, 다크: 밝은 노란색
   - ProgressEvening (저녁) - 라이트: 청록색, 다크: 밝은 청록색
+  - ProgressNight (야간) - 라이트: 파란색 계열, 다크: 밝은 파란색 계열
   - ProgressAnytime (종일) - 라이트: 보라색, 다크: 밝은 보라색
 
 - **중요도 색상:**
@@ -392,16 +410,21 @@ Container(color: p.priorityHigh) // 중요도 표시
 - `0`: 오전
 - `1`: 오후
 - `2`: 저녁
-- `3`: 종일 (기본값)
+- `3`: 야간
+- `4`: 종일 (기본값)
 
-### 시간 → Step 자동 매핑 규칙 (제안)
+### 시간 → Step 자동 매핑 규칙 ✅ 구현 완료
 
 - **오전 (0)**: 06:00 ~ 11:59
 - **오후 (1)**: 12:00 ~ 17:59
 - **저녁 (2)**: 18:00 ~ 23:59
-- **종일 (3)**: 00:00 ~ 05:59 (새벽) 또는 시간 없음
+- **야간 (3)**: 00:00 ~ 05:59
+- **종일 (4)**: 시간 없음 (null) 또는 유효하지 않은 시간
 
-**참고:** 이 규칙은 차후 조정 가능합니다.
+**구현:** `lib/util/step_mapper_util.dart`의 `StepMapperUtil` 클래스 사용
+- `mapTimeToStep(String? time)`: 시간 문자열을 Step 값으로 변환
+- `stepToKorean(int step)`: Step 값을 한국어 문자열로 변환
+- `stepToTimeRange(int step)`: Step 값에 해당하는 시간 범위 문자열 반환
 
 ---
 
@@ -422,23 +445,35 @@ Container(color: p.priorityHigh) // 중요도 표시
 
 ---
 
-## 🔔 알람 정책
+## 🔔 알람 정책 ✅ 구현 완료
 
 ### 현재 정책 (1차 버전)
 
 - 1 Todo당 최대 1개의 알람만 지원
 - 알람 활성 조건: `has_alarm = 1` AND `time IS NOT NULL`
 - 알람 스케줄링: `flutter_local_notifications` 사용
+- 알람 서비스: `lib/service/notification_service.dart`의 `NotificationService` 클래스
 
 ### 알람 취소 시점
 
-- Todo 삭제 시
-- 시간 변경 시 (기존 알람 취소 후 재등록)
-- `has_alarm`을 false로 변경 시
+- Todo 삭제 시: 자동 취소
+- 시간 변경 시: 기존 알람 취소 후 새 알람 등록
+- `has_alarm`을 false로 변경 시: 알람 취소
 
 ### 알람 수정 시
 
 - 기존 알람 취소 → 새 알람 등록
+
+### 과거 알람 정리 기능 ✅
+
+- **앱 시작 시**: 자동으로 과거 알람 정리 (`main.dart`에서 호출)
+- **앱 포그라운드 복귀 시**: 자동으로 과거 알람 정리 (`WidgetsBindingObserver` 사용)
+- **정리 대상**:
+  - `hasAlarm=true`이고 `time`이 현재 시간보다 이전인 Todo
+  - `notificationId`가 없는 경우도 포함 (알람 등록 실패한 경우)
+- **정리 동작**:
+  - 시스템 알람 취소 (notificationId가 있는 경우)
+  - DB 상태 업데이트: `hasAlarm=false`, `notificationId=null`
 
 ### 향후 확장 계획
 
@@ -447,69 +482,103 @@ Container(color: p.priorityHigh) // 중요도 표시
 
 ---
 
-## 🗑️ 삭제/복구 플로우
+## 🗑️ 삭제/복구 플로우 ✅ 구현 완료
 
 ### 소프트 삭제 (todo → deleted_todo)
 
 1. `todo`에서 대상 레코드 SELECT
 2. 같은 내용 + `original_id = todo.id`, `deleted_at = 현재 시각`으로 `deleted_todo`에 INSERT
-3. 필요 시 알람 `cancel(notification_id)` 수행
+3. 알람 `cancel(notification_id)` 자동 수행
 4. `todo`에서 해당 레코드 DELETE
 
-### 복구 (deleted_todo → todo)
+### 복구 (deleted_todo → todo) ✅
 
 1. `deleted_todo`에서 복구 대상 SELECT
 2. `todo`에 INSERT (새 id 부여)
-3. 알람은 비활성화 상태로 복구 (필요 시 사용자가 재설정)
+3. 알람은 비활성화 상태로 복구 (`has_alarm = 0`, `notification_id = NULL`)
 4. `deleted_todo`에서 해당 레코드 DELETE
 
-### 완전 삭제
+### 완전 삭제 ✅
 
 - `deleted_todo`에서 해당 레코드 DELETE
-- 확인 다이얼로그 표시 권장
+- 확인 다이얼로그 표시 (`CustomDialog` 사용)
+
+### 삭제 보관함 화면 ✅
+
+- **위치**: `lib/view/deleted_todos_view.dart`
+- **기능**:
+  - 삭제된 Todo 리스트 표시
+  - 필터 라디오 (전체/오늘/7일/30일)
+  - 정렬 기능 (시간순/중요도순)
+  - 복구 기능 (Slidable 좌측)
+  - 완전 삭제 기능 (Slidable 우측)
+- **접근**: `MainView` Drawer에서 "삭제 보관함" 버튼으로 진입
 
 ---
 
-## 🧭 네비게이션
+## 🧭 네비게이션 ✅ 통일 완료
 
 ### 네비게이션 방식
 
-- `Navigator.push()` 사용 (GetX 미사용)
-- 결과 반환: `Navigator.push().then((result) => {})`
-- 데이터 전달: 생성자 파라미터로 전달
+- **⚠️ 필수**: `CustomNavigationUtil` 사용 (기본 `Navigator.push()` 제거)
+- 모든 화면에서 `CustomNavigationUtil.to` 사용
+- 모든 화면에서 `CustomNavigationUtil.back` 사용
+- `main.dart`의 라우트 정의: `onGenerateRoute`로 변경하여 arguments 처리 가능
+
+### CustomNavigationUtil 사용법
+
+```dart
+// 화면 이동
+final result = await CustomNavigationUtil.to(
+  context,
+  CreateTodoView(
+    initialDate: selectedDate,
+    initialStep: selectedStep,
+  ),
+);
+
+// 결과 확인
+if (result == true) {
+  // 데이터 갱신
+  _refreshTodoList();
+}
+
+// 뒤로가기
+CustomNavigationUtil.back(context, result: true);
+```
 
 ### 화면 간 데이터 전달 예시
 
 ```dart
 // 등록 화면으로 이동
-Navigator.push(
+final result = await CustomNavigationUtil.to(
   context,
-  MaterialPageRoute(
-    builder: (context) => CreateTodoView(
-      date: selectedDate,
-      step: selectedStep,
-    ),
+  CreateTodoView(
+    initialDate: selectedDate,
+    initialStep: selectedStep,
   ),
-).then((result) {
-  if (result == true) {
-    // 데이터 갱신
-    _refreshTodoList();
-  }
-});
+);
+if (result == true) {
+  // 데이터 갱신
+  _refreshTodoList();
+}
 
 // 수정 화면으로 이동
-Navigator.push(
+final result = await CustomNavigationUtil.to(
   context,
-  MaterialPageRoute(
-    builder: (context) => EditTodoView(todo: selectedTodo),
-  ),
-).then((result) {
-  if (result == true) {
-    // 데이터 갱신
-    _refreshTodoList();
-  }
-});
+  EditTodoView(todo: selectedTodo),
+);
+if (result == true) {
+  // 데이터 갱신
+  _refreshTodoList();
+}
 ```
+
+### 이점
+
+- 타입 안전성 향상
+- 코드 일관성 확보
+- 유지보수성 향상
 
 ---
 
@@ -520,7 +589,9 @@ Navigator.push(
 - `sqflite: ^2.4.2` - SQLite 데이터베이스
 - `path: ^1.9.1` - 파일 경로 처리
 - `shared_preferences: ^2.2.2` - 환경 설정 저장
-- `flutter_local_notifications: ^19.5.0` - 로컬 알람
+- `flutter_local_notifications: ^19.5.0` - 로컬 알람 ✅
+- `timezone: ^0.9.4` - 타임존 처리 (알람용) ✅
+- `permission_handler: ^11.3.1` - 권한 처리 (알람 권한용) ✅
 - `table_calendar: ^3.2.0` - 달력 위젯
 - `flutter_slidable: ^4.0.3` - 슬라이드 액션
 
@@ -545,9 +616,11 @@ Navigator.push(
 
 1. **날짜 형식**: 반드시 `YYYY-MM-DD` 형식을 사용하세요
 2. **시간 형식**: 반드시 `HH:MM` 형식을 사용하세요
-3. **Step 값**: 0~3 범위를 벗어나지 않도록 주의하세요
+3. **Step 값**: 0~4 범위를 벗어나지 않도록 주의하세요 (0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
 4. **Priority 값**: 1~5 범위를 벗어나지 않도록 주의하세요
 5. **Context 사용**: CustomSnackBar/Dialog 사용 시 context.mounted 확인 필요
+6. **로깅**: `print()` 대신 `AppLogger` 사용 필수
+7. **네비게이션**: `Navigator.push()` 대신 `CustomNavigationUtil.to` 사용 필수
 
 ---
 
@@ -632,6 +705,80 @@ Future<void> _navigateToCreateTodo() async {
 
 ---
 
+## 📝 로깅 시스템 ✅
+
+### AppLogger 클래스
+
+- **위치**: `lib/custom/util/log/custom_log_util.dart`
+- **용도**: 전역 로깅 시스템으로 모든 `print()` 문을 대체
+
+### 로그 레벨
+
+- `AppLogger.d(String message, {String? tag})`: 디버그 로그
+- `AppLogger.i(String message, {String? tag})`: 정보 로그
+- `AppLogger.w(String message, {String? tag, Object? error})`: 경고 로그
+- `AppLogger.e(String message, {String? tag, Object? error, StackTrace? stackTrace})`: 에러 로그
+- `AppLogger.s(String message, {String? tag})`: 성공 로그
+
+### 출력 정책
+
+- **디버그 모드**: 모든 로그 레벨 출력
+- **릴리즈 모드**: 
+  - 기본적으로 로그 비활성화
+  - 에러 로그만 선택적 출력 (`_enableReleaseErrorLogs` 플래그로 제어)
+
+### 사용 예시
+
+```dart
+// 기본 사용
+AppLogger.d('디버그 메시지');
+AppLogger.i('정보 메시지');
+AppLogger.w('경고 메시지');
+AppLogger.e('에러 발생', error: exception, stackTrace: stackTrace);
+AppLogger.s('작업 완료');
+
+// 태그와 함께 사용 (권장)
+AppLogger.d('알람 등록 시작', tag: 'Notification');
+AppLogger.e('알람 등록 실패', tag: 'Notification', error: e);
+
+// 릴리즈 빌드에서 로그 확인
+// Android: adb logcat | grep ERROR
+// iOS: Xcode Console에서 디바이스 연결 후 확인
+```
+
+### 주의사항
+
+- ⚠️ **필수**: 모든 `print()` 문을 `AppLogger`로 교체
+- 태그 사용을 통해 로그 분류 및 필터링 용이
+- 릴리즈 빌드에서도 에러 추적을 위해 에러 로그는 출력 가능
+
+---
+
+## ⚙️ 설정 기능 ✅
+
+### 설정 방식
+
+- 별도 설정 화면 없음
+- `MainView` Drawer에 설정 기능 통합
+
+### Drawer 메뉴 항목
+
+1. **라이트/다크 모드 토글**
+   - Switch 위젯으로 테마 전환
+   - 설정은 `SharedPreferences`에 자동 저장
+
+2. **삭제 보관함**
+   - 삭제된 Todo 리스트 화면으로 이동
+   - `deleted_todos_view.dart` 화면 표시
+
+### 향후 확장 가능 항목
+
+- 알람 기본 설정
+- 알림 소리 설정
+- 데이터 백업/복원
+
+---
+
 ## 🔗 관련 문서
 
 - `daily_flow_db_spec.md` - 데이터베이스 스펙
@@ -658,10 +805,21 @@ Future<void> _navigateToCreateTodo() async {
 
 ### 디버깅
 
-- `print()` 문으로 로그 출력
+- **⚠️ 중요**: `print()` 문 대신 `AppLogger` 사용
+- 로깅 시스템: `lib/custom/util/log/custom_log_util.dart`의 `AppLogger` 클래스
+- 로그 레벨:
+  - `AppLogger.d()`: 디버그 로그 (디버그 모드에서만 출력)
+  - `AppLogger.i()`: 정보 로그 (디버그 모드에서만 출력)
+  - `AppLogger.w()`: 경고 로그 (디버그 모드에서만 출력)
+  - `AppLogger.e()`: 에러 로그 (디버그 모드 + 릴리즈 모드에서 출력 가능)
+  - `AppLogger.s()`: 성공 로그 (디버그 모드에서만 출력)
+- 태그 기반 로그 분류 지원: `AppLogger.d('메시지', tag: 'TagName')`
+- 릴리즈 빌드에서 에러 로그 확인:
+  - Android: `adb logcat | grep ERROR`
+  - iOS: Xcode Console에서 디바이스 연결 후 확인
 - 데이터베이스 경로는 초기화 시 출력됨
 - Model 클래스의 `toString()` 메서드 활용
 
 ---
 
-**마지막 업데이트:** 2024년 (최근 작업 기준)
+**마지막 업데이트:** 2024년 12월 (알람 기능, 로깅 시스템, 주석 개선, 삭제 보관함 화면 구현 완료)

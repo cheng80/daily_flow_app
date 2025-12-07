@@ -4,7 +4,7 @@
 // 이 문서는 앱의 핵심 엔티티와 관계를 도메인 중심으로 정의합니다.
 // 뷰 화면, 데이터베이스, 사용자 행위, 앱 데이터/응답 기준으로 구조화되었습니다.
 //
-// 업데이트 날짜: 2025-12-07
+// 업데이트 날짜: 2024-12-07
 // 상태: 모든 핵심 기능 구현 완료
 //
 // 포함 범위:
@@ -27,7 +27,7 @@ Table todo {
   memo            text
   date            text    [not null]
   time            text
-  step            integer [not null, default: 3]
+  step            integer [not null, default: 4]
   priority        integer [not null, default: 3]
   is_done         integer [not null, default: 0]
   has_alarm       integer [not null, default: 0]
@@ -50,7 +50,7 @@ Table deleted_todo {
   memo         text
   date         text    [not null]
   time         text
-  step         integer [not null, default: 3]
+  step         integer [not null, default: 4]
   priority     integer [not null, default: 3]
   is_done      integer [not null, default: 0]
   deleted_at   text    [not null]
@@ -76,7 +76,7 @@ Table MainView {
   selectedDate datetime
   selectedStep integer
 
-  Note: '메인 화면 - 달력 + 일정 목록 + Summary Bar [구현 완료]\n기능: 날짜 선택, Step 필터링, 일정 목록 표시, Summary Bar 비율 표시, 완료 토글, 일정 삭제, 일정 상세 보기, 설정 Drawer\n핵심 화면: 모든 주요 기능의 진입점'
+  Note: '메인 화면 - 달력 + 일정 목록 + Summary Bar [구현 완료]\n기능: 날짜 선택, Step 필터링(전체/오전/오후/저녁/야간/종일), 일정 목록 표시, Summary Bar 비율 표시(5개 구간), 완료 토글, 일정 삭제, 일정 상세 보기, 정렬 기능(시간순/중요도순), 설정 Drawer(테마 토글, 삭제 보관함 접근)\n핵심 화면: 모든 주요 기능의 진입점\n네비게이션: CustomNavigationUtil 사용'
 }
 
 Table CreateTodoView {
@@ -94,7 +94,7 @@ Table EditTodoView {
 Table DeletedTodosView {
   viewType text [pk, note: '실제로는 클래스 타입 자체가 식별자']
 
-  Note: '삭제 보관함 화면 [구현 완료]\n기능: 삭제된 일정 목록 표시, 복구, 완전 삭제, 날짜 필터링'
+  Note: '삭제 보관함 화면 [구현 완료]\n기능: 삭제된 일정 목록 표시, 복구(소프트 삭제 복구), 완전 삭제(영구 삭제), 날짜 필터링(전체/오늘/7일/30일), 정렬 기능(시간순/중요도순)\n접근: MainView Drawer에서 "삭제 보관함" 버튼으로 진입'
 }
 
 Table TodoDetailDialog {
@@ -115,13 +115,13 @@ Table TodoDetailDialog {
 Table NotificationService {
   serviceType text [pk, note: '실제로는 클래스 타입 자체가 식별자']
 
-  Note: '로컬 알람 서비스 [구현 완료]\n기능: 알람 등록/취소/업데이트, 권한 관리, 과거 알람 자동 정리, 알람 시간 검증(최소 2분)\n1 Todo당 최대 1개 알람 지원'
+  Note: '로컬 알람 서비스 [구현 완료]\n기능: 알람 등록/취소/업데이트, 권한 관리(iOS/Android), 과거 알람 자동 정리(앱 시작/포그라운드 복귀 시), 알람 시간 검증(최소 2분)\n1 Todo당 최대 1개 알람 지원\n과거 알람 정리: hasAlarm=true이고 time이 현재보다 이전인 경우 자동 취소 및 DB 상태 업데이트(hasAlarm=false, notificationId=null)'
 }
 
 Table DatabaseHandler {
   serviceType text [pk, note: '실제로는 클래스 타입 자체가 식별자']
 
-  Note: 'SQLite 데이터베이스 관리 클래스 [구현 완료]\n기능: CRUD 작업, 소프트 삭제/복구, 완료 토글, 날짜별/Step별 조회'
+  Note: 'SQLite 데이터베이스 관리 클래스 [구현 완료]\n기능: CRUD 작업, 소프트 삭제/복구, 완료 토글, 날짜별/Step별 조회\n인덱스: idx_todo_date, idx_todo_date_step, idx_deleted_todo_date, idx_deleted_todo_deleted_at'
 }
 
 // ============================================
@@ -357,24 +357,27 @@ Ref: FilteredTodos.step > todo.step
 //    MainView → DeleteTodo 행위 → todo 삭제 → TodoList/CalendarEvents/SummaryRatios 갱신
 //
 // 2. 일정 생성 플로우:
-//    MainView → FAB 클릭 → CreateTodoView 이동 (initialDate 전달)
-//    CreateTodoView → CreateTodo 행위 → todo INSERT → 알람 등록(선택)
-//    CreateTodoView → MainView 복귀 → TodoList/CalendarEvents/SummaryRatios 갱신
+//    MainView → FAB 클릭 → CreateTodoView 이동 (CustomNavigationUtil.to, initialDate 전달)
+//    CreateTodoView → CreateTodo 행위 → todo INSERT → 알람 등록(hasAlarm=true이고 time이 2분 이후일 경우)
+//    CreateTodoView → MainView 복귀 (CustomNavigationUtil.back) → TodoList/CalendarEvents/SummaryRatios 갱신
 //
 // 3. 일정 수정 플로우:
-//    MainView → ViewTodoDetail 행위 → TodoDetailDialog 표시
-//    TodoDetailDialog → Edit 버튼 → EditTodoView 이동
-//    EditTodoView → UpdateTodo 행위 → todo UPDATE → 알람 업데이트/취소(선택)
-//    EditTodoView → MainView 복귀 → TodoList/CalendarEvents/SummaryRatios 갱신
+//    MainView → ViewTodoDetail 행위 → TodoDetailDialog 표시 (TodoDetailDialog.show())
+//    TodoDetailDialog → Edit 버튼 → EditTodoView 이동 (CustomNavigationUtil.to)
+//    EditTodoView → UpdateTodo 행위 → todo UPDATE → 알람 업데이트/취소(hasAlarm=true이고 time이 2분 이후일 경우)
+//    EditTodoView → MainView 복귀 (CustomNavigationUtil.back) → TodoList/CalendarEvents/SummaryRatios 갱신
 //
 // 4. 일정 삭제 플로우:
-//    MainView/EditTodoView/TodoDetailDialog → DeleteTodo 행위 → todo → deleted_todo 이동
-//    → 알람 취소 → TodoList/CalendarEvents/SummaryRatios 갱신
+//    MainView/EditTodoView/TodoDetailDialog → DeleteTodo 행위 → todo → deleted_todo 이동 (소프트 삭제)
+//    → 알람 취소 (NotificationService.cancelNotification) → TodoList/CalendarEvents/SummaryRatios 갱신
 //
 // 5. 일정 복구 플로우:
-//    MainView Drawer → DeletedTodosView 이동
-//    DeletedTodosView → RestoreTodo 행위 → deleted_todo → todo 이동
+//    MainView Drawer → DeletedTodosView 이동 (CustomNavigationUtil.to)
+//    DeletedTodosView → RestoreTodo 행위 → deleted_todo → todo 이동 (알람은 비활성화 상태로 복구)
 //    → MainView 복귀 → TodoList/CalendarEvents/SummaryRatios 갱신
+//
+// 6. 시스템 자동 실행 플로우:
+//    앱 시작/포그라운드 복귀 → CleanupExpiredNotifications 행위 → 과거 알람 자동 정리 → todo 상태 업데이트(hasAlarm=false, notificationId=null)
 //
 // ============================================
 // 사용자 행위 → 뷰 화면 관계 (MainView 중심)
@@ -422,11 +425,12 @@ Ref: FilteredTodos.step > todo.step
 // 뷰 화면 간 네비게이션 관계 (MainView 중심)
 // ============================================
 //
-//   - MainView ↔ CreateTodoView (MainView에서 FAB 클릭 시 CreateTodoView로 이동, 초기 날짜 전달, 저장 후 MainView로 복귀)
-//   - MainView ↔ EditTodoView (MainView에서 TodoDetailDialog → Edit 버튼 클릭 시 이동, 수정 후 MainView로 복귀)
-//   - MainView ↔ DeletedTodosView (MainView Drawer에서 삭제 보관함 클릭 시 이동, 양방향 네비게이션)
-//   - MainView → TodoDetailDialog (MainView에서 일정 카드 탭 시 다이얼로그 표시)
-//   - TodoDetailDialog → EditTodoView (다이얼로그에서 Edit 버튼 클릭 시 EditTodoView로 이동)
+//   - MainView ↔ CreateTodoView (CustomNavigationUtil.to 사용, MainView에서 FAB 클릭 시 CreateTodoView로 이동, initialDate 전달, 저장 후 MainView로 복귀)
+//   - MainView ↔ EditTodoView (CustomNavigationUtil.to 사용, MainView에서 TodoDetailDialog → Edit 버튼 클릭 시 이동, 수정 후 MainView로 복귀)
+//   - MainView ↔ DeletedTodosView (CustomNavigationUtil.to 사용, MainView Drawer에서 삭제 보관함 클릭 시 이동, 양방향 네비게이션)
+//   - MainView → TodoDetailDialog (TodoDetailDialog.show() 정적 메서드 사용, MainView에서 일정 카드 탭 시 다이얼로그 표시)
+//   - TodoDetailDialog → EditTodoView (CustomNavigationUtil.to 사용, 다이얼로그에서 Edit 버튼 클릭 시 EditTodoView로 이동)
+//   - 네비게이션: 모든 화면 이동은 CustomNavigationUtil.to/back 사용 (기본 Navigator.push/pop 대신)
 //
 // ============================================
 // 사용자 행위 → 데이터베이스 관계
@@ -434,8 +438,8 @@ Ref: FilteredTodos.step > todo.step
 //
 //   - CreateTodo → todo (INSERT, MainView에서 CreateTodoView로 이동하여 생성)
 //   - UpdateTodo → todo (UPDATE, MainView → TodoDetailDialog → EditTodoView를 통해 수정)
-//   - DeleteTodo → todo → deleted_todo (소프트 삭제, MainView에서 직접 또는 TodoDetailDialog/EditTodoView를 통해)
-//   - RestoreTodo → deleted_todo → todo (복구, MainView Drawer → DeletedTodosView에서 복구)
+//   - DeleteTodo → todo → deleted_todo (소프트 삭제, MainView에서 직접 또는 TodoDetailDialog/EditTodoView를 통해, 알람 자동 취소)
+//   - RestoreTodo → deleted_todo → todo (복구, MainView Drawer → DeletedTodosView에서 복구, 알람은 비활성화 상태로 복구)
 //   - ToggleDone → todo.is_done (UPDATE, MainView에서 직접 실행)
 //   - SetAlarm → todo.has_alarm, notification_id (UPDATE, CreateTodoView/EditTodoView에서 설정)
 //
@@ -444,7 +448,7 @@ Ref: FilteredTodos.step > todo.step
 // ============================================
 //
 //   - NotificationService → todo.notification_id (알람 등록/취소 시 notification_id 업데이트)
-//   - NotificationService → todo.has_alarm (과거 알람 정리 시 has_alarm=false로 업데이트)
+//   - NotificationService → todo.has_alarm (과거 알람 정리 시 has_alarm=false로 업데이트, notificationId=null로 설정)
 //   - DatabaseHandler → todo (모든 CRUD 작업: INSERT, SELECT, UPDATE, DELETE)
 //   - DatabaseHandler → deleted_todo (소프트 삭제/복구 시 INSERT, SELECT, DELETE)
 //   

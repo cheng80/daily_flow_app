@@ -276,7 +276,7 @@
 - ✅ 개발 작업 스타일 및 우선순위 섹션 추가
   - 기능 모듈 우선 개발, 화면 구성은 후순위 원칙 명시
   - 작업 순서 및 흐름 예시 추가
-- ✅ Step 값 및 시간대 용어 업데이트 (오전/오후/저녁/종일)
+- ✅ Step 값 및 시간대 용어 업데이트 (오전/오후/저녁/야간/종일)
 - ✅ 네비게이션 유틸리티 사용 규칙 명시
 
 #### 3.2 DatabaseHandler API 문서 생성
@@ -285,6 +285,15 @@
   - 모든 메서드 목록 및 사용법 정리
   - 파라미터, 반환 타입, 설명 표로 정리
   - 사용 예시 코드 포함
+
+#### 3.3 DBML 클래스 다이어그램 업데이트
+
+- ✅ `specs/daily_flow_class_diagram.dbml` 완성된 앱 상태 반영
+  - 모든 뷰 화면, 서비스, 사용자 행위, 앱 데이터/응답 관계 정리
+  - 논리적 엔티티 PK 정의 정제 (viewType, serviceType, actionId, dataId)
+  - 관계(Ref) 정리 및 논리적 관계 Note 섹션에 상세 설명 추가
+  - "[구현 완료]" 표시 및 각 엔티티의 기능, 트리거, 결과 상세 설명
+  - 데이터 흐름 섹션 추가 (뷰 → 행위 → 데이터 생성)
 
 ### 4. 설계 결정 사항 ✅
 
@@ -331,45 +340,57 @@
   - 단일 선택 모드 (하나만 선택 가능)
   - 테스트 페이지 생성 및 검증 완료
 
-#### 1.2 알람 기능 모듈
+#### 1.2 알람 기능 모듈 ✅
 
-- [ ] `lib/service/notification_service.dart` 생성
-  - `flutter_local_notifications` 초기화
-  - 알람 등록/취소/업데이트 메서드
-  - 알람 권한 요청 (iOS/Android)
-  - 알람 정책 구현 (1 Todo당 최대 1개 알람, has_alarm=true AND time IS NOT NULL일 때만 등록)
+- ✅ `lib/service/notification_service.dart` 생성 완료
+  - `flutter_local_notifications` 초기화 완료 (Android/iOS)
+  - 알람 등록/취소/업데이트 메서드 구현 완료
+  - 알람 권한 요청 (iOS/Android) 구현 완료
+  - 알람 정책 구현 완료 (1 Todo당 최대 1개 알람, has_alarm=true AND time IS NOT NULL일 때만 등록)
+  - 과거 알람 정리 기능 구현
+    - 앱 시작 시 자동 정리
+    - 앱 포그라운드 복귀 시 자동 정리
+    - 과거 알람 취소 및 DB 상태 업데이트 (hasAlarm=false, notificationId=null)
+    - notificationId가 없는 경우도 정리 대상에 포함
+  - 일정 등록/수정 화면과 연동 완료
 
-### 2. 유틸리티 클래스 생성
+### 2. 유틸리티 클래스 생성 ✅
 
-- [ ] `lib/util/step_mapper_util.dart` - 시간 → Step 매핑
-  - 시간대 구분: 오전(06:00-11:59), 오후(12:00-17:59), 저녁(18:00-23:59), 종일(나머지)
-  - `mapTimeToStep(String? time)` 메서드
-  - `stepToKorean(int step)` 메서드
+- ✅ `lib/util/step_mapper_util.dart` - 시간 → Step 매핑 구현 완료
+  - 시간대 구분: 오전(06:00-11:59), 오후(12:00-17:59), 저녁(18:00-23:59), 야간(00:00-05:59), 종일(나머지)
+  - `mapTimeToStep(String? time)` 메서드 구현
+  - `stepToKorean(int step)` 메서드 구현
+  - 단위 테스트 작성 및 통과 완료
 
-### 3. 화면 구현 🟡 중간 우선순위 (기능 모듈 완료 후)
+### 3. 화면 구현 ✅ 완료
 
-- [ ] 메인 화면 (Main View)
-  - TableCalendar 통합
-  - Summary Bar 구현
-  - Filter Chips 구현
-  - Todo List (체크박스 + Slidable)
-- [ ] 일정 등록 화면 (Create Todo)
+- ✅ 메인 화면 (Main View) 구현 완료
+  - TableCalendar 통합 완료
+  - Summary Bar 구현 완료
+  - Filter Radio 구현 완료 (전체/오전/오후/저녁/야간/종일)
+  - Todo List 구현 완료 (체크박스 + Slidable)
+  - 설정 Drawer 통합 완료
 
-  - 날짜/시간 선택
-  - 제목/메모 입력
-  - Step 선택
-  - 저장 기능
+- ✅ 일정 등록 화면 (Create Todo) 구현 완료
+  - 날짜/시간 선택 완료
+  - 제목/메모 입력 완료
+  - Step 선택 완료
+  - 저장 기능 완료
+  - 알람 기능 연동 완료
 
-- [ ] 일정 수정 화면 (Edit Todo)
+- ✅ 일정 수정 화면 (Edit Todo) 구현 완료
+  - 기존 데이터 로드 완료
+  - 수정 기능 완료
+  - 알람 기능 연동 완료
 
-  - 기존 데이터 로드
-  - 수정 기능
-  - 삭제 기능
+- ✅ 삭제 보관함 화면 구현 완료
+  - 삭제된 Todo 리스트 표시
+  - 필터 및 정렬 기능
+  - 복구 및 완전 삭제 기능
 
-- [ ] 하루 상세 화면 (Day Detail View)
-  - 상세 요약 카드
-  - Todo 상세 리스트
-  - 중요도 표시
+- ✅ Todo 상세보기 다이얼로그 구현 완료
+  - Todo 상세 정보 표시
+  - Edit 버튼으로 수정 화면 이동
 
 ---
 
@@ -467,6 +488,59 @@
 - 릴리즈 빌드에서 로그 확인 방법 문서화
   - Android: `adb logcat | grep ERROR` 명령어로 에러 로그 확인 가능
   - iOS: Xcode Console에서 디바이스 연결 후 로그 확인 가능
+
+#### 알람 기능 모듈 구현 (2024년 12월)
+
+- `NotificationService` 클래스 구현 완료
+  - `flutter_local_notifications` 초기화 (Android/iOS)
+  - 알람 등록/취소/업데이트 메서드 구현
+  - 알람 권한 요청 (iOS/Android)
+  - 알람 정책 구현 (1 Todo당 최대 1개 알람, has_alarm=true AND time IS NOT NULL일 때만 등록)
+  - 과거 알람 정리 기능 구현
+    - 앱 시작 시 자동 정리 (`main.dart`에서 호출)
+    - 앱 포그라운드 복귀 시 자동 정리 (`WidgetsBindingObserver` 사용)
+    - 과거 알람 취소 및 DB 상태 업데이트 (hasAlarm=false, notificationId=null)
+    - notificationId가 없는 경우도 정리 대상에 포함 (알람 등록 실패한 경우 처리)
+  - 일정 등록/수정 화면과 연동 완료
+    - `create_todo_view.dart`: 알람 등록 연동
+    - `edit_todo_view.dart`: 알람 업데이트/취소 연동
+
+#### 코드 주석 개선 (2024년 12월)
+
+- 주석 정리 작업 완료
+  - `lib` 폴더 전반의 과도한 주석 제거
+  - 모델 클래스 변수에 한국어 주석 추가
+    - `todo_model.dart`: 모든 필드에 한국어 주석 추가
+    - `deleted_todo_model.dart`: 모든 필드에 한국어 주석 추가
+  - 코드 가독성 개선
+
+#### 문서 업데이트 (2024년 12월)
+
+- DBML 클래스 다이어그램 업데이트 완료
+  - `specs/daily_flow_class_diagram.dbml` 완성된 앱 상태 반영
+  - 모든 뷰 화면, 서비스, 사용자 행위, 앱 데이터/응답 관계 정리
+  - 논리적 엔티티 PK 정의 정제 (viewType, serviceType, actionId, dataId)
+  - 관계(Ref) 정리 및 논리적 관계 Note 섹션에 상세 설명 추가
+  - "[구현 완료]" 표시 및 각 엔티티의 기능, 트리거, 결과 상세 설명
+  - 데이터 흐름 섹션 추가 (뷰 → 행위 → 데이터 생성)
+
+#### 삭제 보관함 화면 구현 (2024년 12월)
+
+- `lib/view/deleted_todos_view.dart` 생성 완료
+  - 삭제된 Todo 리스트 표시
+  - 필터 라디오 (전체/오늘/7일/30일)
+  - 정렬 기능 (시간순/중요도순)
+  - 복구 기능 (소프트 삭제 복구)
+  - 완전 삭제 기능 (영구 삭제)
+  - Slidable (좌: 복구 / 우: 완전 삭제)
+  - `MainView` Drawer에 진입 버튼 추가
+
+#### 설정 기능 Drawer 통합 (2024년 12월)
+
+- `MainView` Drawer에 설정 기능 통합
+  - 라이트/다크 모드 토글 추가
+  - 삭제 보관함 진입 버튼 추가
+  - 별도 설정 화면 없이 Drawer에서 모든 설정 접근 가능
 
 ### 2024년 (이전 작업)
 

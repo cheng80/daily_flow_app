@@ -486,6 +486,103 @@ CustomAudioUtil.stopAll();
 
 ## 고도화 개발 예정 항목
 
+### 날짜 범위 선택 및 범위 통계 기능
+
+**우선순위**: 중간 ⭐⭐  
+**상태**: 📋 검토 완료, 구현 대기
+
+**기능 설명**:
+
+달력에서 시작일과 종료일을 선택하여 해당 기간의 일정 통계를 확인하는 기능입니다.
+현재는 하루 단위 통계만 제공되지만, 이를 주간/월간 단위로 확장합니다.
+
+**주요 기능**:
+
+1. **날짜 범위 선택**
+   - `CustomCalendar`에 `rangeSelectionMode` 활성화
+   - 사용자가 달력에서 시작일과 종료일을 드래그 또는 클릭으로 선택
+   - 반대로 선택한 경우 자동으로 시작일/종료일 정렬 (이전 날짜가 시작일)
+
+2. **범위 통계 데이터 모델**
+   - 선택된 날짜 범위의 일수 계산
+   - 범위 내 전체 일정 개수 집계
+   - Step별 통계 (오전/오후/저녁/야간/종일)
+   - 중요도별 통계 (1~5단계)
+   - 완료율 통계 (완료된 일정 / 전체 일정)
+
+3. **데이터베이스 쿼리 확장**
+   - `DatabaseHandler`에 `queryDataByDateRange(String startDate, String endDate)` 메서드 추가
+   - 날짜 범위 내의 모든 Todo 조회 (인덱스 활용하여 성능 최적화)
+
+4. **통계 계산 함수 확장**
+   - `calculateRangeSummaryRatios` 함수 추가 (범위별 Step 비율)
+   - `calculateRangeStatistics` 함수 추가 (범위별 종합 통계)
+   - 기존 단일 날짜 통계와 공존 (모드에 따라 선택적 사용)
+
+5. **UI 표시**
+   - Summary Bar를 범위 모드에서도 표시 (범위 내 전체 Step 비율)
+   - 범위 통계 카드 추가:
+     - "선택 기간: X일"
+     - "총 일정: XX개"
+     - "완료율: XX%"
+     - Step별 분포 (바 차트)
+     - 중요도별 분포 (바 차트)
+
+**구현 필요 사항**:
+
+1. **`lib/vm/database_handler.dart`**
+   ```dart
+   /// 날짜 범위 내의 todo 조회
+   Future<List<Todo>> queryDataByDateRange(String startDate, String endDate) async {
+     // WHERE date >= ? AND date <= ? 쿼리
+   }
+   ```
+
+2. **`lib/app_custom/app_common_util.dart`**
+   ```dart
+   /// 범위 통계 데이터 모델
+   class AppRangeStatistics {
+     final int dayCount;           // 선택된 날짜 일수
+     final int totalTodoCount;     // 전체 일정 개수
+     final int completedCount;     // 완료된 일정 개수
+     final double completedRatio;  // 완료율 (0.0 ~ 1.0)
+     final AppSummaryRatios stepRatios;  // Step별 비율
+     final Map<int, int> priorityDistribution;  // 중요도별 분포 (1~5)
+   }
+   
+   /// 날짜 범위의 일정 통계 계산
+   Future<AppRangeStatistics> calculateRangeStatistics(
+     DatabaseHandler dbHandler,
+     String startDate,
+     String endDate,
+   ) async { ... }
+   ```
+
+3. **`lib/app_custom/custom_calendar.dart`**
+   - `rangeSelectionMode` 파라미터 추가
+   - `selectedRangeStart`, `selectedRangeEnd` 상태 관리
+   - `onRangeSelected` 콜백 추가
+   - 선택된 범위 시각적 표시 (시작일/종료일 강조, 범위 배경색)
+
+4. **`lib/view/main_view.dart`**
+   - 범위 선택 모드 토글 버튼 추가
+   - 범위 선택 시 범위 통계 자동 계산 및 표시
+   - 범위 통계 카드 위젯 추가
+
+**기술적 고려사항**:
+
+- `table_calendar` 패키지가 `rangeSelectionMode`를 지원하는지 확인 필요
+- 날짜 범위가 클 경우 (예: 1년) 성능 이슈 고려 (페이지네이션 또는 샘플링)
+- 단일 날짜 모드와 범위 모드 전환 시 기존 상태 보존
+- 범위 선택 취소 기능 (전체 선택 해제)
+
+**의존성**: 
+- 기존 `table_calendar` 패키지 (rangeSelectionMode 지원 여부 확인 필요)
+
+**예상 구현 시기**: 필요 시 (통계 분석 기능이 필요한 경우)
+
+---
+
 ### NetworkUtil 고도화 (dio 패키지 마이그레이션)
 
 **현재 상태**: http 패키지 사용 중
