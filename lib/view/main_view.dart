@@ -5,8 +5,6 @@ import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/custom_calendar_header.dart';
 import '../app_custom/custom_calendar_body.dart';
-import '../app_custom/custom_calendar_range_header_v2.dart';
-import '../app_custom/custom_calendar_range_body_v2.dart';
 import '../app_custom/app_common_util.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../vm/database_handler.dart';
@@ -18,6 +16,7 @@ import 'edit_todo_view.dart';
 import 'deleted_todos_view.dart';
 import 'todo_detail_dialog.dart';
 import 'home.dart';
+import 'statistics_range_view.dart';
 
 // 함수 타입 enum
 enum FunctionType { update, delete }
@@ -197,6 +196,12 @@ class _MainViewState extends State<MainView> {
               });
               widget.onToggleTheme();
             },
+          ),
+          // 범위 통계
+          DrawerItem(
+            label: "범위 통계",
+            icon: Icons.bar_chart_outlined,
+            onTap: _navigateToStatistics,
           ),
           // 삭제 보관함
           DrawerItem(
@@ -921,6 +926,16 @@ class _MainViewState extends State<MainView> {
     if (result == true) {
       _reloadData();
     }
+  }
+
+  // 범위 통계 화면으로 이동
+  //
+  // Drawer의 범위 통계 버튼 클릭 시 StatisticsRangeView로 이동합니다.
+  Future<void> _navigateToStatistics() async {
+    await CustomNavigationUtil.to(
+      context,
+      StatisticsRangeView(onToggleTheme: widget.onToggleTheme),
+    );
   }
 
   // 삭제된 Todo 화면으로 이동

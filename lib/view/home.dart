@@ -10,6 +10,7 @@ import 'test_view/home_test_calendar_range.dart';
 import 'main_view.dart';
 import 'main_range_view.dart';
 import 'main_range_view_v2.dart';
+import 'statistics_range_view.dart';
 import 'create_todo_view.dart';
 import 'test_view/home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
@@ -175,12 +176,24 @@ class _HomeState extends State<Home> {
                         },
                       ),
                       CustomButton(
-                        btnText: "범위 선택 메인 화면 V2 (싱글 모드 테스트)",
+                        btnText: "범위 선택 메인 화면 V2",
                         minimumSize: const Size(double.infinity, 50),
                         onCallBack: () {
                           CustomNavigationUtil.to(
                             context,
                             MainRangeViewV2(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "범위 통계 조회",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            StatisticsRangeView(
                               onToggleTheme: widget.onToggleTheme,
                             ),
                           );

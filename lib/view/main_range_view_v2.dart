@@ -39,6 +39,12 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
   late DatabaseHandler _handler;
   late DateTime _selectedDay;
   late DateTime _focusedDay;
+  // Step 1: 범위 선택 상태 변수 추가
+  DateTimeRange? _selectedRange; // 선택된 날짜 범위
+  DateTime? _rangeStart; // 범위 선택 시작일 (종료일이 없을 때도 표시용)
+  int _rangeSelectionCount = 0; // 범위 선택 클릭 카운트 (0: 초기, 1: 시작일 선택, 2: 종료일 선택)
+  DateTime? _minDate; // 선택 가능한 최소 날짜
+  DateTime? _maxDate; // 선택 가능한 최대 날짜
   int? _selectedStep; // null=전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일
   Map<String, List<Todo>> _todoCache = {};
   double _morningRatio = 0.0;
@@ -49,6 +55,7 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
   bool _sortByTime = false; // true=중요도순, false=시간순
   bool _calendarExpanded = true;
   bool _filterExpanded = false;
+  bool _isRangeMode = true; // 범위 선택 모드 활성화 여부
   final double _barHeight = 20.0;
 
   @override
@@ -61,10 +68,45 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
     _selectedStep = null;
     _handler = DatabaseHandler();
     _todoCache = {};
+    // Step 1: 범위 선택 상태 변수 초기화
+    _selectedRange = null;
+    _rangeStart = null;
+    _rangeSelectionCount = 0;
+    _minDate = null;
+    _maxDate = null;
+    // Step 2: 날짜 제약 조건 로드
+    _loadDateConstraints();
     // 초기 데이터 로드
     _loadCalendarEvents();
     // 초기 Summary Bar 비율 계산
     _calculateSummaryRatios();
+  }
+
+  // Step 2: 날짜 제약 조건 로드 (DB 최소/최대 날짜)
+  Future<void> _loadDateConstraints() async {
+    try {
+      final minDateStr = await _handler.queryMinDate();
+      final maxDateStr = await _handler.queryMaxDate();
+
+      setState(() {
+        if (minDateStr != null) {
+          _minDate = DateTime.parse(minDateStr);
+        }
+        if (maxDateStr != null) {
+          _maxDate = DateTime.parse(maxDateStr);
+        }
+
+        // focusedDay가 날짜 범위 내에 있는지 확인하고 조정
+        if (_minDate != null && _focusedDay.isBefore(_minDate!)) {
+          _focusedDay = _minDate!;
+        }
+        if (_maxDate != null && _focusedDay.isAfter(_maxDate!)) {
+          _focusedDay = _maxDate!;
+        }
+      });
+    } catch (e) {
+      AppLogger.e('날짜 제약 조건 로드 오류', tag: 'MainRangeViewV2', error: e);
+    }
   }
 
   // 달력 이벤트 데이터 로드 (현재 보이는 달의 데이터)
@@ -134,11 +176,168 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
         foregroundColor: p.textOnPrimary,
         toolbarHeight: 50,
         title: CustomText(
-          // _selectedDay.toString().split(' ')[0],
-          "DailyFlow",
+          "현재 진행 중...",
           style: TextStyle(color: p.textOnPrimary, fontSize: 24),
         ),
-        actions: [],
+        actions: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: p.cardBackground.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: CustomRow(
+              spacing: 8,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CustomText(
+                  "단일",
+                  style: TextStyle(color: p.textOnPrimary, fontSize: 12),
+                ),
+                Switch(
+                  value: _isRangeMode,
+                  onChanged: (value) async {
+                    // 모드 전환 전 현재 상태 로그
+                    AppLogger.d(
+                      '[모드 전환 시작] 현재 모드: ${_isRangeMode ? "범위" : "단일"} → ${value ? "범위" : "단일"}',
+                      tag: 'MainRangeViewV2',
+                    );
+                    AppLogger.d(
+                      '[모드 전환 전] focusedDay: ${_focusedDay.toString().split(' ')[0]} (${_focusedDay.year}년 ${_focusedDay.month}월), selectedDay: ${_selectedDay.toString().split(' ')[0]}',
+                      tag: 'MainRangeViewV2',
+                    );
+
+                    // 모드 전환 전 현재 focusedDay 저장
+                    final currentFocusedDay = _focusedDay;
+
+                    setState(() {
+                      _isRangeMode = value;
+
+                      // 아직 달력 클릭 이벤트가 없다면 today 기준으로 달력 새로 로드
+                      final now = DateTime.now();
+                      final isInitialState =
+                          _selectedDay.year == now.year &&
+                          _selectedDay.month == now.month &&
+                          _selectedDay.day == now.day &&
+                          _focusedDay.year == now.year &&
+                          _focusedDay.month == now.month &&
+                          _focusedDay.day == now.day;
+
+                      if (isInitialState) {
+                        // 사용자가 아직 클릭하지 않았다면 today 기준으로 설정
+                        _focusedDay = now;
+                        _selectedDay = now;
+                        AppLogger.d(
+                          '[모드 전환] 아직 클릭 이벤트 없음, today 기준으로 설정: ${now.toString().split(' ')[0]}',
+                          tag: 'MainRangeViewV2',
+                        );
+                      }
+
+                      if (!_isRangeMode) {
+                        // 싱글 모드로 전환 시 범위 선택 해제
+                        _selectedRange = null;
+                        _rangeStart = null;
+                        _rangeSelectionCount = 0;
+                        // focusedDay는 현재 달력이 보고 있는 달로 유지 (변경하지 않음)
+                        // 초기 상태가 아니면 focusedDay 유지, 초기 상태면 현재 날짜로
+                        if (isInitialState) {
+                          _focusedDay = now;
+                          _selectedDay = now;
+                        }
+                        // selectedDay는 focusedDay와 동기화 (단일 모드에서는 선택된 날짜 = focusedDay)
+                        _selectedDay = _focusedDay;
+                        // focusedDay를 명시적으로 새 인스턴스로 생성하여 달력 위젯이 변경을 감지하도록 함
+                        _focusedDay = DateTime(
+                          _focusedDay.year,
+                          _focusedDay.month,
+                          _focusedDay.day,
+                        );
+                        AppLogger.d(
+                          '[단일 모드로 전환] focusedDay 유지: ${_focusedDay.toString().split(' ')[0]} (${_focusedDay.year}년 ${_focusedDay.month}월), selectedDay 동기화: ${_selectedDay.toString().split(' ')[0]}',
+                          tag: 'MainRangeViewV2',
+                        );
+                      } else {
+                        // 범위 모드로 전환 시 범위 선택 초기화
+                        _selectedRange = null;
+                        _rangeStart = null;
+                        _rangeSelectionCount = 0;
+                        // focusedDay는 현재 달력이 보고 있는 달로 유지 (변경하지 않음)
+                        // 초기 상태면 현재 날짜로 설정
+                        if (isInitialState) {
+                          _focusedDay = now;
+                          _selectedDay = now;
+                        }
+
+                        // minDate/maxDate 제약 확인 및 조정
+                        if (_minDate != null &&
+                            _focusedDay.isBefore(_minDate!)) {
+                          AppLogger.d(
+                            '[범위 모드 전환] focusedDay가 minDate보다 이전: ${_focusedDay.toString().split(' ')[0]} < ${_minDate!.toString().split(' ')[0]}, minDate로 조정',
+                            tag: 'MainRangeViewV2',
+                          );
+                          _focusedDay = _minDate!;
+                        }
+                        if (_maxDate != null &&
+                            _focusedDay.isAfter(_maxDate!)) {
+                          AppLogger.d(
+                            '[범위 모드 전환] focusedDay가 maxDate보다 이후: ${_focusedDay.toString().split(' ')[0]} > ${_maxDate!.toString().split(' ')[0]}, maxDate로 조정',
+                            tag: 'MainRangeViewV2',
+                          );
+                          _focusedDay = _maxDate!;
+                        }
+                        // selectedDay도 focusedDay와 동기화
+                        _selectedDay = _focusedDay;
+                        AppLogger.d(
+                          '[범위 모드로 전환] focusedDay 설정: ${_focusedDay.toString().split(' ')[0]} (${_focusedDay.year}년 ${_focusedDay.month}월), selectedDay 동기화: ${_selectedDay.toString().split(' ')[0]}, minDate: ${_minDate?.toString().split(' ')[0] ?? "null"}, maxDate: ${_maxDate?.toString().split(' ')[0] ?? "null"}',
+                          tag: 'MainRangeViewV2',
+                        );
+                      }
+                    });
+
+                    // 달력 갱신
+                    _reloadData();
+
+                    // 모드 전환 후 달력을 올바른 위치로 이동
+                    // WidgetsBinding.instance.addPostFrameCallback을 사용하여
+                    // setState 완료 후 달력 위치 조정
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        // focusedDay를 명시적으로 다시 설정하여 달력이 올바른 위치로 이동
+                        setState(() {
+                          // focusedDay를 현재 값으로 다시 설정 (달력 위젯 재생성 유도)
+                          final targetFocusedDay = _focusedDay;
+                          _focusedDay = DateTime(
+                            targetFocusedDay.year,
+                            targetFocusedDay.month,
+                            targetFocusedDay.day,
+                          );
+                        });
+                        // 달력 페이지 변경 이벤트 호출
+                        _onPageChanged(_focusedDay);
+                      }
+                    });
+
+                    // 모드 전환 후 최종 상태 로그
+                    AppLogger.d(
+                      '[모드 전환 완료] 최종 focusedDay: ${_focusedDay.toString().split(' ')[0]} (${_focusedDay.year}년 ${_focusedDay.month}월), 변경 여부: ${_focusedDay != currentFocusedDay}',
+                      tag: 'MainRangeViewV2',
+                    );
+                  },
+                  activeThumbColor: p.cardBackground,
+                  activeTrackColor: p.accent,
+                  inactiveThumbColor: p.cardBackground,
+                  inactiveTrackColor: p.textOnPrimary.withOpacity(0.3),
+                ),
+                CustomText(
+                  "범위",
+                  style: TextStyle(color: p.textOnPrimary, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 5),
+        ],
       ),
 
       /*------------------ Drawer (설정 화면) ---------------------*/
@@ -231,256 +430,359 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
       ),
 
       /*-----------------------------------------------*/
-      body: CustomColumn(
-        spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          //----------------------------------
-          //-- Calendar ExpansionTile
-          //----------------------------------
-          CustomExpansionTile(
-            iconColor: p.priorityVeryHigh,
-            collapsedIconColor: p.priorityVeryHigh,
-            title: CustomCalendarRangeHeaderV2(
-              focusedDay: _focusedDay,
-              onPreviousMonth: _onPreviousMonth,
-              onNextMonth: _onNextMonth,
-              onTodayPressed: _onTodayPressed,
-            ),
-            initiallyExpanded: _calendarExpanded,
-            onExpansionChanged: (expanded) {
-              setState(() {
-                _calendarExpanded = expanded;
-              });
-            },
-            tilePadding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 0,
-            ),
-            children: [
-              CustomCalendarRangeBodyV2(
-                calendarHeight: MediaQuery.of(context).size.width * 0.9,
-                cellAspectRatio: 1.0,
-                selectedDay: _selectedDay,
+      body: SingleChildScrollView(
+        child: CustomColumn(
+          spacing: 10,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            //----------------------------------
+            //-- Calendar ExpansionTile
+            //----------------------------------
+            CustomExpansionTile(
+              iconColor: p.priorityVeryHigh,
+              collapsedIconColor: p.priorityVeryHigh,
+              title: CustomCalendarRangeHeaderV2(
                 focusedDay: _focusedDay,
-                onDaySelected: _onDaySelected,
-                onPageChanged: _onPageChanged,
-                eventLoader: _eventLoader,
+                onPreviousMonth: _onPreviousMonth,
+                onNextMonth: _onNextMonth,
+                onTodayPressed: _onTodayPressed,
               ),
-            ],
-          ),
-
-          //----------------------------------
-          //-- Summary Bar & Filter Radio ExpansionTile
-          //----------------------------------
-          CustomExpansionTile(
-            iconColor: p.priorityVeryHigh,
-            collapsedIconColor: p.priorityVeryHigh,
-            title: CustomRow(
-              spacing: 12,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              initiallyExpanded: _calendarExpanded,
+              onExpansionChanged: (expanded) {
+                setState(() {
+                  _calendarExpanded = expanded;
+                });
+              },
+              tilePadding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 0,
+              ),
               children: [
-                CustomText(
-                  "필터 및 요약 : ",
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                // Summary Bar (남은 공간 거의 다 차지)
-                Expanded(
-                  child: CustomContainer(
-                    height: _barHeight,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return actionFourRangeBar(
-                          context,
-                          barWidth: constraints.maxWidth,
-                          barHeight: _barHeight,
-                          morningRatio: _morningRatio,
-                          noonRatio: _noonRatio,
-                          eveningRatio: _eveningRatio,
-                          nightRatio: _nightRatio,
-                          anytimeRatio: _anytimeRatio,
-                        );
-                      },
-                    ),
-                  ),
+                CustomCalendarRangeBodyV2(
+                  key: ValueKey(
+                    'calendar_${_isRangeMode}_${_focusedDay.year}_${_focusedDay.month}_${_focusedDay.day}',
+                  ), // 모드와 focusedDay 변경 시 재생성
+                  calendarHeight: MediaQuery.of(context).size.width * 0.9,
+                  cellAspectRatio: 1.0,
+                  selectedDay: _selectedDay,
+                  focusedDay: _focusedDay,
+                  onDaySelected: _onDaySelected,
+                  selectedRange: _selectedRange,
+                  rangeStart: _rangeStart, // 범위 선택 시작일 (종료일이 없을 때도 표시용)
+                  enableRangeSelection: _isRangeMode, // 범위 선택 모드 토글
+                  onRangeSelected: _onRangeSelected,
+                  onPageChanged: _onPageChanged,
+                  eventLoader: _eventLoader,
+                  minDate: _minDate,
+                  maxDate: _maxDate,
                 ),
               ],
             ),
-            initiallyExpanded: _filterExpanded,
-            onExpansionChanged: (expanded) {
-              setState(() {
-                _filterExpanded = expanded;
-              });
-            },
-            tilePadding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 0,
-            ),
-            children: [
-              CustomColumn(
-                spacing: 12,
-                children: [
-                  // Filter Radio
-                  RadioGroup<int?>(
-                    groupValue: _selectedStep,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedStep = value;
-                      });
-                    },
-                    child: Transform.scale(
-                      scale: 0.95,
-                      child: Wrap(
+
+            //----------------------------------
+            //-- 범위 선택 정보 표시 (범위 모드일 때 항상 표시)
+            //----------------------------------
+            if (_isRangeMode)
+              CustomPadding.all(
+                16,
+                child: CustomContainer(
+                  padding: const EdgeInsets.all(12),
+                  child: CustomRow(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      CustomRow(
                         spacing: 8,
-                        runSpacing: 8,
                         children: [
-                          for (var option
-                              in FilterRadioUtil.getDefaultOptions())
-                            _filterRadioCreate(80, 40, 16, option),
+                          CustomText(
+                            "시작 날짜:",
+                            style: TextStyle(
+                              color: p.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          CustomText(
+                            (_selectedRange != null || _rangeStart != null)
+                                ? CustomCommonUtil.formatDate(
+                                    _selectedRange?.start ?? _rangeStart!,
+                                    'yyyy-MM-dd',
+                                  )
+                                : "선택 안됨",
+                            style: TextStyle(
+                              color:
+                                  (_selectedRange != null ||
+                                      _rangeStart != null)
+                                  ? p.primary
+                                  : p.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
+                      ),
+                      CustomRow(
+                        spacing: 8,
+                        children: [
+                          CustomText(
+                            "종료 날짜:",
+                            style: TextStyle(
+                              color: p.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          CustomText(
+                            _selectedRange != null
+                                ? CustomCommonUtil.formatDate(
+                                    _selectedRange!.end,
+                                    'yyyy-MM-dd',
+                                  )
+                                : "선택 안됨",
+                            style: TextStyle(
+                              color: _selectedRange != null
+                                  ? p.accent
+                                  : p.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            //----------------------------------
+            //-- Summary Bar & Filter Radio ExpansionTile
+            //----------------------------------
+            CustomExpansionTile(
+              iconColor: p.priorityVeryHigh,
+              collapsedIconColor: p.priorityVeryHigh,
+              title: CustomRow(
+                spacing: 12,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomText(
+                    "필터 및 요약 : ",
+                    style: TextStyle(
+                      color: p.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // Summary Bar (남은 공간 거의 다 차지)
+                  Flexible(
+                    child: CustomContainer(
+                      height: _barHeight,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return actionFourRangeBar(
+                            context,
+                            barWidth: constraints.maxWidth,
+                            barHeight: _barHeight,
+                            morningRatio: _morningRatio,
+                            noonRatio: _noonRatio,
+                            eveningRatio: _eveningRatio,
+                            nightRatio: _nightRatio,
+                            anytimeRatio: _anytimeRatio,
+                          );
+                        },
                       ),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          //----------------------------------
-
-          //----------------------------------
-          //-- 정렬 설정
-          //----------------------------------
-          CustomColumn(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomRow(
-                spacing: 8,
-                mainAxisAlignment: MainAxisAlignment.end,
-
-                children: [
-                  CustomText(
-                    "시간순",
-                    style: TextStyle(color: p.textPrimary, fontSize: 14),
-                  ),
-                  Switch(
-                    value: _sortByTime,
-                    onChanged: (value) {
-                      setState(() {
-                        _sortByTime = value;
-                      });
-                    },
-                  ),
-                  CustomText(
-                    "중요도",
-                    style: TextStyle(color: p.textPrimary, fontSize: 14),
-                  ),
-                  SizedBox(width: 16),
-                ],
+              initiallyExpanded: _filterExpanded,
+              onExpansionChanged: (expanded) {
+                setState(() {
+                  _filterExpanded = expanded;
+                });
+              },
+              tilePadding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 0,
               ),
-            ],
-          ),
-
-          //----------------------------------
-          //-- FutureBuilder 삽입위치 ----------
-          Expanded(
-            child: CustomPadding.all(
-              16,
-              child: FutureBuilder<List<Todo>>(
-                future: _selectedStep == null
-                    ? _handler.queryDataByDate(
-                        CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd'),
-                      )
-                    : _handler.queryDataByDateAndStep(
-                        CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd'),
-                        _selectedStep!,
+              children: [
+                CustomColumn(
+                  spacing: 12,
+                  children: [
+                    // Filter Radio
+                    RadioGroup<int?>(
+                      groupValue: _selectedStep,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedStep = value;
+                        });
+                      },
+                      child: Transform.scale(
+                        scale: 0.95,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (var option
+                                in FilterRadioUtil.getDefaultOptions())
+                              _filterRadioCreate(80, 40, 16, option),
+                          ],
+                        ),
                       ),
-                builder: (context, snapshot) {
-                  final queryDate = CustomCommonUtil.formatDate(
-                    _selectedDay,
-                    'yyyy-MM-dd',
-                  );
-                  AppLogger.d(
-                    "Query date: $queryDate, Selected step: $_selectedStep",
-                    tag: 'MainView',
-                  );
-                  AppLogger.d(
-                    snapshot.hasData && snapshot.data!.isNotEmpty
-                        ? "Data length: ${snapshot.data!.length}"
-                        : "No data",
-                    tag: 'MainView',
-                  );
-                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            //----------------------------------
+
+            //----------------------------------
+            //-- 정렬 설정
+            //----------------------------------
+            CustomColumn(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomRow(
+                  spacing: 8,
+                  mainAxisAlignment: MainAxisAlignment.end,
+
+                  children: [
+                    CustomText(
+                      "시간순",
+                      style: TextStyle(color: p.textPrimary, fontSize: 14),
+                    ),
+                    Switch(
+                      value: _sortByTime,
+                      onChanged: (value) {
+                        setState(() {
+                          _sortByTime = value;
+                        });
+                      },
+                    ),
+                    CustomText(
+                      "중요도",
+                      style: TextStyle(color: p.textPrimary, fontSize: 14),
+                    ),
+                    SizedBox(width: 16),
+                  ],
+                ),
+              ],
+            ),
+
+            //----------------------------------
+            //-- FutureBuilder 삽입위치 ----------
+            CustomPadding.all(
+              16,
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: FutureBuilder<List<Todo>>(
+                  future: _selectedRange != null
+                      ? _handler.queryDataByDateRange(
+                          CustomCommonUtil.formatDate(
+                            _selectedRange!.start,
+                            'yyyy-MM-dd',
+                          ),
+                          CustomCommonUtil.formatDate(
+                            _selectedRange!.end,
+                            'yyyy-MM-dd',
+                          ),
+                        )
+                      : (_selectedStep == null
+                            ? _handler.queryDataByDate(
+                                CustomCommonUtil.formatDate(
+                                  _selectedDay,
+                                  'yyyy-MM-dd',
+                                ),
+                              )
+                            : _handler.queryDataByDateAndStep(
+                                CustomCommonUtil.formatDate(
+                                  _selectedDay,
+                                  'yyyy-MM-dd',
+                                ),
+                                _selectedStep!,
+                              )),
+                  builder: (context, snapshot) {
+                    final queryDate = CustomCommonUtil.formatDate(
+                      _selectedDay,
+                      'yyyy-MM-dd',
+                    );
                     AppLogger.d(
-                      "First todo: ${snapshot.data!.first.title}, date: ${snapshot.data!.first.date}",
+                      "Query date: $queryDate, Selected step: $_selectedStep",
                       tag: 'MainView',
                     );
-                  }
-
-                  // 정렬된 데이터 가져오기
-                  final sortedData =
+                    AppLogger.d(
                       snapshot.hasData && snapshot.data!.isNotEmpty
-                      ? _sortTodos(snapshot.data!)
-                      : <Todo>[];
+                          ? "Data length: ${snapshot.data!.length}"
+                          : "No data",
+                      tag: 'MainView',
+                    );
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      AppLogger.d(
+                        "First todo: ${snapshot.data!.first.title}, date: ${snapshot.data!.first.date}",
+                        tag: 'MainView',
+                      );
+                    }
 
-                  return sortedData.isNotEmpty
-                      ? CustomListView(
-                          itemCount: sortedData.length,
-                          itemBuilder: (context, index) {
-                            return Slidable(
-                              startActionPane: _getActionPlane(
-                                p.dailyFlow.priorityMedium,
-                                Icons.edit,
-                                '수정',
-                                (context) async {
-                                  await _dataChangeFn(
-                                    FunctionType.update,
-                                    sortedData,
-                                    index,
-                                  );
-                                },
-                              ),
-                              endActionPane: _getActionPlane(
-                                p.dailyFlow.priorityVeryHigh,
-                                Icons.delete,
-                                '삭제',
-                                (context) async {
-                                  await _dataChangeFn(
-                                    FunctionType.delete,
-                                    sortedData,
-                                    index,
-                                  );
-                                },
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  _showTodoDetail(sortedData[index]);
-                                },
-                                child: _buildTodoCardFromList(
-                                  sortedData,
-                                  index,
-                                  p,
+                    // 정렬된 데이터 가져오기
+                    final sortedData =
+                        snapshot.hasData && snapshot.data!.isNotEmpty
+                        ? _sortTodos(snapshot.data!)
+                        : <Todo>[];
+
+                    return sortedData.isNotEmpty
+                        ? CustomListView(
+                            itemCount: sortedData.length,
+                            itemBuilder: (context, index) {
+                              return Slidable(
+                                startActionPane: _getActionPlane(
+                                  p.dailyFlow.priorityMedium,
+                                  Icons.edit,
+                                  '수정',
+                                  (context) async {
+                                    await _dataChangeFn(
+                                      FunctionType.update,
+                                      sortedData,
+                                      index,
+                                    );
+                                  },
                                 ),
-                              ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: CustomText(
-                            "데이터가 없습니다.",
-                            style: TextStyle(color: p.textSecondary),
-                          ),
-                        );
-                },
+                                endActionPane: _getActionPlane(
+                                  p.dailyFlow.priorityVeryHigh,
+                                  Icons.delete,
+                                  '삭제',
+                                  (context) async {
+                                    await _dataChangeFn(
+                                      FunctionType.delete,
+                                      sortedData,
+                                      index,
+                                    );
+                                  },
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _showTodoDetail(sortedData[index]);
+                                  },
+                                  child: _buildTodoCardFromList(
+                                    sortedData,
+                                    index,
+                                    p,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Center(
+                            child: CustomText(
+                              "데이터가 없습니다.",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                          );
+                  },
+                ),
               ),
             ),
-          ),
-          //----------------------------------
-        ],
+            //----------------------------------
+          ],
+        ),
       ),
     );
   }
@@ -546,17 +848,230 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
   // [selectedDay] 사용자가 선택한 날짜
   // [focusedDay] 현재 포커스된 날짜
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    setState(() {
-      _selectedDay = selectedDay;
-      _focusedDay = focusedDay;
-    });
+    AppLogger.d(
+      '[날짜 선택 시작] selectedDay: ${selectedDay.toString().split(' ')[0]}, focusedDay: ${focusedDay.toString().split(' ')[0]}',
+      tag: 'MainRangeViewV2',
+    );
+
+    // 날짜 유효성 검사: 현재 날짜 기준 ±5년 이내만 허용
+    final now = DateTime.now();
+    final minValidDate = DateTime(now.year - 5, 1, 1);
+    final maxValidDate = DateTime(now.year + 5, 12, 31);
+
+    // selectedDay가 유효 범위를 벗어나면 무시하고 현재 focusedDay 사용
+    if (selectedDay.isBefore(minValidDate) ||
+        selectedDay.isAfter(maxValidDate)) {
+      AppLogger.e(
+        '[날짜 선택 무시] 비정상적인 날짜: ${selectedDay.toString().split(' ')[0]} (범위: ${minValidDate.toString().split(' ')[0]} ~ ${maxValidDate.toString().split(' ')[0]}), focusedDay로 대체',
+        tag: 'MainRangeViewV2',
+      );
+      setState(() {
+        // focusedDay가 유효하면 focusedDay 사용, 아니면 현재 날짜 사용
+        if (focusedDay.isBefore(minValidDate) ||
+            focusedDay.isAfter(maxValidDate)) {
+          _selectedDay = now;
+          _focusedDay = now;
+        } else {
+          _selectedDay = focusedDay;
+          _focusedDay = focusedDay;
+        }
+      });
+    } else {
+      setState(() {
+        _selectedDay = selectedDay;
+        // focusedDay도 유효한 범위인지 확인
+        if (focusedDay.isBefore(minValidDate) ||
+            focusedDay.isAfter(maxValidDate)) {
+          AppLogger.e(
+            '[focusedDay 조정] 비정상적인 focusedDay: ${focusedDay.toString().split(' ')[0]}, selectedDay로 대체',
+            tag: 'MainRangeViewV2',
+          );
+          _focusedDay = selectedDay;
+        } else {
+          _focusedDay = focusedDay;
+        }
+      });
+    }
 
     // 날짜 선택 시 Summary Bar 비율 재계산
     _calculateSummaryRatios();
 
     AppLogger.d(
-      '선택된 날짜: ${_selectedDay.toString().split(' ')[0]}',
-      tag: 'MainView',
+      '[날짜 선택 완료] 최종 selectedDay: ${_selectedDay.toString().split(' ')[0]}, focusedDay: ${_focusedDay.toString().split(' ')[0]}',
+      tag: 'MainRangeViewV2',
+    );
+  }
+
+  // Step 3: 날짜 범위 선택 콜백 (범위 모드에서 날짜 클릭 시 호출)
+  //
+  // [start] 시작일
+  // [end] 종료일 (null일 수 있음)
+  // table_calendar의 onRangeSelected는:
+  // - 첫 번째 클릭: start는 클릭한 날짜, end는 null
+  // - 두 번째 클릭: start는 첫 번째 날짜, end는 두 번째 날짜
+  // 하지만 실제로는 두 번째 클릭도 end가 null로 올 수 있으므로,
+  // onDaySelected를 함께 사용하여 두 번째 클릭을 감지합니다.
+  void _onRangeSelected(DateTime start, DateTime? end) {
+    final clickedDate = DateTime(start.year, start.month, start.day);
+
+    // 중복 호출 방지: 같은 날짜를 같은 상태에서 다시 호출하면 무시
+    if (_rangeSelectionCount == 0 && end == null) {
+      // 첫 번째 클릭인데 이미 _rangeStart가 같은 날짜면 무시
+      if (_rangeStart != null &&
+          _rangeStart!.year == clickedDate.year &&
+          _rangeStart!.month == clickedDate.month &&
+          _rangeStart!.day == clickedDate.day) {
+        AppLogger.d(
+          '[중복 호출 무시] 카운트: $_rangeSelectionCount, start: ${start.toString().split(' ')[0]}, end: ${end?.toString().split(' ')[0] ?? "null"}',
+          tag: 'MainRangeViewV2',
+        );
+        return;
+      }
+    }
+
+    AppLogger.d(
+      '[범위 선택 시작] 카운트: $_rangeSelectionCount, start: ${start.toString().split(' ')[0]}, end: ${end?.toString().split(' ')[0] ?? "null"}',
+      tag: 'MainRangeViewV2',
+    );
+
+    setState(() {
+      if (_rangeSelectionCount == 0) {
+        // 첫 번째 클릭: 시작일만 설정 (범위는 아직 없음)
+        // end가 null이면 첫 번째 클릭
+        if (end == null) {
+          AppLogger.d(
+            '[첫 번째 클릭] 시작일 설정: ${clickedDate.toString().split(' ')[0]}',
+            tag: 'MainRangeViewV2',
+          );
+          _selectedRange = null;
+          _rangeStart = clickedDate;
+          _rangeSelectionCount = 1;
+          _selectedDay = clickedDate;
+        }
+      } else if (_rangeSelectionCount == 1) {
+        // 두 번째 클릭: 종료일 설정 + 범위 완성
+        if (_rangeStart != null) {
+          // 같은 날짜를 다시 클릭하면 리셋
+          if (clickedDate.year == _rangeStart!.year &&
+              clickedDate.month == _rangeStart!.month &&
+              clickedDate.day == _rangeStart!.day &&
+              end == null) {
+            AppLogger.d(
+              '[같은 날짜 재클릭] 리셋: ${clickedDate.toString().split(' ')[0]}',
+              tag: 'MainRangeViewV2',
+            );
+            _selectedRange = null;
+            _rangeStart = null;
+            _rangeSelectionCount = 0; // 리셋
+            _selectedDay = clickedDate;
+          } else if (end != null) {
+            // end가 null이 아니면 두 번째 클릭으로 범위 완성
+            AppLogger.d(
+              '[두 번째 클릭] 종료일 설정: ${_rangeStart!.toString().split(' ')[0]} ~ ${end.toString().split(' ')[0]}',
+              tag: 'MainRangeViewV2',
+            );
+            final startDate = _rangeStart!;
+            final endDate = DateTime(end.year, end.month, end.day);
+
+            if (startDate.isAfter(endDate)) {
+              // 역순 선택 시 교환
+              _selectedRange = DateTimeRange(
+                start: endDate,
+                end: DateTime(
+                  startDate.year,
+                  startDate.month,
+                  startDate.day,
+                  23,
+                  59,
+                  59,
+                  999,
+                ),
+              );
+              _selectedDay = endDate;
+            } else {
+              _selectedRange = DateTimeRange(
+                start: startDate,
+                end: DateTime(
+                  endDate.year,
+                  endDate.month,
+                  endDate.day,
+                  23,
+                  59,
+                  59,
+                  999,
+                ),
+              );
+              _selectedDay = startDate;
+            }
+            _rangeSelectionCount = 2; // 범위 완성
+            _rangeStart = null; // 범위 완성 후 초기화
+          } else {
+            // end가 null이고 다른 날짜를 클릭한 경우
+            // table_calendar는 두 번째 클릭에서도 end를 null로 보낼 수 있으므로,
+            // 두 번째 클릭으로 간주하여 종료일을 설정
+            AppLogger.d(
+              '[두 번째 클릭 (end=null)] 종료일 설정: ${_rangeStart!.toString().split(' ')[0]} ~ ${clickedDate.toString().split(' ')[0]}',
+              tag: 'MainRangeViewV2',
+            );
+            final startDate = _rangeStart!;
+            final endDate = clickedDate;
+
+            if (startDate.isAfter(endDate)) {
+              // 역순 선택 시 교환
+              _selectedRange = DateTimeRange(
+                start: endDate,
+                end: DateTime(
+                  startDate.year,
+                  startDate.month,
+                  startDate.day,
+                  23,
+                  59,
+                  59,
+                  999,
+                ),
+              );
+              _selectedDay = endDate;
+            } else {
+              _selectedRange = DateTimeRange(
+                start: startDate,
+                end: DateTime(
+                  endDate.year,
+                  endDate.month,
+                  endDate.day,
+                  23,
+                  59,
+                  59,
+                  999,
+                ),
+              );
+              _selectedDay = startDate;
+            }
+            _rangeSelectionCount = 2; // 범위 완성
+            _rangeStart = null; // 범위 완성 후 초기화
+          }
+        }
+      } else if (_rangeSelectionCount == 2) {
+        // 세 번째 클릭: 리셋 후 새로운 시작일로 시작
+        // 범위가 확정된 후 클릭하면 항상 새로운 시작일로 시작
+        AppLogger.d(
+          '[세 번째 클릭] 리셋 후 새로운 시작일: ${clickedDate.toString().split(' ')[0]}',
+          tag: 'MainRangeViewV2',
+        );
+        _selectedRange = null; // 범위 해제하여 시작일 박스가 표시되도록 함
+        _rangeStart = clickedDate; // 새로운 시작일 설정
+        _rangeSelectionCount = 1; // 새로운 시작일 선택 상태
+        _selectedDay = clickedDate;
+      }
+
+      _focusedDay = start;
+    });
+
+    // 범위 선택 시 Summary Bar 비율 재계산
+    _calculateSummaryRatios();
+
+    AppLogger.d(
+      '[범위 선택 완료] 카운트: $_rangeSelectionCount, 시작일: ${_rangeStart?.toString().split(' ')[0] ?? "null"}, 종료일: ${_selectedRange?.end.toString().split(' ')[0] ?? "null"}',
+      tag: 'MainRangeViewV2',
     );
   }
 
@@ -638,22 +1153,41 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
 
   // 선택된 날짜의 일정을 Step별로 비율 계산하여 Summary Bar에 적용
   //
-  // app_common_util.dart의 calculateAndUpdateSummaryRatios 함수를 사용하여
-  // 비율을 계산하고 상태 변수에 저장합니다.
+  // 범위 모드일 때는 calculateRangeSummaryRatios를 사용하고,
+  // 싱글 모드일 때는 calculateAndUpdateSummaryRatios를 사용합니다.
   Future<void> _calculateSummaryRatios() async {
-    await calculateAndUpdateSummaryRatios(
-      _handler,
-      _selectedDay,
-      onRatiosCalculated: (ratios) {
-        setState(() {
-          _morningRatio = ratios.morningRatio;
-          _noonRatio = ratios.noonRatio;
-          _eveningRatio = ratios.eveningRatio;
-          _nightRatio = ratios.nightRatio;
-          _anytimeRatio = ratios.anytimeRatio;
-        });
-      },
-    );
+    if (_selectedRange != null) {
+      // 범위 모드: calculateRangeSummaryRatios 사용
+      final ratios = await calculateRangeSummaryRatios(
+        _handler,
+        CustomCommonUtil.formatDate(_selectedRange!.start, 'yyyy-MM-dd'),
+        CustomCommonUtil.formatDate(_selectedRange!.end, 'yyyy-MM-dd'),
+      );
+      if (!mounted) return;
+      setState(() {
+        _morningRatio = ratios.morningRatio;
+        _noonRatio = ratios.noonRatio;
+        _eveningRatio = ratios.eveningRatio;
+        _nightRatio = ratios.nightRatio;
+        _anytimeRatio = ratios.anytimeRatio;
+      });
+    } else {
+      // 싱글 모드: 기존 로직 사용
+      await calculateAndUpdateSummaryRatios(
+        _handler,
+        _selectedDay,
+        onRatiosCalculated: (ratios) {
+          if (!mounted) return;
+          setState(() {
+            _morningRatio = ratios.morningRatio;
+            _noonRatio = ratios.noonRatio;
+            _eveningRatio = ratios.eveningRatio;
+            _nightRatio = ratios.nightRatio;
+            _anytimeRatio = ratios.anytimeRatio;
+          });
+        },
+      );
+    }
   }
 
   // 완료 상태에 따른 제목 텍스트 스타일 반환

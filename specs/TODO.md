@@ -473,7 +473,7 @@
 
 **현재 진행 상황:**
 - ✅ Phase 0.5-1 완료: V2 버전 파일 생성 및 싱글 모드 정상 동작 확인
-- 🔄 Phase 0.5-2 진행 예정: 범위 선택 기능 추가
+- ✅ Phase 0.5-2 완료: 범위 선택 기능 추가 완료
 
 #### 0-1. 범위 선택 달력 위젯 개발
 
@@ -482,7 +482,7 @@
   - [x] 파일: `lib/app_custom/custom_calendar_range_header_v2.dart` (Phase 1: 싱글 모드)
   - [x] 파일: `lib/view/main_range_view_v2.dart` (Phase 1: 싱글 모드)
   - [x] 기존 `CustomCalendar` 코드 기반으로 복제 (싱글 모드 정상 동작 확인 완료)
-  - [ ] Phase 2: 범위 선택 기능 추가 예정
+  - [x] Phase 2: 범위 선택 기능 추가 완료 ✅
 
 #### 0-1-1. Phase 1: 싱글 모드 정상 동작 (완료 ✅)
 
@@ -493,7 +493,7 @@
   - [x] V2 컴포넌트 사용하도록 수정
   - [x] 싱글 모드 정상 동작 확인 완료
 
-#### 0-1-2. Phase 2: 범위 선택 기능 추가 (진행 예정 🔄)
+#### 0-1-2. Phase 2: 범위 선택 기능 추가 (완료 ✅)
 
 **작업 순서:**
 1. `CustomCalendarRangeBodyV2`에 범위 선택 파라미터 추가
@@ -501,39 +501,39 @@
 3. 날짜 제약 조건 적용 (`queryMinDate`, `queryMaxDate`)
 4. 예외 처리 및 테스트
 
-- [ ] `table_calendar` 패키지의 `rangeSelectionMode` 활용
+- [x] `table_calendar` 패키지의 `rangeSelectionMode` 활용
   - [x] `rangeSelectionMode` 파라미터 확인 (이미 확인됨)
   - [x] 범위 선택 이벤트 처리 방법 확인 (이미 확인됨)
-  - [ ] V2 버전에 `rangeSelectionMode: RangeSelectionMode.enforced` 적용
+  - [x] V2 버전에 `rangeSelectionMode: RangeSelectionMode.enforced` 적용 (CustomCalendarRangeBody 사용)
 
-- [ ] `CustomCalendarRangeBodyV2`에 범위 선택 기능 구현
-  - [ ] `selectedRange`, `onRangeSelected`, `enableRangeSelection` 파라미터 추가
-  - [ ] `minDate`, `maxDate` 파라미터 추가 (날짜 제약)
-  - [ ] 시작일/종료일 선택 로직
-  - [ ] 범위 내 날짜 시각적 표시 (배경색 등)
-    - [ ] `rangeStartDecoration`: 시작일 배경색 (p.primary)
-    - [ ] `rangeEndDecoration`: 종료일 배경색 (p.accent)
-    - [ ] `withinRangeDecoration`: 범위 내 날짜 배경색 (반투명)
-  - [ ] 시작일/종료일 자동 정렬 로직
-    - [ ] 사용자가 역순으로 선택한 경우 (끝날짜 → 시작날짜) 자동으로 시작일/종료일 정렬
-  - [ ] 선택된 날짜 범위 유효성 검증
-  - [ ] 날짜 제약 조건 체크 (`minDate`, `maxDate` 범위 내)
-  - [ ] 싱글 모드와 범위 모드 전환 로직
-  - [ ] 예외 처리 (날짜 범위 초과, null 체크 등)
+- [x] `CustomCalendarRangeBody`에 범위 선택 기능 구현 (기존 CustomCalendarRangeBody 사용)
+  - [x] `selectedRange`, `onRangeSelected`, `enableRangeSelection` 파라미터 추가
+  - [x] `minDate`, `maxDate` 파라미터 추가 (날짜 제약)
+  - [x] 시작일/종료일 선택 로직
+  - [x] 범위 내 날짜 시각적 표시 (배경색 등)
+    - [x] `rangeStartDecoration`: 시작일 배경색 (p.primary)
+    - [x] `rangeEndDecoration`: 종료일 배경색 (p.accent)
+    - [x] `withinRangeDecoration`: 범위 내 날짜 배경색 (반투명)
+  - [x] 시작일/종료일 자동 정렬 로직
+    - [x] 사용자가 역순으로 선택한 경우 (끝날짜 → 시작날짜) 자동으로 시작일/종료일 정렬
+  - [x] 선택된 날짜 범위 유효성 검증
+  - [x] 날짜 제약 조건 체크 (`minDate`, `maxDate` 범위 내)
+  - [x] 싱글 모드와 범위 모드 전환 로직
+  - [x] 예외 처리 (날짜 범위 초과, null 체크 등)
 
-- [ ] `MainRangeViewV2`에 범위 선택 상태 관리 추가
-  - [ ] `_selectedRange` 상태 변수 추가 (`DateTimeRange?`)
-  - [ ] `_minDate`, `_maxDate` 상태 변수 추가
-  - [ ] `_loadDateConstraints()` 메서드 추가 (`queryMinDate`, `queryMaxDate` 호출)
-  - [ ] `_onRangeSelected` 콜백 구현
-  - [ ] 날짜 제약 조건 적용 (`CustomCalendarRangeBodyV2`에 `minDate`, `maxDate` 전달)
-  - [ ] 범위 선택 모드 토글 기능 (싱글 ↔ 범위)
+- [x] `MainRangeViewV2`에 범위 선택 상태 관리 추가
+  - [x] `_selectedRange` 상태 변수 추가 (`DateTimeRange?`)
+  - [x] `_minDate`, `_maxDate` 상태 변수 추가
+  - [x] `_loadDateConstraints()` 메서드 추가 (`queryMinDate`, `queryMaxDate` 호출)
+  - [x] `_onRangeSelected` 콜백 구현
+  - [x] 날짜 제약 조건 적용 (`CustomCalendarRangeBody`에 `minDate`, `maxDate` 전달)
+  - [x] 범위 선택 모드 토글 기능 (싱글 ↔ 범위, enableRangeSelection으로 제어)
 
-- [ ] 날짜 범위 제약 구현 (이미 완료됨)
+- [x] 날짜 범위 제약 구현 (완료 ✅)
   - [x] `DatabaseHandler.queryMinDate()` 메서드 추가 ✅
   - [x] `DatabaseHandler.queryMaxDate()` 메서드 추가 ✅
-  - [ ] 선택 가능한 날짜 범위 제한 (데이터가 있는 최소/최대 날짜)
-  - [ ] `firstDay`, `lastDay` 파라미터로 제한 적용
+  - [x] 선택 가능한 날짜 범위 제한 (데이터가 있는 최소/최대 날짜)
+  - [x] `minDate`, `maxDate` 파라미터로 제한 적용
 
 #### 0-2. 범위 선택 달력 테스트 및 검증
 
@@ -543,19 +543,19 @@
   - [x] 이벤트 표시 동작 확인
   - [x] 스타일링 일관성 확인 (기존 `MainView`와 동일)
 
-**Phase 2 테스트 (진행 예정 🔄)**
-- [ ] 범위 선택 동작 테스트
-  - [ ] 시작일/종료일 선택 동작
-  - [ ] 역순 선택 시 자동 정렬 테스트
-  - [ ] 범위 내 날짜 시각적 표시 확인
-- [ ] 날짜 제약 동작 테스트
-  - [ ] `minDate` 이전 날짜 선택 방지
-  - [ ] `maxDate` 이후 날짜 선택 방지
-  - [ ] 월 이동 시 날짜 제약 범위 유지
-- [ ] 기존 `CustomCalendar`와 기능 비교
-  - [ ] 이벤트 표시 기능 동일하게 작동하는지 확인
-  - [ ] 스타일링 일관성 확인
-  - [ ] 성능 비교
+**Phase 2 테스트 (완료 ✅)**
+- [x] 범위 선택 동작 테스트
+  - [x] 시작일/종료일 선택 동작
+  - [x] 역순 선택 시 자동 정렬 테스트
+  - [x] 범위 내 날짜 시각적 표시 확인
+- [x] 날짜 제약 동작 테스트
+  - [x] `minDate` 이전 날짜 선택 방지
+  - [x] `maxDate` 이후 날짜 선택 방지
+  - [x] 월 이동 시 날짜 제약 범위 유지
+- [x] 기존 `CustomCalendar`와 기능 비교
+  - [x] 이벤트 표시 기능 동일하게 작동하는지 확인
+  - [x] 스타일링 일관성 확인
+  - [x] 성능 비교
 
 #### 0-3. 호환성 확보 및 교체 준비
 
@@ -585,12 +585,12 @@
   - [ ] 범위 모드일 때는 범위 선택 동작
   - [ ] API 통합 가능 여부 검토
 
-#### 1. 데이터베이스 쿼리 확장 (Phase 0 완료 후)
+#### 1. 데이터베이스 쿼리 확장 (완료 ✅)
 
-- [ ] `DatabaseHandler`에 `queryDataByDateRange(String startDate, String endDate)` 메서드 추가
-  - [ ] 날짜 인덱스(`idx_todo_date`) 활용으로 성능 유지
-  - [ ] 범위 내 모든 Todo 조회
-  - [ ] 날짜별 정렬 보장
+- [x] `DatabaseHandler`에 `queryDataByDateRange(String startDate, String endDate)` 메서드 추가
+  - [x] 날짜 인덱스(`idx_todo_date`) 활용으로 성능 유지
+  - [x] 범위 내 모든 Todo 조회
+  - [x] 날짜별 정렬 보장
 
 ---
 
@@ -598,39 +598,39 @@
 
 **목표:** 범위 선택 달력으로 선택한 날짜 범위의 일정을 기존 Summary Bar와 Filter로 분류해서 볼 수 있게 하기
 
-#### 0.5-1. 범위 선택 후 일정 조회 및 표시
+#### 0.5-1. 범위 선택 후 일정 조회 및 표시 (완료 ✅)
 
-- [ ] 범위 선택 달력에서 날짜 범위 선택 시 이벤트 처리
-  - [ ] `onRangeSelected` 콜백에서 선택된 범위 받기
-  - [ ] 선택된 범위를 상태로 관리 (`selectedDateRange`)
+- [x] 범위 선택 달력에서 날짜 범위 선택 시 이벤트 처리
+  - [x] `onRangeSelected` 콜백에서 선택된 범위 받기
+  - [x] 선택된 범위를 상태로 관리 (`_selectedRange`)
 
-- [ ] 범위 내 일정 조회 및 표시
-  - [ ] `DatabaseHandler.queryDataByDateRange()` 호출
-  - [ ] 조회된 일정을 Todo List에 표시
-  - [ ] 기존 단일 날짜 모드와 범위 모드 구분
+- [x] 범위 내 일정 조회 및 표시
+  - [x] `DatabaseHandler.queryDataByDateRange()` 호출
+  - [x] 조회된 일정을 Todo List에 표시
+  - [x] 기존 단일 날짜 모드와 범위 모드 구분
 
-#### 0.5-2. Summary Bar 범위 모드 지원
+#### 0.5-2. Summary Bar 범위 모드 지원 (완료 ✅)
 
-- [ ] 범위 모드에서 Summary Bar 계산 로직 구현
-  - [ ] 선택된 날짜 범위 내 모든 일정의 Step별 비율 계산
-  - [ ] 기존 `calculateSummaryRatios` 함수 확장 또는 새 함수 생성
-  - [ ] 범위 내 일정들의 Step별 집계
+- [x] 범위 모드에서 Summary Bar 계산 로직 구현
+  - [x] 선택된 날짜 범위 내 모든 일정의 Step별 비율 계산
+  - [x] 기존 `calculateRangeSummaryRatios` 함수 사용
+  - [x] 범위 내 일정들의 Step별 집계
 
-- [ ] Summary Bar 표시
-  - [ ] 범위 모드일 때 Summary Bar 업데이트
-  - [ ] 기존 Summary Bar 위젯 재사용
-  - [ ] 범위 모드 표시 (예: "2024-12-01 ~ 2024-12-07")
+- [x] Summary Bar 표시
+  - [x] 범위 모드일 때 Summary Bar 업데이트
+  - [x] 기존 Summary Bar 위젯 재사용
+  - [x] 범위 모드 표시 (예: "2024-12-01 ~ 2024-12-07")
 
-#### 0.5-3. Filter Radio 범위 모드 지원
+#### 0.5-3. Filter Radio 범위 모드 지원 (완료 ✅)
 
-- [ ] 범위 모드에서 Filter Radio 동작 구현
-  - [ ] Step 필터 선택 시 범위 내 해당 Step 일정만 필터링
-  - [ ] 기존 Filter Radio 위젯 재사용
-  - [ ] 필터 변경 시 Todo List 자동 업데이트
+- [x] 범위 모드에서 Filter Radio 동작 구현
+  - [x] Step 필터 선택 시 범위 내 해당 Step 일정만 필터링 (클라이언트 측 필터링)
+  - [x] 기존 Filter Radio 위젯 재사용
+  - [x] 필터 변경 시 Todo List 자동 업데이트
 
-- [ ] 필터링 로직
-  - [ ] 범위 내 일정 중 선택된 Step에 해당하는 일정만 표시
-  - [ ] "전체" 선택 시 범위 내 모든 일정 표시
+- [x] 필터링 로직
+  - [x] 범위 내 일정 중 선택된 Step에 해당하는 일정만 표시
+  - [x] "전체" 선택 시 범위 내 모든 일정 표시
 
 #### 0.5-4. UI 통합 및 모드 전환
 
@@ -648,43 +648,43 @@
   - [ ] 단일 날짜 모드에서 기존 기능 정상 동작 확인
   - [ ] 범위 모드에서 Summary Bar와 Filter 정상 동작 확인
 
-#### 0.5-5. 테스트 및 검증
+#### 0.5-5. 테스트 및 검증 (완료 ✅)
 
-- [ ] 범위 선택 후 일정 조회 테스트
-- [ ] Summary Bar 범위 모드 계산 정확성 테스트
-- [ ] Filter Radio 범위 모드 필터링 테스트
-- [ ] 모드 전환 동작 테스트
-- [ ] 성능 테스트 (넓은 범위 선택 시)
+- [x] 범위 선택 후 일정 조회 테스트
+- [x] Summary Bar 범위 모드 계산 정확성 테스트
+- [x] Filter Radio 범위 모드 필터링 테스트
+- [x] 모드 전환 동작 테스트 (싱글 ↔ 범위)
+- [x] 성능 테스트 (넓은 범위 선택 시)
 
 ---
 
 ## Phase 1: 핵심 통계 (Phase 0.5 완료 후) ⭐⭐⭐
 
-##### 3-1. 기본 통계
-- [ ] 범위 통계 모델 클래스 추가 (`AppRangeStatistics`)
-  - [ ] 날짜 일수 (선택된 기간의 일수)
-  - [ ] 총 일정 개수
-  - [ ] 완료율 (완료된 일정 / 전체 일정)
-  - [ ] Step별 비율 (기존 `AppSummaryRatios` 로직 재사용)
-    - [ ] 오전/오후/저녁/야간/종일 비율 계산
-  - [ ] 중요도별 분포 (1~5단계별 개수 및 비율)
+##### 3-1. 기본 통계 (완료 ✅)
+- [x] 범위 통계 모델 클래스 추가 (`AppRangeStatistics`)
+  - [x] 날짜 일수 (선택된 기간의 일수)
+  - [x] 총 일정 개수
+  - [x] 완료율 (완료된 일정 / 전체 일정)
+  - [x] Step별 비율 (기존 `AppSummaryRatios` 로직 재사용)
+    - [x] 오전/오후/저녁/야간/종일 비율 계산
+  - [x] 중요도별 분포 (1~5단계별 개수 및 비율)
 
-- [ ] 범위 통계 계산 함수 추가
-  - [ ] `AppCommonUtil`에 `calculateRangeStatistics` 메서드 추가
-  - [ ] 날짜 범위와 Todo 리스트를 입력받아 통계 계산
-  - [ ] Step별, 중요도별 집계 로직 구현
+- [x] 범위 통계 계산 함수 추가
+  - [x] `AppCommonUtil`에 `calculateRangeStatistics` 메서드 추가
+  - [x] 날짜 범위와 Todo 리스트를 입력받아 통계 계산
+  - [x] Step별, 중요도별 집계 로직 구현
 
-##### 3-2. Step별 완료율 통계 ⭐⭐⭐⭐⭐ (최우선)
-- [ ] Step별 완료율 계산 함수 구현
-- [ ] 각 Step(오전/오후/저녁/야간/종일)별 완료율 계산
-- [ ] Syncfusion Column Chart 구현
-- [ ] 데이터 가치: 매우 높음 (생산성 향상 기회 발견)
+##### 3-2. Step별 완료율 통계 ⭐⭐⭐⭐⭐ (완료 ✅)
+- [x] Step별 완료율 계산 함수 구현
+- [x] 각 Step(오전/오후/저녁/야간/종일)별 완료율 계산
+- [x] Syncfusion Column Chart 구현
+- [x] 데이터 가치: 매우 높음 (생산성 향상 기회 발견)
 
-##### 3-3. 중요도별 완료율 통계 ⭐⭐⭐⭐⭐ (최우선)
-- [ ] 중요도별 완료율 계산 함수 구현
-- [ ] 각 중요도(1~5)별 완료율 계산
-- [ ] Syncfusion Column Chart 구현
-- [ ] 데이터 가치: 매우 높음 (우선순위 관리 개선)
+##### 3-3. 중요도별 완료율 통계 ⭐⭐⭐⭐⭐ (완료 ✅)
+- [x] 중요도별 완료율 계산 함수 구현
+- [x] 각 중요도(1~5)별 완료율 계산
+- [x] Syncfusion Column Chart 구현
+- [x] 데이터 가치: 매우 높음 (우선순위 관리 개선)
 
 #### 4. Phase 2: 기능 활용도 통계 ⭐⭐ (Phase 1 완료 후 개발)
 
@@ -710,17 +710,19 @@
 
 #### 5. UI 개선
 
-##### 5-1. 기본 통계 카드
-- [ ] 선택된 기간 정보 표시 (시작일 ~ 종료일)
-- [ ] 총 일정 개수 표시
-- [ ] 완료율 표시 (진행률 바 또는 Doughnut Chart)
-- [ ] Step별 비율 표시 (기존 Summary Bar 스타일 또는 Pie Chart)
-- [ ] 중요도별 분포 표시 (Column Chart)
+##### 5-1. 기본 통계 카드 (완료 ✅)
+- [x] 선택된 기간 정보 표시 (시작일 ~ 종료일)
+- [x] 총 일정 개수 표시
+- [x] 완료율 표시 (진행률 바 및 Doughnut Chart)
+- [x] Step별 비율 표시 (Summary Bar 및 Pie Chart)
+- [x] 중요도별 분포 표시 (Column Chart)
 
-##### 5-2. 핵심 통계 차트 (Phase 1)
-- [ ] Step별 완료율 Column Chart
-- [ ] 중요도별 완료율 Column Chart
-- [ ] 차트 레이아웃 및 스타일링
+##### 5-2. 핵심 통계 차트 (Phase 1) (완료 ✅)
+- [x] Step별 완료율 Column Chart
+- [x] 중요도별 완료율 Column Chart
+- [x] 차트 레이아웃 및 스타일링
+- [x] 모든 차트에 범례 추가
+- [x] 각 차트 섹션 사이에 디바이더 추가
 
 ##### 5-3. 기능 활용도 통계 차트 (Phase 2)
 - [ ] 알람 설정률 Doughnut Chart

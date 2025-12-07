@@ -394,7 +394,11 @@ class DummyDataGenerator {
           }
         } catch (e) {
           failCount++;
-          AppLogger.e('더미 데이터 삽입 실패: ${data['title']}', tag: 'DummyData', error: e);
+          AppLogger.e(
+            '더미 데이터 삽입 실패: ${data['title']}',
+            tag: 'DummyData',
+            error: e,
+          );
         }
       }
 
@@ -450,10 +454,37 @@ class DummyDataGenerator {
 
       // 시간별 시간대 (Step에 맞춤)
       final timeRanges = {
-        StepMapperUtil.stepMorning: ['07:00', '08:00', '09:00', '10:00', '11:00'],
-        StepMapperUtil.stepNoon: ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
-        StepMapperUtil.stepEvening: ['18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
-        StepMapperUtil.stepNight: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00'],
+        StepMapperUtil.stepMorning: [
+          '07:00',
+          '08:00',
+          '09:00',
+          '10:00',
+          '11:00',
+        ],
+        StepMapperUtil.stepNoon: [
+          '12:00',
+          '13:00',
+          '14:00',
+          '15:00',
+          '16:00',
+          '17:00',
+        ],
+        StepMapperUtil.stepEvening: [
+          '18:00',
+          '19:00',
+          '20:00',
+          '21:00',
+          '22:00',
+          '23:00',
+        ],
+        StepMapperUtil.stepNight: [
+          '00:00',
+          '01:00',
+          '02:00',
+          '03:00',
+          '04:00',
+          '05:00',
+        ],
         StepMapperUtil.stepAnytime: [], // 종일은 시간 없음
       };
 
@@ -612,11 +643,7 @@ class DummyDataGenerator {
         tag: 'DummyData',
       );
     } catch (e) {
-      AppLogger.e(
-        '삭제된 Todo 더미 데이터 삽입 중 오류 발생',
-        tag: 'DummyData',
-        error: e,
-      );
+      AppLogger.e('삭제된 Todo 더미 데이터 삽입 중 오류 발생', tag: 'DummyData', error: e);
       if (context.mounted) {
         CustomSnackBar.show(
           context,
@@ -645,16 +672,17 @@ class DummyDataGenerator {
     try {
       final minDate = await dbHandler.queryMinDate();
       final maxDate = await dbHandler.queryMaxDate();
-      
+
       if (minDate != null && maxDate != null) {
         final existingMinDate = DateTime.parse(minDate);
         final existingMaxDate = DateTime.parse(maxDate);
-        
+
         // 기존 데이터와 겹치는지 확인
-        if (!startDate.isAfter(existingMaxDate) && !endDate.isBefore(existingMinDate)) {
+        if (!startDate.isAfter(existingMaxDate) &&
+            !endDate.isBefore(existingMinDate)) {
           if (context.mounted) {
             final completer = Completer<bool>();
-            
+
             await CustomDialog.show(
               context,
               title: '데이터 확인',
@@ -669,7 +697,7 @@ class DummyDataGenerator {
                 completer.complete(false);
               },
             );
-            
+
             final shouldContinue = await completer.future;
             if (!shouldContinue) {
               return;
@@ -688,7 +716,7 @@ class DummyDataGenerator {
       final todosPerDay = 2.5; // 평균 하루당 일정 개수
       final totalTodos = (totalDays * todosPerDay).round();
 
-      AppLogger.i('통계 테스트용 더미 데이터 생성 시작: ${totalTodos}개 예상', tag: 'DummyData');
+      AppLogger.i('통계 테스트용 더미 데이터 생성 시작: $totalTodos개 예상', tag: 'DummyData');
 
       // Step, 중요도, 시간 목록
       final steps = [
@@ -703,10 +731,37 @@ class DummyDataGenerator {
 
       // 시간별 시간대 (Step에 맞춤)
       final timeRanges = {
-        StepMapperUtil.stepMorning: ['07:00', '08:00', '09:00', '10:00', '11:00'],
-        StepMapperUtil.stepNoon: ['12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
-        StepMapperUtil.stepEvening: ['18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
-        StepMapperUtil.stepNight: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00'],
+        StepMapperUtil.stepMorning: [
+          '07:00',
+          '08:00',
+          '09:00',
+          '10:00',
+          '11:00',
+        ],
+        StepMapperUtil.stepNoon: [
+          '12:00',
+          '13:00',
+          '14:00',
+          '15:00',
+          '16:00',
+          '17:00',
+        ],
+        StepMapperUtil.stepEvening: [
+          '18:00',
+          '19:00',
+          '20:00',
+          '21:00',
+          '22:00',
+          '23:00',
+        ],
+        StepMapperUtil.stepNight: [
+          '00:00',
+          '01:00',
+          '02:00',
+          '03:00',
+          '04:00',
+          '05:00',
+        ],
         StepMapperUtil.stepAnytime: [], // 종일은 시간 없음
       };
 
@@ -752,24 +807,24 @@ class DummyDataGenerator {
       // 2: 적은 주 (매일 0-2개)
       // 3: 많은 주 (매일 3-6개)
       final weekPatterns = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]; // 패턴 반복
-      
+
       // 날짜별로 일정 생성
       for (int dayOffset = 0; dayOffset <= totalDays; dayOffset++) {
         final currentDate = startDate.add(Duration(days: dayOffset));
         final dateStr = CustomCommonUtil.formatDate(currentDate, 'yyyy-MM-dd');
-        
+
         // 12월인지 확인 (12월은 더 많은 데이터 생성)
         final isDecember = currentDate.month == 12;
-        
+
         // 주 번호 계산 (0부터 시작)
         final weekNumber = dayOffset ~/ 7;
         final dayInWeek = dayOffset % 7;
-        
+
         // 주 패턴 선택 (패턴 배열 순환)
         final weekPattern = weekPatterns[weekNumber % weekPatterns.length];
-        
+
         int todosCount;
-        
+
         // 12월인 경우 더 많은 일정 생성
         if (isDecember) {
           // 주 패턴에 따라 일정 개수 결정 (12월은 기본값 + 2~4개 추가)
@@ -777,7 +832,7 @@ class DummyDataGenerator {
             case 0: // 골고루 퍼진 주 (매일 3-6개)
               todosCount = random.nextInt(4) + 3;
               break;
-            
+
             case 1: // 몰린 주 (특정 날에 7-10개, 다른 날은 2-5개)
               // 주 중 특정 날(목요일, 금요일)에 몰림
               if (dayInWeek == 3 || dayInWeek == 4) {
@@ -786,15 +841,15 @@ class DummyDataGenerator {
                 todosCount = random.nextInt(4) + 2; // 2-5개
               }
               break;
-            
+
             case 2: // 적은 주 (매일 2-4개)
               todosCount = random.nextInt(3) + 2; // 2-4개
               break;
-            
+
             case 3: // 많은 주 (매일 5-8개)
               todosCount = random.nextInt(4) + 5; // 5-8개
               break;
-            
+
             default:
               todosCount = random.nextInt(4) + 3;
           }
@@ -804,7 +859,7 @@ class DummyDataGenerator {
             case 0: // 골고루 퍼진 주 (매일 1-3개)
               todosCount = random.nextInt(3) + 1;
               break;
-            
+
             case 1: // 몰린 주 (특정 날에 5-8개, 다른 날은 0-2개)
               // 주 중 특정 날(목요일, 금요일)에 몰림
               if (dayInWeek == 3 || dayInWeek == 4) {
@@ -813,20 +868,20 @@ class DummyDataGenerator {
                 todosCount = random.nextInt(3); // 0-2개
               }
               break;
-            
+
             case 2: // 적은 주 (매일 0-2개)
               todosCount = random.nextInt(3); // 0-2개
               break;
-            
+
             case 3: // 많은 주 (매일 3-6개)
               todosCount = random.nextInt(4) + 3; // 3-6개
               break;
-            
+
             default:
               todosCount = random.nextInt(3) + 1;
           }
         }
-        
+
         // 일정이 없는 날은 스킵 (12월은 최소 1개는 보장)
         if (todosCount == 0 && !isDecember) {
           continue;
@@ -879,7 +934,7 @@ class DummyDataGenerator {
             );
 
             final id = await dbHandler.insertData(todo);
-            
+
             // 완료 상태 업데이트 (isDone이 true인 경우)
             if (isDone && id > 0) {
               await dbHandler.toggleDone(id, true);
@@ -900,12 +955,16 @@ class DummyDataGenerator {
       if (context.mounted) {
         CustomSnackBar.show(
           context,
-          message: '통계 테스트용 더미 데이터 삽입 완료!\n성공: $successCount개, 실패: $failCount개\n날짜 범위: ${CustomCommonUtil.formatDate(startDate, 'yyyy-MM-dd')} ~ ${CustomCommonUtil.formatDate(endDate, 'yyyy-MM-dd')}',
+          message:
+              '통계 테스트용 더미 데이터 삽입 완료!\n성공: $successCount개, 실패: $failCount개\n날짜 범위: ${CustomCommonUtil.formatDate(startDate, 'yyyy-MM-dd')} ~ ${CustomCommonUtil.formatDate(endDate, 'yyyy-MM-dd')}',
           duration: const Duration(seconds: 4),
         );
       }
 
-      AppLogger.i('통계 테스트용 더미 데이터 생성 완료: 성공=$successCount, 실패=$failCount', tag: 'DummyData');
+      AppLogger.i(
+        '통계 테스트용 더미 데이터 생성 완료: 성공=$successCount, 실패=$failCount',
+        tag: 'DummyData',
+      );
     } catch (e) {
       AppLogger.e('통계 테스트용 더미 데이터 삽입 중 오류 발생', tag: 'DummyData', error: e);
       if (context.mounted) {
@@ -945,4 +1004,3 @@ class DummyDataGenerator {
     }
   }
 }
-

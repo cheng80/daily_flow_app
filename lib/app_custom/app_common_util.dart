@@ -88,6 +88,63 @@ ClipRRect actionFourRangeBar(
   );
 }
 
+// 범위 통계 정보 클래스
+//
+// 날짜 범위 내 Todo 통계 정보를 담는 클래스입니다.
+class AppRangeStatistics {
+  // 선택된 기간의 일수
+  final int dayCount;
+  
+  // 총 일정 개수
+  final int totalCount;
+  
+  // 완료된 일정 개수
+  final int doneCount;
+  
+  // 완료율 (0.0 ~ 1.0)
+  final double completionRate;
+  
+  // Step별 비율
+  final AppSummaryRatios stepRatios;
+  
+  // 중요도별 분포 (1~5단계별 개수)
+  final Map<int, int> priorityDistribution;
+  
+  // 중요도별 비율 (1~5단계별 비율, 0.0 ~ 1.0)
+  final Map<int, double> priorityRatios;
+  
+  // Step별 완료율 (0.0 ~ 1.0)
+  final Map<int, double> stepCompletionRates;
+  
+  // 중요도별 완료율 (1~5단계별 완료율, 0.0 ~ 1.0)
+  final Map<int, double> priorityCompletionRates;
+
+  const AppRangeStatistics({
+    required this.dayCount,
+    required this.totalCount,
+    required this.doneCount,
+    required this.completionRate,
+    required this.stepRatios,
+    required this.priorityDistribution,
+    required this.priorityRatios,
+    required this.stepCompletionRates,
+    required this.priorityCompletionRates,
+  });
+
+  // 빈 통계 (데이터 없음)
+  static AppRangeStatistics empty = AppRangeStatistics(
+    dayCount: 0,
+    totalCount: 0,
+    doneCount: 0,
+    completionRate: 0.0,
+    stepRatios: AppSummaryRatios.empty,
+    priorityDistribution: const {},
+    priorityRatios: const {},
+    stepCompletionRates: const {},
+    priorityCompletionRates: const {},
+  );
+}
+
 // Summary Bar 비율 정보 클래스
 //
 // 선택된 날짜의 Todo를 Step별로 계산한 비율 정보를 담는 클래스입니다.
@@ -200,6 +257,207 @@ Future<AppSummaryRatios> calculateSummaryRatios(
     );
   } catch (e) {
     print("Error calculating summary ratios: $e");
+    // 에러 발생 시 빈 비율 반환
+    return AppSummaryRatios.empty;
+  }
+}
+
+// 범위 통계 계산
+//
+// 날짜 범위 내의 모든 Todo를 분석하여 통계를 계산합니다.
+//
+// [dbHandler] DatabaseHandler 인스턴스
+// [startDate] 시작 날짜 ('YYYY-MM-DD' 형식)
+// [endDate] 종료 날짜 ('YYYY-MM-DD' 형식, 포함)
+//
+// 반환값: AppRangeStatistics 객체
+//
+// 사용 예시:
+// ```dart
+// final stats = await calculateRangeStatistics(
+//   dbHandler,
+//   '2025-12-01',
+//   '2025-12-07',
+// );
+// print('완료율: ${(stats.completionRate * 100).toStringAsFixed(1)}%');
+// ```
+Future<AppRangeStatistics> calculateRangeStatistics(
+  DatabaseHandler dbHandler,
+  String startDate,
+  String endDate,
+) async {
+  try {
+    final todos = await dbHandler.queryDataByDateRange(startDate, endDate);
+
+    // 날짜 일수 계산
+    final start = DateTime.parse(startDate);
+    final end = DateTime.parse(endDate);
+    final dayCount = end.difference(start).inDays + 1;
+
+    // 기본 통계
+    final totalCount = todos.length;
+    final doneCount = todos.where((todo) => todo.isDone).length;
+    final completionRate = totalCount > 0 ? doneCount / totalCount : 0.0;
+
+    // Step별 집계
+    final stepCounts = <int, int>{
+      StepMapperUtil.stepMorning: 0,
+      StepMapperUtil.stepNoon: 0,
+      StepMapperUtil.stepEvening: 0,
+      StepMapperUtil.stepNight: 0,
+      StepMapperUtil.stepAnytime: 0,
+    };
+    
+    final stepDoneCounts = <int, int>{
+      StepMapperUtil.stepMorning: 0,
+      StepMapperUtil.stepNoon: 0,
+      StepMapperUtil.stepEvening: 0,
+      StepMapperUtil.stepNight: 0,
+      StepMapperUtil.stepAnytime: 0,
+    };
+
+    // 중요도별 집계
+    final priorityCounts = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    final priorityDoneCounts = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+
+    // Todo 분석
+    for (var todo in todos) {
+      // Step별 집계
+      final step = todo.step;
+      stepCounts[step] = (stepCounts[step] ?? 0) + 1;
+      if (todo.isDone) {
+        stepDoneCounts[step] = (stepDoneCounts[step] ?? 0) + 1;
+      }
+
+      // 중요도별 집계
+      final priority = todo.priority;
+      priorityCounts[priority] = (priorityCounts[priority] ?? 0) + 1;
+      if (todo.isDone) {
+        priorityDoneCounts[priority] = (priorityDoneCounts[priority] ?? 0) + 1;
+      }
+    }
+
+    // Step별 비율 계산
+    final stepRatios = totalCount > 0
+        ? AppSummaryRatios(
+            morningRatio: stepCounts[StepMapperUtil.stepMorning]! / totalCount,
+            noonRatio: stepCounts[StepMapperUtil.stepNoon]! / totalCount,
+            eveningRatio: stepCounts[StepMapperUtil.stepEvening]! / totalCount,
+            nightRatio: stepCounts[StepMapperUtil.stepNight]! / totalCount,
+            anytimeRatio: stepCounts[StepMapperUtil.stepAnytime]! / totalCount,
+          )
+        : AppSummaryRatios.empty;
+
+    // Step별 완료율 계산
+    final stepCompletionRates = <int, double>{};
+    for (var step in stepCounts.keys) {
+      final count = stepCounts[step] ?? 0;
+      final done = stepDoneCounts[step] ?? 0;
+      stepCompletionRates[step] = count > 0 ? done / count : 0.0;
+    }
+
+    // 중요도별 비율 계산
+    final priorityRatios = <int, double>{};
+    for (var priority in priorityCounts.keys) {
+      final count = priorityCounts[priority] ?? 0;
+      priorityRatios[priority] = totalCount > 0 ? count / totalCount : 0.0;
+    }
+
+    // 중요도별 완료율 계산
+    final priorityCompletionRates = <int, double>{};
+    for (var priority in priorityCounts.keys) {
+      final count = priorityCounts[priority] ?? 0;
+      final done = priorityDoneCounts[priority] ?? 0;
+      priorityCompletionRates[priority] = count > 0 ? done / count : 0.0;
+    }
+
+    return AppRangeStatistics(
+      dayCount: dayCount,
+      totalCount: totalCount,
+      doneCount: doneCount,
+      completionRate: completionRate,
+      stepRatios: stepRatios,
+      priorityDistribution: priorityCounts,
+      priorityRatios: priorityRatios,
+      stepCompletionRates: stepCompletionRates,
+      priorityCompletionRates: priorityCompletionRates,
+    );
+  } catch (e) {
+    return AppRangeStatistics.empty;
+  }
+}
+
+// 날짜 범위 내 일정을 Step별로 비율 계산
+//
+// 날짜 범위 내의 모든 Todo를 조회하여 Step별 개수를 세고,
+// 전체 대비 비율을 계산하여 반환합니다.
+//
+// [dbHandler] DatabaseHandler 인스턴스
+// [startDate] 시작 날짜 ('YYYY-MM-DD' 형식)
+// [endDate] 종료 날짜 ('YYYY-MM-DD' 형식, 포함)
+//
+// 반환값: AppSummaryRatios 객체 (오전/오후/저녁/야간/종일 비율)
+//
+// 사용 예시:
+// ```dart
+// final ratios = await calculateRangeSummaryRatios(
+//   dbHandler,
+//   '2025-12-01',
+//   '2025-12-07',
+// );
+// ```
+Future<AppSummaryRatios> calculateRangeSummaryRatios(
+  DatabaseHandler dbHandler,
+  String startDate,
+  String endDate,
+) async {
+  try {
+    final todos = await dbHandler.queryDataByDateRange(startDate, endDate);
+
+    // Step별 개수 세기
+    int morningCount = 0;
+    int noonCount = 0;
+    int eveningCount = 0;
+    int nightCount = 0;
+    int anytimeCount = 0;
+
+    for (var todo in todos) {
+      switch (todo.step) {
+        case StepMapperUtil.stepMorning:
+          morningCount++;
+          break;
+        case StepMapperUtil.stepNoon:
+          noonCount++;
+          break;
+        case StepMapperUtil.stepEvening:
+          eveningCount++;
+          break;
+        case StepMapperUtil.stepNight:
+          nightCount++;
+          break;
+        case StepMapperUtil.stepAnytime:
+        default:
+          anytimeCount++;
+          break;
+      }
+    }
+
+    // 전체 개수 계산
+    final totalCount = todos.length;
+
+    // 비율 계산 (전체가 0이면 모두 0.0)
+    if (totalCount == 0) {
+      return AppSummaryRatios.empty;
+    }
+
+    return AppSummaryRatios(
+      morningRatio: morningCount / totalCount,
+      noonRatio: noonCount / totalCount,
+      eveningRatio: eveningCount / totalCount,
+      nightRatio: nightCount / totalCount,
+      anytimeRatio: anytimeCount / totalCount,
+    );
+  } catch (e) {
     // 에러 발생 시 빈 비율 반환
     return AppSummaryRatios.empty;
   }
