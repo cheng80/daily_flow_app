@@ -136,6 +136,30 @@ class DummyDataGenerator {
         'memo':
             '이것은 매우 긴 메모입니다. 이 메모도 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 메모 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다. 추가로 더 많은 텍스트를 넣어서 확실하게 말줄임표가 나타나도록 하겠습니다.',
       },
+      {
+        'date': '2025-12-07',
+        'title': '오후 미팅',
+        'time': '14:00',
+        'step': StepMapperUtil.stepNoon,
+        'priority': 3,
+        'memo': '오후 프로젝트 미팅',
+      },
+      {
+        'date': '2025-12-07',
+        'title': '저녁 식사',
+        'time': '19:00',
+        'step': StepMapperUtil.stepEvening,
+        'priority': 2,
+        'memo': '가족 저녁 식사',
+      },
+      {
+        'date': '2025-12-07',
+        'title': '야간 공부',
+        'time': '02:00',
+        'step': StepMapperUtil.stepNight,
+        'priority': 4,
+        'memo': '새벽 집중 공부',
+      },
 
       // 12월 중반 (11일~20일)
       {
@@ -890,10 +914,36 @@ class DummyDataGenerator {
           todosCount = 1; // 12월은 최소 1개 보장
         }
 
+        // 12월 5일인 경우 오후, 저녁, 야간 각 1개씩 추가
+        final isDecember5 = currentDate.month == 12 && currentDate.day == 5;
+        if (isDecember5) {
+          todosCount += 3; // 오후 1개, 저녁 1개, 야간 1개 추가
+        }
+
         for (int i = 0; i < todosCount; i++) {
           try {
-            // Step 선택 (균등 분포)
-            final step = steps[random.nextInt(steps.length)];
+            // Step 선택
+            int step;
+            // 12월 5일이고 마지막 3개인 경우 특정 Step 강제 지정
+            if (isDecember5 && i >= todosCount - 3) {
+              final additionalStepIndex = i - (todosCount - 3);
+              switch (additionalStepIndex) {
+                case 0: // 오후
+                  step = StepMapperUtil.stepNoon;
+                  break;
+                case 1: // 저녁
+                  step = StepMapperUtil.stepEvening;
+                  break;
+                case 2: // 야간
+                  step = StepMapperUtil.stepNight;
+                  break;
+                default:
+                  step = steps[random.nextInt(steps.length)];
+              }
+            } else {
+              // 일반적인 경우: Step 선택 (균등 분포)
+              step = steps[random.nextInt(steps.length)];
+            }
 
             // 시간 선택
             String? time;

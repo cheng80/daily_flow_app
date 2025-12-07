@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app_custom/custom_calendar_picker.dart';
 import '../app_custom/custom_time_picker.dart';
 import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
@@ -104,19 +105,36 @@ class _EditTodoViewState extends State<EditTodoView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 //----------------------------------
-                //-- 수정 날짜
+                //-- 날짜 선택
                 //----------------------------------
                 CustomText(
-                  "수정 날짜",
+                  "날짜 선택",
                   style: TextStyle(
                     color: p.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                CustomText(
-                  CustomCommonUtil.formatDate(_selectedDay, 'yyyy년 MM월 dd일'),
-                  style: TextStyle(color: p.textPrimary, fontSize: 16),
+                CustomButton(
+                  btnText: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.calendar_today, color: p.primary, size: 24),
+                      const SizedBox(width: 8),
+                      CustomText(
+                        CustomCommonUtil.formatDate(
+                          _selectedDay,
+                          'yyyy년 MM월 dd일',
+                        ),
+                        fontSize: 16,
+                        color: p.textPrimary,
+                      ),
+                    ],
+                  ),
+                  buttonType: ButtonType.outlined,
+                  backgroundColor: p.primary,
+                  onCallBack: _showDatePicker,
+                  minimumSize: const Size(double.infinity, 48),
                 ),
 
                 //----------------------------------
@@ -477,6 +495,20 @@ class _EditTodoViewState extends State<EditTodoView> {
   //----------------------------------
   //-- Function
   //----------------------------------
+
+  // 날짜 선택 다이얼로그 표시
+  Future<void> _showDatePicker() async {
+    final selectedDate = await CustomCalendarPicker.showDatePicker(
+      context: context,
+      initialDate: _selectedDay,
+    );
+
+    if (selectedDate != null) {
+      setState(() {
+        _selectedDay = selectedDate;
+      });
+    }
+  }
 
   // 시간 선택 다이얼로그 표시
   Future<void> _showTimePicker() async {

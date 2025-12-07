@@ -451,6 +451,18 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                     ),
                     const SizedBox(height: 16),
                     // 완료율 Doughnut Chart
+                    //
+                    // **목적**: 선택된 날짜 범위 내 전체 일정의 완료/미완료 비율을 시각적으로 표현
+                    // **데이터 소스**: _rangeStatistics!.doneCount (완료된 일정 수), _rangeStatistics!.totalCount (전체 일정 수)
+                    // **차트 타입**: DoughnutSeries (도넛형 원형 차트)
+                    // **사용 이유**:
+                    //   - 전체 완료율을 한눈에 파악하기 쉽게 표현
+                    //   - 완료된 일정과 미완료 일정의 비율을 직관적으로 비교 가능
+                    //   - 범례와 데이터 레이블로 정확한 수치 확인 가능
+                    // **데이터 구조**:
+                    //   - '완료': doneCount (primary 색상)
+                    //   - '미완료': totalCount - doneCount (divider 색상)
+                    // **표시 정보**: 각 섹션의 개수와 전체 대비 비율(%)
                     CustomText(
                       "완료율",
                       style: TextStyle(
@@ -571,6 +583,21 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                     ),
                     const SizedBox(height: 16),
                     // Step별 비율 Pie Chart
+                    //
+                    // **목적**: 선택된 날짜 범위 내 일정들이 시간대(Step)별로 어떻게 분포되어 있는지 시각화
+                    // **데이터 소스**: _rangeRatios (AppSummaryRatios 객체)
+                    //   - morningRatio: 오전(06:00-11:59) 일정 비율
+                    //   - noonRatio: 오후(12:00-17:59) 일정 비율
+                    //   - eveningRatio: 저녁(18:00-23:59) 일정 비율
+                    //   - nightRatio: 야간(00:00-05:59) 일정 비율
+                    //   - anytimeRatio: 종일 일정 비율
+                    // **차트 타입**: PieSeries (파이 차트)
+                    // **사용 이유**:
+                    //   - 시간대별 일정 분포를 전체 대비 비율로 한눈에 파악
+                    //   - 어떤 시간대에 일정이 집중되어 있는지 패턴 분석 가능
+                    //   - 각 Step별 색상으로 구분하여 직관적 표현 (progressMorning, progressNoon 등)
+                    // **데이터 구조**: 각 Step별 비율(0.0~1.0)을 100%로 변환하여 표시
+                    // **표시 정보**: 각 Step의 비율(%)
                     CustomText(
                       "Step별 비율",
                       style: TextStyle(
@@ -644,6 +671,22 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                     // 디바이더
                     Divider(color: p.divider, thickness: 1, height: 32),
                     // 중요도별 분포 Column Chart
+                    //
+                    // **목적**: 선택된 날짜 범위 내 일정들이 중요도(P1~P5)별로 몇 개씩 분포되어 있는지 막대 그래프로 표현
+                    // **데이터 소스**: _rangeStatistics!.priorityDistribution (Map<int, int>)
+                    //   - Key: 중요도 (1=P1, 2=P2, 3=P3, 4=P4, 5=P5)
+                    //   - Value: 해당 중요도의 일정 개수
+                    // **차트 타입**: ColumnSeries (세로 막대 차트)
+                    // **사용 이유**:
+                    //   - 중요도별 일정 개수를 정확한 수치로 비교 가능
+                    //   - Y축 최대값을 전체 일정 개수로 설정하여 전체 대비 비율 파악 용이
+                    //   - 각 중요도별 색상(getPriorityColor)으로 구분하여 직관적 표현
+                    //   - 데이터 레이블로 정확한 개수 표시
+                    // **Y축 설정**:
+                    //   - minimum: 0
+                    //   - maximum: totalCount (전체 일정 개수, 최소 5)
+                    //   - interval: totalCount > 10이면 (totalCount / 10).ceil(), 아니면 1
+                    // **표시 정보**: 각 중요도(P1~P5)별 일정 개수
                     CustomText(
                       "중요도별 분포",
                       style: TextStyle(
@@ -722,6 +765,25 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                     // 디바이더
                     Divider(color: p.divider, thickness: 1, height: 32),
                     // Step별 완료율 차트
+                    //
+                    // **목적**: 각 시간대(Step)별로 일정의 완료율을 비교하여 어떤 시간대의 일정을 잘 완료하는지 분석
+                    // **데이터 소스**: _rangeStatistics!.stepCompletionRates (Map<int, double>)
+                    //   - Key: Step 값 (stepMorning, stepNoon, stepEvening, stepNight, stepAnytime)
+                    //   - Value: 해당 Step의 완료율 (0.0~1.0)
+                    //   - 계산 방식: (해당 Step의 완료된 일정 수) / (해당 Step의 전체 일정 수)
+                    // **차트 타입**: ColumnSeries (세로 막대 차트)
+                    // **사용 이유**:
+                    //   - 시간대별 완료율을 수치로 비교하여 패턴 분석 가능
+                    //   - 어떤 시간대의 일정을 더 잘 완료하는지 파악하여 시간 관리 개선점 도출
+                    //   - Y축을 0-100%로 설정하여 완료율을 직관적으로 표현
+                    //   - 각 Step별 색상(progressMorning, progressNoon 등)으로 구분
+                    // **Y축 설정**:
+                    //   - minimum: 0
+                    //   - maximum: 100 (%)
+                    //   - interval: 20 (%)
+                    //   - labelFormat: '{value}%'
+                    // **데이터 변환**: stepCompletionRates 값(0.0~1.0)을 * 100하여 0-100%로 변환
+                    // **표시 정보**: 각 Step(오전, 오후, 저녁, 야간, 종일)별 완료율(%)
                     CustomText(
                       "Step별 완료율",
                       style: TextStyle(
@@ -832,6 +894,25 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                     // 디바이더
                     Divider(color: p.divider, thickness: 1, height: 32),
                     // 중요도별 완료율 차트
+                    //
+                    // **목적**: 각 중요도(P1~P5)별로 일정의 완료율을 비교하여 중요도에 따른 완료 패턴 분석
+                    // **데이터 소스**: _rangeStatistics!.priorityCompletionRates (Map<int, double>)
+                    //   - Key: 중요도 (1=P1, 2=P2, 3=P3, 4=P4, 5=P5)
+                    //   - Value: 해당 중요도의 완료율 (0.0~1.0)
+                    //   - 계산 방식: (해당 중요도의 완료된 일정 수) / (해당 중요도의 전체 일정 수)
+                    // **차트 타입**: ColumnSeries (세로 막대 차트)
+                    // **사용 이유**:
+                    //   - 중요도별 완료율을 수치로 비교하여 우선순위 관리 패턴 분석
+                    //   - 높은 중요도(P1, P2)의 완료율이 낮은지 확인하여 우선순위 관리 개선점 도출
+                    //   - Y축을 0-100%로 설정하여 완료율을 직관적으로 표현
+                    //   - 각 중요도별 색상(getPriorityColor)으로 구분하여 시각적 구분 용이
+                    // **Y축 설정**:
+                    //   - minimum: 0
+                    //   - maximum: 100 (%)
+                    //   - interval: 20 (%)
+                    //   - labelFormat: '{value}%'
+                    // **데이터 변환**: priorityCompletionRates 값(0.0~1.0)을 * 100하여 0-100%로 변환
+                    // **표시 정보**: 각 중요도(P1~P5)별 완료율(%)
                     CustomText(
                       "중요도별 완료율",
                       style: TextStyle(
