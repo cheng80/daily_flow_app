@@ -341,13 +341,59 @@ await handler.realDeleteData(deletedTodo, context: context);
 
 ## 🔍 인덱스 활용
 
-다음 인덱스들이 쿼리 성능을 최적화합니다:
+다음 인덱스들이 쿼리 성능을 최적화합니다. SQLite는 WHERE 절에서 인덱스가 있는 컬럼을 사용하면 **자동으로 인덱스를 활용**합니다.
 
-- **`idx_todo_date`**: `date` 컬럼 인덱스
-  - `queryDataByDate()`, `queryDataByDateRange()` 성능 향상
-  
-- **`idx_todo_date_step`**: `date`, `step` 복합 인덱스
-  - `queryDataByDateAndStep()`, `queryDataByDateRangeAndStep()` 성능 향상
+### 인덱스 정의
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_todo_date ON todo(date);
+CREATE INDEX IF NOT EXISTS idx_todo_date_step ON todo(date, step);
+CREATE INDEX IF NOT EXISTS idx_deleted_todo_date ON deleted_todo(date);
+CREATE INDEX IF NOT EXISTS idx_deleted_todo_deleted_at ON deleted_todo(deleted_at);
+```
+
+### 인덱스 사용 현황
+
+#### `idx_todo_date` (todo 테이블의 date 컬럼)
+다음 쿼리에서 **자동으로 사용**됩니다:
+- ✅ `queryDataByDate(String date)`: `WHERE date = ?` → 인덱스 스캔
+- ✅ `queryDataByDateRange(String startDate, String endDate)`: `WHERE date BETWEEN ? AND ?` → 인덱스 범위 스캔
+- ✅ `queryMinDate()`: `SELECT MIN(date)` → 인덱스 사용 가능 (최소값 빠른 조회)
+- ✅ `queryMaxDate()`: `SELECT MAX(date)` → 인덱스 사용 가능 (최대값 빠른 조회)
+
+#### `idx_todo_date_step` (todo 테이블의 date, step 복합 인덱스)
+다음 쿼리에서 **자동으로 사용**됩니다:
+- ✅ `queryDataByDateAndStep(String date, int step)`: `WHERE date = ? AND step = ?` → 복합 인덱스 스캔
+- ✅ `queryDataByDateRangeAndStep(String startDate, String endDate, int step)`: `WHERE date BETWEEN ? AND ? AND step = ?` → 복합 인덱스 범위 스캔
+
+**복합 인덱스 활용 원리**:
+- `idx_todo_date_step`는 `(date, step)` 순서로 생성됨
+- `WHERE date = ? AND step = ?` 쿼리에서 두 컬럼 모두 인덱스의 앞부분이므로 **완전히 활용**됨
+- `WHERE date BETWEEN ? AND ? AND step = ?` 쿼리에서도 `date` 범위 스캔 후 `step` 필터링이 인덱스로 처리됨
+
+#### `idx_deleted_todo_date` (deleted_todo 테이블의 date 컬럼)
+- ✅ `queryDeletedDataByDateRange()`: `WHERE deleted_at BETWEEN ? AND ?` → 인덱스 범위 스캔
+
+#### `idx_deleted_todo_deleted_at` (deleted_todo 테이블의 deleted_at 컬럼)
+- ✅ `queryDeletedData()`: `ORDER BY deleted_at DESC` → 인덱스 사용 가능 (정렬 최적화)
+
+### 인덱스 사용 확인 방법
+
+SQLite에서 인덱스 사용 여부를 확인하려면 `EXPLAIN QUERY PLAN`을 사용할 수 있습니다:
+
+```sql
+-- 예시: queryDataByDate 쿼리의 실행 계획 확인
+EXPLAIN QUERY PLAN
+SELECT * FROM todo WHERE date = '2025-12-07' ORDER BY time ASC, priority DESC;
+```
+
+결과에서 `SEARCH TABLE todo USING INDEX idx_todo_date`가 표시되면 인덱스가 사용되고 있음을 의미합니다.
+
+### 성능 향상 효과
+
+- **인덱스 없음**: 전체 테이블 스캔 (O(n))
+- **인덱스 사용**: 인덱스 스캔 (O(log n))
+- **데이터가 많을수록** 인덱스의 성능 향상 효과가 큼
 
 ---
 
