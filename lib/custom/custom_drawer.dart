@@ -43,6 +43,9 @@ class DrawerItem {
   // 메뉴 항목의 아이콘 (선택사항)
   final IconData? icon;
 
+  // 메뉴 항목의 아이콘 색상 (선택사항, 기본값: textColor와 동일)
+  final Color? iconColor;
+
   // 메뉴 항목의 텍스트 색상 (선택사항, 기본값: Colors.black)
   final Color? textColor;
 
@@ -58,14 +61,19 @@ class DrawerItem {
   // 선택된 상태의 텍스트 색상
   final Color? selectedTextColor;
 
+  // 선택된 상태의 아이콘 색상 (선택사항, 기본값: selectedTextColor와 동일)
+  final Color? selectedIconColor;
+
   DrawerItem({
     required this.label,
     this.icon,
+    this.iconColor,
     this.textColor,
     this.onTap,
     this.selected = false,
     this.selectedColor,
     this.selectedTextColor,
+    this.selectedIconColor,
   }) : assert(
          CustomCommonUtil.isString(label) || CustomCommonUtil.isWidget(label),
          'label은 String 또는 Widget이어야 합니다.',
@@ -181,8 +189,16 @@ class CustomDrawer extends StatelessWidget {
                               ? Icon(
                                   item.icon,
                                   color: item.selected
-                                      ? (item.selectedTextColor ?? Colors.blue)
-                                      : (item.textColor ?? Colors.black),
+                                      ? (item.selectedIconColor ??
+                                            item.selectedTextColor ??
+                                            _getThemePrimaryColor(context) ??
+                                            Colors.blue)
+                                      : (item.iconColor ??
+                                            item.textColor ??
+                                            _getThemeTextPrimaryColor(
+                                              context,
+                                            ) ??
+                                            Colors.black),
                                 )
                               : null,
                           title: labelWidget,

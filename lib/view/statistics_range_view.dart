@@ -13,8 +13,15 @@ import '../custom/util/log/custom_log_util.dart';
 
 class StatisticsRangeView extends StatefulWidget {
   final VoidCallback onToggleTheme;
+  final DateTimeRange? initialRange; // 메인 화면에서 전달받은 날짜 범위
+  final int? initialStep; // 메인 화면에서 전달받은 Step 필터 (null=전체)
 
-  const StatisticsRangeView({super.key, required this.onToggleTheme});
+  const StatisticsRangeView({
+    super.key,
+    required this.onToggleTheme,
+    this.initialRange,
+    this.initialStep,
+  });
 
   @override
   State<StatisticsRangeView> createState() => _StatisticsRangeViewState();
@@ -25,6 +32,7 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
   DateTimeRange? _selectedRange;
   DateTime? _minDate;
   DateTime? _maxDate;
+  int? _selectedStep; // Step 필터 (null=전체)
   List<Todo> _rangeTodos = [];
   AppSummaryRatios? _rangeRatios;
   AppRangeStatistics? _rangeStatistics;
@@ -35,14 +43,20 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
   void initState() {
     super.initState();
     _handler = DatabaseHandler();
-    _selectedRange = null;
+    _selectedRange = widget.initialRange; // 메인 화면에서 전달받은 범위 설정
+    _selectedStep = widget.initialStep; // 메인 화면에서 전달받은 Step 필터
     _minDate = null;
     _maxDate = null;
     _rangeTodos = [];
     _rangeRatios = null;
     _rangeStatistics = null;
     // 날짜 제약 조건 로드
-    _loadDateConstraints();
+    _loadDateConstraints().then((_) {
+      // 초기 범위가 있으면 통계 계산
+      if (_selectedRange != null) {
+        _calculateRangeStatistics();
+      }
+    });
   }
 
   // 날짜 제약 조건 로드
@@ -128,26 +142,31 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
       );
 
       AppLogger.d(
-        '범위 통계 계산 시작: $startDate ~ $endDate',
+        '범위 통계 계산 시작: $startDate ~ $endDate, Step 필터: ${_selectedStep ?? "전체"}',
         tag: 'StatisticsRangeView',
       );
 
-      // 범위 내 Todo 조회
-      final todos = await _handler.queryDataByDateRange(startDate, endDate);
-      AppLogger.d('범위 내 Todo 개수: ${todos.length}', tag: 'StatisticsRangeView');
-
-      // 범위 내 Step별 비율 계산
-      final ratios = await calculateRangeSummaryRatios(
-        _handler,
-        startDate,
-        endDate,
+      // 범위 내 Todo 조회 (필터 적용)
+      final todos = _selectedStep == null
+          ? await _handler.queryDataByDateRange(startDate, endDate)
+          : await _handler.queryDataByDateRangeAndStep(
+              startDate,
+              endDate,
+              _selectedStep!,
+            );
+      AppLogger.d(
+        '범위 내 Todo 개수: ${todos.length} (필터: ${_selectedStep ?? "전체"})',
+        tag: 'StatisticsRangeView',
       );
 
-      // 범위 통계 계산
-      final statistics = await calculateRangeStatistics(
-        _handler,
-        startDate,
-        endDate,
+      // 필터링된 Todo 리스트로 Step별 비율 계산
+      final ratios = _calculateRatiosFromTodos(todos);
+
+      // 필터링된 Todo 리스트로 통계 계산
+      final statistics = _calculateStatisticsFromTodos(
+        todos,
+        _selectedRange!.start,
+        _selectedRange!.end,
       );
 
       AppLogger.d(
@@ -171,6 +190,147 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
         _isLoading = false;
       });
     }
+  }
+
+  // Todo 리스트로부터 Step별 비율 계산
+  AppSummaryRatios _calculateRatiosFromTodos(List<Todo> todos) {
+    if (todos.isEmpty) {
+      return AppSummaryRatios.empty;
+    }
+
+    int morningCount = 0;
+    int noonCount = 0;
+    int eveningCount = 0;
+    int nightCount = 0;
+    int anytimeCount = 0;
+
+    for (var todo in todos) {
+      switch (todo.step) {
+        case StepMapperUtil.stepMorning:
+          morningCount++;
+          break;
+        case StepMapperUtil.stepNoon:
+          noonCount++;
+          break;
+        case StepMapperUtil.stepEvening:
+          eveningCount++;
+          break;
+        case StepMapperUtil.stepNight:
+          nightCount++;
+          break;
+        case StepMapperUtil.stepAnytime:
+          anytimeCount++;
+          break;
+      }
+    }
+
+    final total = todos.length;
+    return AppSummaryRatios(
+      morningRatio: morningCount / total,
+      noonRatio: noonCount / total,
+      eveningRatio: eveningCount / total,
+      nightRatio: nightCount / total,
+      anytimeRatio: anytimeCount / total,
+    );
+  }
+
+  // Todo 리스트로부터 통계 계산
+  AppRangeStatistics _calculateStatisticsFromTodos(
+    List<Todo> todos,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    // 날짜 일수 계산
+    final dayCount = endDate.difference(startDate).inDays + 1;
+
+    // 기본 통계
+    final totalCount = todos.length;
+    final doneCount = todos.where((todo) => todo.isDone).length;
+    final completionRate = totalCount > 0 ? doneCount / totalCount : 0.0;
+
+    // Step별 집계
+    final stepCounts = <int, int>{
+      StepMapperUtil.stepMorning: 0,
+      StepMapperUtil.stepNoon: 0,
+      StepMapperUtil.stepEvening: 0,
+      StepMapperUtil.stepNight: 0,
+      StepMapperUtil.stepAnytime: 0,
+    };
+
+    final stepDoneCounts = <int, int>{
+      StepMapperUtil.stepMorning: 0,
+      StepMapperUtil.stepNoon: 0,
+      StepMapperUtil.stepEvening: 0,
+      StepMapperUtil.stepNight: 0,
+      StepMapperUtil.stepAnytime: 0,
+    };
+
+    // 중요도별 집계
+    final priorityCounts = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    final priorityDoneCounts = <int, int>{1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+
+    // Todo 분석
+    for (var todo in todos) {
+      // Step별 집계
+      final step = todo.step;
+      stepCounts[step] = (stepCounts[step] ?? 0) + 1;
+      if (todo.isDone) {
+        stepDoneCounts[step] = (stepDoneCounts[step] ?? 0) + 1;
+      }
+
+      // 중요도별 집계
+      final priority = todo.priority;
+      priorityCounts[priority] = (priorityCounts[priority] ?? 0) + 1;
+      if (todo.isDone) {
+        priorityDoneCounts[priority] = (priorityDoneCounts[priority] ?? 0) + 1;
+      }
+    }
+
+    // Step별 비율 계산
+    final stepRatios = totalCount > 0
+        ? AppSummaryRatios(
+            morningRatio: stepCounts[StepMapperUtil.stepMorning]! / totalCount,
+            noonRatio: stepCounts[StepMapperUtil.stepNoon]! / totalCount,
+            eveningRatio: stepCounts[StepMapperUtil.stepEvening]! / totalCount,
+            nightRatio: stepCounts[StepMapperUtil.stepNight]! / totalCount,
+            anytimeRatio: stepCounts[StepMapperUtil.stepAnytime]! / totalCount,
+          )
+        : AppSummaryRatios.empty;
+
+    // Step별 완료율 계산
+    final stepCompletionRates = <int, double>{};
+    for (var step in stepCounts.keys) {
+      final count = stepCounts[step] ?? 0;
+      final done = stepDoneCounts[step] ?? 0;
+      stepCompletionRates[step] = count > 0 ? done / count : 0.0;
+    }
+
+    // 중요도별 비율 계산
+    final priorityRatios = <int, double>{};
+    for (var priority in priorityCounts.keys) {
+      final count = priorityCounts[priority] ?? 0;
+      priorityRatios[priority] = totalCount > 0 ? count / totalCount : 0.0;
+    }
+
+    // 중요도별 완료율 계산
+    final priorityCompletionRates = <int, double>{};
+    for (var priority in priorityCounts.keys) {
+      final count = priorityCounts[priority] ?? 0;
+      final done = priorityDoneCounts[priority] ?? 0;
+      priorityCompletionRates[priority] = count > 0 ? done / count : 0.0;
+    }
+
+    return AppRangeStatistics(
+      dayCount: dayCount,
+      totalCount: totalCount,
+      doneCount: doneCount,
+      completionRate: completionRate,
+      stepRatios: stepRatios,
+      priorityDistribution: priorityCounts,
+      priorityRatios: priorityRatios,
+      stepCompletionRates: stepCompletionRates,
+      priorityCompletionRates: priorityCompletionRates,
+    );
   }
 
   @override
@@ -221,7 +381,7 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                   children: [
                     // 기본 통계 정보
                     CustomText(
-                      "범위 통계 (${_rangeTodos.length}개 일정)",
+                      "범위 통계 (${_rangeStatistics!.dayCount}일, ${_rangeTodos.length}개 일정)",
                       style: TextStyle(
                         color: p.textPrimary,
                         fontSize: 18,
@@ -508,6 +668,15 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                         ),
                         primaryYAxis: NumericAxis(
                           minimum: 0,
+                          // Y축 최대값을 전체 일정 개수로 설정 (최소 5)
+                          maximum: _rangeStatistics!.totalCount > 0
+                              ? _rangeStatistics!.totalCount.toDouble()
+                              : 5.0,
+                          interval: _rangeStatistics!.totalCount > 10
+                              ? (_rangeStatistics!.totalCount / 10)
+                                    .ceil()
+                                    .toDouble()
+                              : 1,
                           labelStyle: TextStyle(
                             color: p.textPrimary,
                             fontSize: 12,
@@ -564,6 +733,10 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                     SizedBox(
                       height: 200,
                       child: SfCartesianChart(
+                        legend: Legend(
+                          isVisible: true,
+                          overflowMode: LegendItemOverflowMode.wrap,
+                        ),
                         primaryXAxis: CategoryAxis(
                           labelStyle: TextStyle(
                             color: p.textPrimary,
@@ -573,15 +746,15 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                         ),
                         primaryYAxis: NumericAxis(
                           minimum: 0,
-                          maximum: 1,
-                          interval: 0.2,
+                          maximum: 100,
+                          interval: 20,
                           numberFormat: null,
                           labelStyle: TextStyle(
                             color: p.textPrimary,
                             fontSize: 12,
                           ),
                           axisLine: AxisLine(color: p.divider),
-                          labelFormat: '{value}',
+                          labelFormat: '{value}%',
                         ),
                         plotAreaBorderWidth: 0,
                         series: <CartesianSeries>[
@@ -629,7 +802,8 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                               },
                             ],
                             xValueMapper: (data, _) => data['step'] as String,
-                            yValueMapper: (data, _) => data['rate'] as double,
+                            yValueMapper: (data, _) =>
+                                (data['rate'] as double) * 100,
                             pointColorMapper: (data, _) {
                               final step = data['step'] as String;
                               if (step == '오전') return p.progressMorning;
@@ -682,15 +856,15 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                         ),
                         primaryYAxis: NumericAxis(
                           minimum: 0,
-                          maximum: 1,
-                          interval: 0.2,
+                          maximum: 100,
+                          interval: 20,
                           numberFormat: null,
                           labelStyle: TextStyle(
                             color: p.textPrimary,
                             fontSize: 12,
                           ),
                           axisLine: AxisLine(color: p.divider),
-                          labelFormat: '{value}',
+                          labelFormat: '{value}%',
                         ),
                         plotAreaBorderWidth: 0,
                         series: <CartesianSeries>[
@@ -709,7 +883,8 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
                             ],
                             xValueMapper: (data, _) =>
                                 data['priority'] as String,
-                            yValueMapper: (data, _) => data['rate'] as double,
+                            yValueMapper: (data, _) =>
+                                (data['rate'] as double) * 100,
                             pointColorMapper: (data, _) =>
                                 data['color'] as Color,
                             dataLabelSettings: DataLabelSettings(

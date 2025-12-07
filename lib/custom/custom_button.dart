@@ -65,6 +65,9 @@ class CustomButton extends StatelessWidget {
   // 버튼 최소 크기 (기본값: Size(100, 60))
   final Size? minimumSize;
 
+  // 버튼 고정 크기 (설정 시 minimumSize보다 우선 적용)
+  final Size? fixedSize;
+
   // 버튼 모서리 둥글기 (기본값: 10)
   final double? borderRadius;
 
@@ -91,6 +94,7 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.minimumSize,
+    this.fixedSize,
     this.borderRadius,
     this.btnStyle,
     this.textFontSize,
@@ -181,7 +185,8 @@ class CustomButton extends StatelessWidget {
         // TextButton: 배경색이 있으므로 기본 텍스트 색상은 흰색
         final textFgColor = foregroundColor ?? Colors.white;
         return TextButton.styleFrom(
-          minimumSize: minSize,
+          minimumSize: fixedSize != null ? null : minSize,
+          fixedSize: fixedSize,
           foregroundColor: textFgColor,
           backgroundColor: bgColor,
           shape: RoundedRectangleBorder(
@@ -192,7 +197,8 @@ class CustomButton extends StatelessWidget {
         // ElevatedButton: 배경색이 있으므로 기본 텍스트 색상은 흰색
         final elevatedFgColor = foregroundColor ?? Colors.white;
         return ElevatedButton.styleFrom(
-          minimumSize: minSize,
+          minimumSize: fixedSize != null ? null : minSize,
+          fixedSize: fixedSize,
           foregroundColor: elevatedFgColor,
           backgroundColor: bgColor,
           shape: RoundedRectangleBorder(
@@ -206,7 +212,8 @@ class CustomButton extends StatelessWidget {
             _getThemeTextPrimaryColor(context) ??
             Colors.black;
         return OutlinedButton.styleFrom(
-          minimumSize: minSize,
+          minimumSize: fixedSize != null ? null : minSize,
+          fixedSize: fixedSize,
           foregroundColor: outlinedFgColor,
           side: BorderSide(color: bgColor, width: 2),
           shape: RoundedRectangleBorder(

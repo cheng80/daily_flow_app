@@ -848,6 +848,7 @@ class _MainViewState extends State<MainView> {
       final result = await CustomNavigationUtil.to(
         context,
         EditTodoView(onToggleTheme: widget.onToggleTheme, todo: todo),
+        transitionType: PageTransitionType.fade,
       );
       if (result == true) {
         _reloadData();
@@ -920,6 +921,7 @@ class _MainViewState extends State<MainView> {
         onToggleTheme: widget.onToggleTheme,
         initialDate: _selectedDay,
       ),
+      transitionType: PageTransitionType.fade,
     );
 
     // 저장 완료 후 데이터 새로고침
@@ -935,6 +937,7 @@ class _MainViewState extends State<MainView> {
     await CustomNavigationUtil.to(
       context,
       StatisticsRangeView(onToggleTheme: widget.onToggleTheme),
+      transitionType: PageTransitionType.fade,
     );
   }
 
@@ -945,6 +948,7 @@ class _MainViewState extends State<MainView> {
     await CustomNavigationUtil.to(
       context,
       DeletedTodosView(onToggleTheme: widget.onToggleTheme),
+      transitionType: PageTransitionType.fade,
     );
   }
 
@@ -953,6 +957,7 @@ class _MainViewState extends State<MainView> {
     await CustomNavigationUtil.to(
       context,
       Home(onToggleTheme: widget.onToggleTheme),
+      transitionType: PageTransitionType.fade,
     );
   }
 
@@ -970,6 +975,7 @@ class _MainViewState extends State<MainView> {
         final editResult = await CustomNavigationUtil.to(
           context,
           EditTodoView(onToggleTheme: widget.onToggleTheme, todo: todo),
+          transitionType: PageTransitionType.fade,
         );
         // 수정 화면에서 돌아올 때 데이터 갱신
         if (editResult == true) {

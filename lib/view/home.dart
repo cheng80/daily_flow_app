@@ -162,6 +162,7 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             MainView(onToggleTheme: widget.onToggleTheme),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -172,6 +173,7 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             MainRangeView(onToggleTheme: widget.onToggleTheme),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -184,6 +186,7 @@ class _HomeState extends State<Home> {
                             MainRangeViewV2(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -196,6 +199,7 @@ class _HomeState extends State<Home> {
                             StatisticsRangeView(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -206,6 +210,7 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             CreateTodoView(onToggleTheme: widget.onToggleTheme),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -218,6 +223,7 @@ class _HomeState extends State<Home> {
                             HomeTestCalendar(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -230,6 +236,7 @@ class _HomeState extends State<Home> {
                             HomeTestSummaryBar(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -242,6 +249,7 @@ class _HomeState extends State<Home> {
                             HomeTestStepMapper(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -254,6 +262,7 @@ class _HomeState extends State<Home> {
                             HomeTestFilterRadio(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -266,6 +275,7 @@ class _HomeState extends State<Home> {
                             HomeTestCalendarPickerDialogTest(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -278,6 +288,7 @@ class _HomeState extends State<Home> {
                             HomeTestCalendarTest(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),
@@ -290,6 +301,7 @@ class _HomeState extends State<Home> {
                             HomeTestCalendarRange(
                               onToggleTheme: widget.onToggleTheme,
                             ),
+                            transitionType: PageTransitionType.fade,
                           );
                         },
                       ),

@@ -5,6 +5,7 @@ import 'theme/app_colors.dart';
 import 'view/create_todo_view.dart';
 import 'view/home.dart';
 import 'view/main_view.dart';
+import 'view/splash_page.dart';
 import 'custom/util/log/custom_log_util.dart';
 
 void main() async {
@@ -89,16 +90,38 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         const Locale('ko', 'KR'),
         const Locale('ja', 'JP'),
       ],
-      initialRoute: '/',
+      initialRoute: '/splash',
       onGenerateRoute: (settings) {
+        // 페이드 트랜지션을 위한 PageRouteBuilder 생성 함수
+        PageRoute<T> _fadeRoute<T extends Object?>(
+          Widget page, {
+          RouteSettings? routeSettings,
+        }) {
+          return PageRouteBuilder<T>(
+            settings: routeSettings,
+            pageBuilder: (context, animation, secondaryAnimation) => page,
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 300),
+          );
+        }
+
         switch (settings.name) {
+          case '/splash':
+            return _fadeRoute(
+              SplashPage(onToggleTheme: _toggleTheme),
+              routeSettings: settings,
+            );
           case '/':
-            return MaterialPageRoute(
-              builder: (context) => Home(onToggleTheme: _toggleTheme),
+            return _fadeRoute(
+              Home(onToggleTheme: _toggleTheme),
+              routeSettings: settings,
             );
           case '/main_view':
-            return MaterialPageRoute(
-              builder: (context) => MainView(onToggleTheme: _toggleTheme),
+            return _fadeRoute(
+              MainView(onToggleTheme: _toggleTheme),
+              routeSettings: settings,
             );
           case '/create_todo_view':
             final args = settings.arguments;
@@ -108,15 +131,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             } else if (args is DateTime) {
               initialDate = args;
             }
-            return MaterialPageRoute(
-              builder: (context) => CreateTodoView(
+            return _fadeRoute(
+              CreateTodoView(
                 onToggleTheme: _toggleTheme,
                 initialDate: initialDate,
               ),
+              routeSettings: settings,
             );
           default:
-            return MaterialPageRoute(
-              builder: (context) => Home(onToggleTheme: _toggleTheme),
+            return _fadeRoute(
+              Home(onToggleTheme: _toggleTheme),
+              routeSettings: settings,
             );
         }
       },

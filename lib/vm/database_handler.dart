@@ -138,6 +138,23 @@ class DatabaseHandler {
     return queryResult.map((e) => Todo.fromMap(e)).toList();
   }
 
+  /// 날짜 범위와 Step으로 Todo 조회
+  Future<List<Todo>> queryDataByDateRangeAndStep(
+      String startDate, String endDate, int step) async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.rawQuery(
+      """
+      SELECT * 
+      FROM todo 
+      WHERE date BETWEEN ? AND ? 
+        AND step = ? 
+      ORDER BY date ASC, time ASC, priority DESC
+      """,
+      [startDate, endDate, step],
+    );
+    return queryResult.map((e) => Todo.fromMap(e)).toList();
+  }
+
   /// 데이터가 존재하는 최소 날짜 조회
   /// 
   /// 반환: 가장 이른 날짜 ('YYYY-MM-DD' 형식), 데이터가 없으면 null
