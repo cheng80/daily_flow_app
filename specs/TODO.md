@@ -471,42 +471,87 @@
 
 **전략:** 기존 달력을 복제하여 범위 선택 달력을 별도로 개발 → 호환성 확보 → 교체
 
+**현재 진행 상황:**
+- ✅ Phase 0.5-1 완료: V2 버전 파일 생성 및 싱글 모드 정상 동작 확인
+- 🔄 Phase 0.5-2 진행 예정: 범위 선택 기능 추가
+
 #### 0-1. 범위 선택 달력 위젯 개발
 
-- [ ] 기존 `CustomCalendar` 복제하여 `CustomCalendarRange` 생성
-  - [ ] 파일: `lib/app_custom/custom_calendar_range.dart`
-  - [ ] 기존 `CustomCalendar` 코드 기반으로 범위 선택 기능 추가
-  - [ ] 기존 달력 기능은 그대로 유지 (이벤트 표시, 스타일링 등)
+- [x] 기존 `CustomCalendar` 복제하여 V2 버전 생성 (단계적 개발 방식)
+  - [x] 파일: `lib/app_custom/custom_calendar_range_body_v2.dart` (Phase 1: 싱글 모드)
+  - [x] 파일: `lib/app_custom/custom_calendar_range_header_v2.dart` (Phase 1: 싱글 모드)
+  - [x] 파일: `lib/view/main_range_view_v2.dart` (Phase 1: 싱글 모드)
+  - [x] 기존 `CustomCalendar` 코드 기반으로 복제 (싱글 모드 정상 동작 확인 완료)
+  - [ ] Phase 2: 범위 선택 기능 추가 예정
 
-- [ ] `table_calendar` 패키지의 `rangeSelectionMode` 지원 여부 확인
-  - [ ] `rangeSelectionMode` 파라미터 확인
-  - [ ] 범위 선택 이벤트 처리 방법 확인
+#### 0-1-1. Phase 1: 싱글 모드 정상 동작 (완료 ✅)
 
-- [ ] 범위 선택 기능 구현
+- [x] V2 버전 파일 생성 및 기본 구조 설정
+  - [x] `CustomCalendarRangeBodyV2`: `CustomCalendarBody` 완전 복제
+  - [x] `CustomCalendarRangeHeaderV2`: `CustomCalendarHeader` 완전 복제
+  - [x] `MainRangeViewV2`: `MainView` 완전 복제
+  - [x] V2 컴포넌트 사용하도록 수정
+  - [x] 싱글 모드 정상 동작 확인 완료
+
+#### 0-1-2. Phase 2: 범위 선택 기능 추가 (진행 예정 🔄)
+
+**작업 순서:**
+1. `CustomCalendarRangeBodyV2`에 범위 선택 파라미터 추가
+2. `MainRangeViewV2`에 범위 선택 상태 관리 추가
+3. 날짜 제약 조건 적용 (`queryMinDate`, `queryMaxDate`)
+4. 예외 처리 및 테스트
+
+- [ ] `table_calendar` 패키지의 `rangeSelectionMode` 활용
+  - [x] `rangeSelectionMode` 파라미터 확인 (이미 확인됨)
+  - [x] 범위 선택 이벤트 처리 방법 확인 (이미 확인됨)
+  - [ ] V2 버전에 `rangeSelectionMode: RangeSelectionMode.enforced` 적용
+
+- [ ] `CustomCalendarRangeBodyV2`에 범위 선택 기능 구현
+  - [ ] `selectedRange`, `onRangeSelected`, `enableRangeSelection` 파라미터 추가
+  - [ ] `minDate`, `maxDate` 파라미터 추가 (날짜 제약)
   - [ ] 시작일/종료일 선택 로직
   - [ ] 범위 내 날짜 시각적 표시 (배경색 등)
+    - [ ] `rangeStartDecoration`: 시작일 배경색 (p.primary)
+    - [ ] `rangeEndDecoration`: 종료일 배경색 (p.accent)
+    - [ ] `withinRangeDecoration`: 범위 내 날짜 배경색 (반투명)
   - [ ] 시작일/종료일 자동 정렬 로직
     - [ ] 사용자가 역순으로 선택한 경우 (끝날짜 → 시작날짜) 자동으로 시작일/종료일 정렬
   - [ ] 선택된 날짜 범위 유효성 검증
+  - [ ] 날짜 제약 조건 체크 (`minDate`, `maxDate` 범위 내)
+  - [ ] 싱글 모드와 범위 모드 전환 로직
+  - [ ] 예외 처리 (날짜 범위 초과, null 체크 등)
 
-- [ ] 날짜 범위 콜백 함수 구현
-  - [ ] `onRangeSelected` 콜백 추가
-  - [ ] 선택된 범위를 `DateTimeRange` 또는 `(DateTime?, DateTime?)` 형태로 반환
+- [ ] `MainRangeViewV2`에 범위 선택 상태 관리 추가
+  - [ ] `_selectedRange` 상태 변수 추가 (`DateTimeRange?`)
+  - [ ] `_minDate`, `_maxDate` 상태 변수 추가
+  - [ ] `_loadDateConstraints()` 메서드 추가 (`queryMinDate`, `queryMaxDate` 호출)
+  - [ ] `_onRangeSelected` 콜백 구현
+  - [ ] 날짜 제약 조건 적용 (`CustomCalendarRangeBodyV2`에 `minDate`, `maxDate` 전달)
+  - [ ] 범위 선택 모드 토글 기능 (싱글 ↔ 범위)
 
-- [ ] 날짜 범위 제약 구현
-  - [ ] `DatabaseHandler.queryMinDate()` 메서드 추가
-  - [ ] `DatabaseHandler.queryMaxDate()` 메서드 추가
+- [ ] 날짜 범위 제약 구현 (이미 완료됨)
+  - [x] `DatabaseHandler.queryMinDate()` 메서드 추가 ✅
+  - [x] `DatabaseHandler.queryMaxDate()` 메서드 추가 ✅
   - [ ] 선택 가능한 날짜 범위 제한 (데이터가 있는 최소/최대 날짜)
   - [ ] `firstDay`, `lastDay` 파라미터로 제한 적용
 
 #### 0-2. 범위 선택 달력 테스트 및 검증
 
-- [ ] 테스트 페이지 생성 (`home_test_calendar_range.dart`)
-  - [ ] 범위 선택 동작 테스트
-  - [ ] 역순 선택 시 자동 정렬 테스트
-  - [ ] 날짜 제약 동작 테스트
-  - [ ] 이벤트 표시 동작 확인
+**Phase 1 테스트 (완료 ✅)**
+- [x] 싱글 모드 정상 동작 확인 (`MainRangeViewV2` 테스트)
+  - [x] 날짜 선택 동작 확인
+  - [x] 이벤트 표시 동작 확인
+  - [x] 스타일링 일관성 확인 (기존 `MainView`와 동일)
 
+**Phase 2 테스트 (진행 예정 🔄)**
+- [ ] 범위 선택 동작 테스트
+  - [ ] 시작일/종료일 선택 동작
+  - [ ] 역순 선택 시 자동 정렬 테스트
+  - [ ] 범위 내 날짜 시각적 표시 확인
+- [ ] 날짜 제약 동작 테스트
+  - [ ] `minDate` 이전 날짜 선택 방지
+  - [ ] `maxDate` 이후 날짜 선택 방지
+  - [ ] 월 이동 시 날짜 제약 범위 유지
 - [ ] 기존 `CustomCalendar`와 기능 비교
   - [ ] 이벤트 표시 기능 동일하게 작동하는지 확인
   - [ ] 스타일링 일관성 확인

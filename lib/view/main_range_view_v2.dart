@@ -3,8 +3,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../app_custom/custom_filter_radio.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../app_custom/custom_calendar_header.dart';
-import '../app_custom/custom_calendar_body.dart';
 import '../app_custom/custom_calendar_range_header_v2.dart';
 import '../app_custom/custom_calendar_range_body_v2.dart';
 import '../app_custom/app_common_util.dart';
@@ -22,16 +20,21 @@ import 'home.dart';
 // 함수 타입 enum
 enum FunctionType { update, delete }
 
-class MainView extends StatefulWidget {
+// 범위 선택 메인 뷰 (V2 - 단계적 개발)
+//
+// MainView를 기반으로 범위 선택 기능을 단계적으로 추가합니다.
+// Phase 1: 싱글 모드 정상 동작 (MainView와 동일)
+// Phase 2: 범위 선택 기능 추가 예정
+class MainRangeViewV2 extends StatefulWidget {
   final VoidCallback onToggleTheme;
 
-  const MainView({super.key, required this.onToggleTheme});
+  const MainRangeViewV2({super.key, required this.onToggleTheme});
 
   @override
-  State<MainView> createState() => _MainViewState();
+  State<MainRangeViewV2> createState() => _MainRangeViewV2State();
 }
 
-class _MainViewState extends State<MainView> {
+class _MainRangeViewV2State extends State<MainRangeViewV2> {
   late bool _themeBool;
   late DatabaseHandler _handler;
   late DateTime _selectedDay;
@@ -238,7 +241,7 @@ class _MainViewState extends State<MainView> {
           CustomExpansionTile(
             iconColor: p.priorityVeryHigh,
             collapsedIconColor: p.priorityVeryHigh,
-            title: CustomCalendarHeader(
+            title: CustomCalendarRangeHeaderV2(
               focusedDay: _focusedDay,
               onPreviousMonth: _onPreviousMonth,
               onNextMonth: _onNextMonth,
@@ -255,7 +258,7 @@ class _MainViewState extends State<MainView> {
               vertical: 0,
             ),
             children: [
-              CustomCalendarBody(
+              CustomCalendarRangeBodyV2(
                 calendarHeight: MediaQuery.of(context).size.width * 0.9,
                 cellAspectRatio: 1.0,
                 selectedDay: _selectedDay,

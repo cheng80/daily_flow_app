@@ -487,6 +487,29 @@
 
 - 릴리즈 빌드에서 로그 확인 방법 문서화
   - Android: `adb logcat | grep ERROR` 명령어로 에러 로그 확인 가능
+
+#### 달력 범위 선택 기능 개발 - Phase 0.5-1 (2024년 12월)
+
+- V2 버전 파일 생성 (단계적 개발 방식)
+  - `lib/app_custom/custom_calendar_range_body_v2.dart` 생성
+    - `CustomCalendarBody` 완전 복제하여 싱글 모드 정상 동작 확인
+    - Phase 2: 범위 선택 기능 추가 예정
+  - `lib/app_custom/custom_calendar_range_header_v2.dart` 생성
+    - `CustomCalendarHeader` 완전 복제
+    - Phase 2: 날짜 제약 조건 표시 예정
+  - `lib/view/main_range_view_v2.dart` 생성
+    - `MainView` 완전 복제하여 V2 컴포넌트 사용
+    - Phase 2: 범위 선택 상태 관리 추가 예정
+
+- Phase 1 완료: 싱글 모드 정상 동작 확인 ✅
+  - 기존 `MainView`와 동일하게 동작하는지 검증 완료
+  - 이벤트 표시, 스타일링 일관성 확인 완료
+  - `home.dart`에 테스트 버튼 추가 완료
+
+- 작업 전략
+  - 기존 달력 코드를 복제하여 단계적으로 범위 선택 기능 추가
+  - 싱글 모드부터 정상 동작 확인 후 범위 선택 기능 추가
+  - 예외 처리 및 테스트를 단계적으로 진행
   - iOS: Xcode Console에서 디바이스 연결 후 로그 확인 가능
 
 #### 알람 기능 모듈 구현 (2024년 12월)

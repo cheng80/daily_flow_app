@@ -8,6 +8,8 @@ import 'test_view/home_test_filter_radio.dart';
 import 'test_view/home_test_calendar_test.dart';
 import 'test_view/home_test_calendar_range.dart';
 import 'main_view.dart';
+import 'main_range_view.dart';
+import 'main_range_view_v2.dart';
 import 'create_todo_view.dart';
 import 'test_view/home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
@@ -159,6 +161,28 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             MainView(onToggleTheme: widget.onToggleTheme),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "범위 선택 메인 화면",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            MainRangeView(onToggleTheme: widget.onToggleTheme),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "범위 선택 메인 화면 V2 (싱글 모드 테스트)",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            MainRangeViewV2(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
                           );
                         },
                       ),

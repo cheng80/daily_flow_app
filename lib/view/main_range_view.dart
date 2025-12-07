@@ -3,10 +3,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../app_custom/custom_filter_radio.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../app_custom/custom_calendar_header.dart';
-import '../app_custom/custom_calendar_body.dart';
-import '../app_custom/custom_calendar_range_header_v2.dart';
-import '../app_custom/custom_calendar_range_body_v2.dart';
+import '../app_custom/custom_calendar_range_header.dart';
+import '../app_custom/custom_calendar_range_body.dart';
 import '../app_custom/app_common_util.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../vm/database_handler.dart';
@@ -22,20 +20,23 @@ import 'home.dart';
 // 함수 타입 enum
 enum FunctionType { update, delete }
 
-class MainView extends StatefulWidget {
+class MainRangeView extends StatefulWidget {
   final VoidCallback onToggleTheme;
 
-  const MainView({super.key, required this.onToggleTheme});
+  const MainRangeView({super.key, required this.onToggleTheme});
 
   @override
-  State<MainView> createState() => _MainViewState();
+  State<MainRangeView> createState() => _MainRangeViewState();
 }
 
-class _MainViewState extends State<MainView> {
+class _MainRangeViewState extends State<MainRangeView> {
   late bool _themeBool;
   late DatabaseHandler _handler;
   late DateTime _selectedDay;
   late DateTime _focusedDay;
+  DateTimeRange? _selectedRange; // 선택된 날짜 범위
+  DateTime? _minDate; // 선택 가능한 최소 날짜
+  DateTime? _maxDate; // 선택 가능한 최대 날짜
   int? _selectedStep; // null=전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일
   Map<String, List<Todo>> _todoCache = {};
   double _morningRatio = 0.0;
@@ -58,10 +59,43 @@ class _MainViewState extends State<MainView> {
     _selectedStep = null;
     _handler = DatabaseHandler();
     _todoCache = {};
+    // 날짜 제약 조건 로드
+    _loadDateConstraints();
     // 초기 데이터 로드
     _loadCalendarEvents();
     // 초기 Summary Bar 비율 계산
     _calculateSummaryRatios();
+  }
+
+  // 날짜 제약 조건 로드 (DB 최소/최대 날짜)
+  Future<void> _loadDateConstraints() async {
+    try {
+      final minDateStr = await _handler.queryMinDate();
+      final maxDateStr = await _handler.queryMaxDate();
+
+      setState(() {
+        if (minDateStr != null) {
+          _minDate = DateTime.parse(minDateStr);
+        }
+        if (maxDateStr != null) {
+          _maxDate = DateTime.parse(maxDateStr);
+        }
+
+        // focusedDay가 날짜 범위 내에 있는지 확인하고 조정
+        if (_minDate != null && _focusedDay.isBefore(_minDate!)) {
+          _focusedDay = _minDate!;
+        }
+        if (_maxDate != null && _focusedDay.isAfter(_maxDate!)) {
+          _focusedDay = _maxDate!;
+        }
+      });
+    } catch (e) {
+      AppLogger.e(
+        '날짜 제약 조건 로드 오류',
+        tag: 'MainRangeView',
+        error: e,
+      );
+    }
   }
 
   // 달력 이벤트 데이터 로드 (현재 보이는 달의 데이터)
@@ -238,7 +272,7 @@ class _MainViewState extends State<MainView> {
           CustomExpansionTile(
             iconColor: p.priorityVeryHigh,
             collapsedIconColor: p.priorityVeryHigh,
-            title: CustomCalendarHeader(
+            title: CustomCalendarRangeHeader(
               focusedDay: _focusedDay,
               onPreviousMonth: _onPreviousMonth,
               onNextMonth: _onNextMonth,
@@ -255,14 +289,19 @@ class _MainViewState extends State<MainView> {
               vertical: 0,
             ),
             children: [
-              CustomCalendarBody(
+              CustomCalendarRangeBody(
                 calendarHeight: MediaQuery.of(context).size.width * 0.9,
                 cellAspectRatio: 1.0,
                 selectedDay: _selectedDay,
                 focusedDay: _focusedDay,
                 onDaySelected: _onDaySelected,
+                selectedRange: _selectedRange,
+                enableRangeSelection: true,
+                onRangeSelected: _onRangeSelected,
                 onPageChanged: _onPageChanged,
                 eventLoader: _eventLoader,
+                minDate: _minDate,
+                maxDate: _maxDate,
               ),
             ],
           ),
@@ -554,6 +593,35 @@ class _MainViewState extends State<MainView> {
     AppLogger.d(
       '선택된 날짜: ${_selectedDay.toString().split(' ')[0]}',
       tag: 'MainView',
+    );
+  }
+
+  // 날짜 범위 선택 콜백
+  //
+  // [start] 시작일
+  // [end] 종료일 (null일 수 있음)
+  void _onRangeSelected(DateTime start, DateTime? end) {
+    setState(() {
+      if (end != null) {
+        _selectedRange = DateTimeRange(
+          start: DateTime(start.year, start.month, start.day),
+          end: DateTime(end.year, end.month, end.day, 23, 59, 59, 999),
+        );
+        // 범위 선택 시 첫 번째 날짜를 선택된 날짜로 설정
+        _selectedDay = start;
+      } else {
+        // 시작일만 선택된 경우
+        _selectedRange = null;
+        _selectedDay = start;
+      }
+    });
+
+    // 날짜 선택 시 Summary Bar 비율 재계산
+    _calculateSummaryRatios();
+
+    AppLogger.d(
+      '선택된 날짜 범위: ${start.toString().split(' ')[0]} ~ ${end?.toString().split(' ')[0] ?? "없음"}',
+      tag: 'MainRangeView',
     );
   }
 

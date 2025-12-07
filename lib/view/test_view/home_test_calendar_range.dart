@@ -25,12 +25,14 @@ class HomeTestCalendarRange extends StatefulWidget {
 
 class _HomeTestCalendarRangeState extends State<HomeTestCalendarRange> {
   DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay = DateTime.now(); // 싱글 모드용 선택된 날짜 (초기값: 오늘)
   DateTimeRange? _selectedRange;
   DateTime? _minDate;
   DateTime? _maxDate;
   bool _isLoading = true;
   Map<String, List<dynamic>> _eventCache = {};
   final DatabaseHandler _dbHandler = DatabaseHandler();
+  bool _enableRangeMode = false; // 범위 선택 모드 활성화 여부 (기본값: false = 싱글 모드)
 
   // 달력 크기 조절 변수
   double _calendarHeight = 400.0;
@@ -173,6 +175,15 @@ class _HomeTestCalendarRangeState extends State<HomeTestCalendarRange> {
   }
 
   // 날짜 범위 선택
+  // 싱글 모드용 날짜 선택 콜백
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
+      _selectedRange = null; // 싱글 모드일 때는 범위 선택 해제
+      _enableRangeMode = false; // 싱글 모드 유지
+    });
+  }
+
   void _onRangeSelected(DateTime start, DateTime? end) {
     print('🔵 _onRangeSelected 호출: start=$start, end=$end');
     setState(() {
@@ -182,6 +193,8 @@ class _HomeTestCalendarRangeState extends State<HomeTestCalendarRange> {
           start: DateTime(start.year, start.month, start.day),
           end: DateTime(end.year, end.month, end.day, 23, 59, 59, 999),
         );
+        _selectedDay = null; // 범위 선택 모드일 때는 싱글 선택 해제
+        _enableRangeMode = true; // 범위 선택 모드 활성화
         print('✅ 범위 선택 완료: ${_selectedRange!.start} ~ ${_selectedRange!.end}');
       } else {
         // 시작일만 선택된 경우 (임시로 시작일만 저장)
@@ -394,13 +407,22 @@ class _HomeTestCalendarRangeState extends State<HomeTestCalendarRange> {
 
                         // 달력 본체
                         CustomCalendarRangeBody(
+                          selectedDay: _selectedDay, // 싱글 모드용
                           focusedDay: _focusedDay,
+                          onDaySelected: _onDaySelected, // 싱글 모드용
                           selectedRange: _selectedRange,
+                          enableRangeSelection:
+                              _enableRangeMode, // 명시적으로 범위 모드 제어
                           onRangeSelected: _onRangeSelected,
                           onPageChanged: _onPageChanged,
                           eventLoader: _eventLoader,
                           calendarHeight: _calendarHeight,
                           cellAspectRatio: _cellAspectRatio,
+                          cellMargin: _enableRangeMode
+                              ? EdgeInsets.zero
+                              : const EdgeInsets.all(
+                                  2.0,
+                                ), // 싱글 모드일 때 cellMargin 명시적 설정
                           minDate: _minDate,
                           maxDate: _maxDate,
                         ),
