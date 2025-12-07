@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../custom/util/log/custom_log_util.dart';
 import 'test_view/home_test_calendar.dart';
 import 'test_view/home_test_summary_bar.dart';
 import 'test_view/home_test_step_mapper.dart';
@@ -13,6 +12,7 @@ import 'test_view/home_test_calendar_picker_dialog.dart';
 import '../vm/database_handler.dart';
 import '../model/todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
+import '../app_custom/dummy_data_generator.dart';
 import '../service/notification_service.dart';
 
 // 모듈 테스트용 홈 화면 위젯 (인덱스)
@@ -106,6 +106,7 @@ class _HomeState extends State<Home> {
               children: [
                 CustomButton(
                   btnText: "모든 데이터 삭제",
+                  minimumSize: const Size(double.infinity, 50),
                   onCallBack: () async {
                     await _clearAllData(context);
                     CustomNavigationUtil.back(context);
@@ -136,165 +137,230 @@ class _HomeState extends State<Home> {
             children: [
               const SizedBox(height: 20),
 
-              // 테스트 화면 이동 버튼들
-              CustomText(
-                "테스트 화면",
-                style: TextStyle(
-                  color: p.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              // 화면 테스트
+              CustomExpansionTile(
+                title: CustomText(
+                  '화면 테스트',
+                  style: TextStyle(
+                    color: p.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                children: [
+                  CustomColumn(
+                    spacing: 10,
+                    children: [
+                      CustomButton(
+                        btnText: "메인 화면",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            MainView(onToggleTheme: widget.onToggleTheme),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "일정 생성 화면",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            CreateTodoView(onToggleTheme: widget.onToggleTheme),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "캘린더 테스트",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestCalendar(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "서머리바 테스트",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestSummaryBar(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "StepMapper 테스트",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestStepMapper(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "Filter Radio 테스트",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestFilterRadio(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "테스트용 날짜 선택 다이얼로그",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestCalendarPickerDialogTest(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "테스트용 달력 (크기 조절 가능)",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestCalendarTest(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
 
-              CustomButton(
-                btnText: "MainView 이동",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    MainView(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
+              // 더미 데이터 관리
+              CustomExpansionTile(
+                title: CustomText(
+                  '더미 데이터 관리',
+                  style: TextStyle(
+                    color: p.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                children: [
+                  CustomColumn(
+                    spacing: 10,
+                    children: [
+                      CustomButton(
+                        btnText: "12월 더미 데이터 삽입",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await DummyDataGenerator.insertDummyData(context);
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "통계 테스트용 데이터 삽입 (3개월)",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await DummyDataGenerator.insertStatisticsDummyData(
+                            context,
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "삭제된 Todo 데이터 삽입 (3개월)",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await DummyDataGenerator.insertDeletedDummyData(
+                            context,
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "Todo 데이터 전체 삭제",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await _clearTodoData(context);
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "삭제된 Todo 데이터 전체 삭제",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await DummyDataGenerator.clearDeletedData(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
 
-              CustomButton(
-                btnText: "CreateTodoView 이동",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    CreateTodoView(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
-              ),
-
-              CustomButton(
-                btnText: "캘린더 테스트",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    HomeTestCalendar(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
-              ),
-
-              CustomButton(
-                btnText: "서머리바 테스트",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    HomeTestSummaryBar(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
-              ),
-
-              CustomButton(
-                btnText: "StepMapper 테스트",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    HomeTestStepMapper(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
-              ),
-
-              CustomButton(
-                btnText: "Filter Radio 테스트",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    HomeTestFilterRadio(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
-              ),
-
-              CustomButton(
-                btnText: "2025년 12월 더미 데이터 삽입",
-                onCallBack: () async {
-                  await _insertDummyData(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "삭제된 Todo 더미 데이터 삽입",
-                onCallBack: () async {
-                  await _insertDeletedDummyData(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "삭제된 Todo 데이터 삭제",
-                onCallBack: () async {
-                  await _clearDeletedData(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "테스트용 날짜 선택 다이얼로그",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    HomeTestCalendarPickerDialogTest(
-                      onToggleTheme: widget.onToggleTheme,
-                    ),
-                  );
-                },
-              ),
-
-              CustomButton(
-                btnText: "테스트용 달력 (크기 조절 가능)",
-                onCallBack: () {
-                  CustomNavigationUtil.to(
-                    context,
-                    HomeTestCalendarTest(onToggleTheme: widget.onToggleTheme),
-                  );
-                },
+              // 알람 테스트
+              CustomExpansionTile(
+                title: CustomText(
+                  '알람 테스트',
+                  style: TextStyle(
+                    color: p.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                children: [
+                  CustomColumn(
+                    spacing: 10,
+                    children: [
+                      CustomButton(
+                        btnText: "등록된 알람 목록 조회",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await _testCheckPendingNotifications(context);
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "알람 등록 (1분 후)",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await _testScheduleNotification(context);
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "알람 취소 (최근 알람)",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await _testCancelNotification(context);
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "모든 알람 취소",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await _testCancelAllNotifications(context);
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "즉시 알람 표시",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          await _testShowNotification(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
 
               const SizedBox(height: 20),
-
-              // 알람 테스트 섹션
-              CustomText(
-                "알람 테스트",
-                style: TextStyle(
-                  color: p.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              CustomButton(
-                btnText: "알람 등록 테스트 (1분 후)",
-                onCallBack: () async {
-                  await _testScheduleNotification(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "알람 취소 테스트",
-                onCallBack: () async {
-                  await _testCancelNotification(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "모든 알람 취소",
-                onCallBack: () async {
-                  await _testCancelAllNotifications(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "즉시 알람 테스트",
-                onCallBack: () async {
-                  await _testShowNotification(context);
-                },
-              ),
-
-              CustomButton(
-                btnText: "등록된 알람 목록 확인",
-                onCallBack: () async {
-                  await _testCheckPendingNotifications(context);
-                },
-              ),
             ],
           ),
         ),
@@ -328,644 +394,25 @@ class _HomeState extends State<Home> {
     }
   }
 
-  // 2025년 12월 더미 데이터 삽입 함수
-  //
-  // 다양한 날짜, 시간대, 우선순위의 Todo 데이터를 생성하여 데이터베이스에 삽입합니다.
-  // 오늘 날짜 데이터도 포함됩니다.
-  // 중복 추가를 방지하기 위해 기존 데이터를 확인합니다.
-  Future<void> _insertDummyData(BuildContext context) async {
+  // Todo 데이터만 삭제 함수
+  Future<void> _clearTodoData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
-    final now = DateTime.now();
-    final todayStr =
-        '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
-
-    // 중복 체크: 2025년 12월 데이터가 이미 있는지 확인
-    try {
-      final existingData = await dbHandler.queryDataByDate('2025-12-01');
-      if (existingData.isNotEmpty) {
-        if (context.mounted) {
-          CustomSnackBar.show(
-            context,
-            message: '2025년 12월 데이터가 이미 존재합니다.\n먼저 모든 데이터를 삭제해주세요.',
-            duration: const Duration(seconds: 3),
-          );
-        }
-        return;
-      }
-    } catch (e) {
-      AppLogger.e("Error checking existing data", tag: 'Home', error: e);
-    }
-
-    // 2025년 12월 더미 데이터 리스트
-    final List<Map<String, dynamic>> dummyData = [
-      // 12월 초반 (1일~10일)
-      {
-        'date': '2025-12-01',
-        'title': '12월 첫날 회의',
-        'time': '09:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '월간 계획 회의',
-      },
-      {
-        'date': '2025-12-01',
-        'title': '점심 약속',
-        'time': '12:30',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '친구와 점심',
-      },
-      {
-        'date': '2025-12-02',
-        'title': '오전 운동',
-        'time': '07:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 2,
-        'memo': '조깅하기',
-      },
-      {
-        'date': '2025-12-02',
-        'title': '프로젝트 작업',
-        'time': '14:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 5,
-        'memo': '중요한 작업',
-      },
-      {
-        'date': '2025-12-03',
-        'title': '저녁 식사',
-        'time': '19:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '가족 저녁',
-      },
-      {
-        'date': '2025-12-03',
-        'title': '영화 보기',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo': '주말 영화',
-      },
-      {
-        'date': '2025-12-04',
-        'title': '새벽 운동',
-        'time': '05:00',
-        'step': StepMapperUtil.stepNight,
-        'priority': 3,
-        'memo': '새벽 조깅',
-      },
-      {
-        'date': '2025-12-04',
-        'title': '오전 미팅',
-        'time': '10:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '팀 미팅',
-      },
-      {
-        'date': '2025-12-05',
-        'title': '점심 회의',
-        'time': '13:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 4,
-        'memo': '고객 미팅',
-      },
-      {
-        'date': '2025-12-05',
-        'title': '저녁 약속',
-        'time': '18:30',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '친구 만나기',
-      },
-      {
-        'date': '2025-12-06',
-        'title':
-            '이것은 매우 긴 제목입니다. 이 제목은 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 이 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다.',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo':
-            '이것은 매우 긴 메모입니다. 이 메모도 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 메모 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다. 추가로 더 많은 텍스트를 넣어서 확실하게 말줄임표가 나타나도록 하겠습니다.',
-      },
-
-      // 12월 중반 (11일~20일)
-      {
-        'date': '2025-12-11',
-        'title': '오전 프레젠테이션',
-        'time': '11:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 5,
-        'memo': '중요 프레젠테이션',
-      },
-      {
-        'date': '2025-12-11',
-        'title': '점심 식사',
-        'time': '12:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 2,
-        'memo': '동료와 점심',
-      },
-      {
-        'date': '2025-12-12',
-        'title': '오후 미팅',
-        'time': '15:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 4,
-        'memo': '프로젝트 미팅',
-      },
-      {
-        'date': '2025-12-12',
-        'title': '저녁 운동',
-        'time': '20:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '헬스장',
-      },
-      {
-        'date': '2025-12-13',
-        'title': '오전 독서',
-        'time': '08:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 2,
-        'memo': '아침 독서 시간',
-      },
-      {
-        'date': '2025-12-14',
-        'title': '새벽 공부',
-        'time': '03:30',
-        'step': StepMapperUtil.stepNight,
-        'priority': 4,
-        'memo': '새벽 집중 공부',
-      },
-      {
-        'date': '2025-12-14',
-        'title': '주말 여행',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 3,
-        'memo': '가족 여행',
-      },
-      {
-        'date': '2025-12-15',
-        'title': '점심 약속',
-        'time': '13:30',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '친구 만나기',
-      },
-      {
-        'date': '2025-12-16',
-        'title': '오전 회의',
-        'time': '09:30',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '주간 회의',
-      },
-      {
-        'date': '2025-12-17',
-        'title': '저녁 파티',
-        'time': '19:30',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '회사 파티',
-      },
-      {
-        'date': '2025-12-19',
-        'title': '새벽 명상',
-        'time': '04:00',
-        'step': StepMapperUtil.stepNight,
-        'priority': 2,
-        'memo': '새벽 명상 시간',
-      },
-      {
-        'date': '2025-12-18',
-        'title': '쇼핑',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo': '선물 구매',
-      },
-
-      // 12월 후반 (21일~31일)
-      {
-        'date': '2025-12-21',
-        'title': '크리스마스 준비',
-        'time': '10:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '장식 준비',
-      },
-      {
-        'date': '2025-12-22',
-        'title': '점심 약속',
-        'time': '12:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '가족 점심',
-      },
-      {
-        'date': '2025-12-23',
-        'title': '저녁 파티',
-        'time': '18:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 4,
-        'memo': '크리스마스 파티',
-      },
-      {
-        'date': '2025-12-24',
-        'title': '크리스마스 이브',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 5,
-        'memo': '특별한 날',
-      },
-      {
-        'date': '2025-12-25',
-        'title': '크리스마스',
-        'time': '09:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 5,
-        'memo': '가족 모임',
-      },
-      {
-        'date': '2025-12-27',
-        'title': '새벽 기도',
-        'time': '05:30',
-        'step': StepMapperUtil.stepNight,
-        'priority': 3,
-        'memo': '새벽 기도 시간',
-      },
-      {
-        'date': '2025-12-25',
-        'title': '크리스마스 저녁',
-        'time': '19:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 5,
-        'memo': '특별 저녁',
-      },
-      {
-        'date': '2025-12-26',
-        'title': '휴식',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo': '편안한 하루',
-      },
-      {
-        'date': '2025-12-28',
-        'title': '연말 정리',
-        'time': '14:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 4,
-        'memo': '올해 정리',
-      },
-      {
-        'date': '2025-12-29',
-        'title': '새해 준비',
-        'time': '10:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 3,
-        'memo': '새해 계획',
-      },
-      {
-        'date': '2025-12-31',
-        'title': '연말 파티',
-        'time': '21:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 5,
-        'memo': '새해 맞이',
-      },
-      {
-        'date': '2025-12-31',
-        'title': '새해 카운트다운',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 5,
-        'memo': '특별한 순간',
-      },
-    ];
-
-    // 오늘 날짜 데이터 추가 (2025년 12월이 아니거나 이미 포함되지 않은 경우)
-    final todayInList = dummyData.any((data) => data['date'] == todayStr);
-    if (!todayInList) {
-      // 오늘 날짜의 시간에 따라 적절한 Step 결정
-      final currentHour = now.hour;
-      int todayStep;
-      String? todayTime;
-
-      if (currentHour >= 6 && currentHour < 12) {
-        todayStep = StepMapperUtil.stepMorning;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        todayStep = StepMapperUtil.stepNoon;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else if (currentHour >= 18 && currentHour < 24) {
-        todayStep = StepMapperUtil.stepEvening;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else if (currentHour >= 0 && currentHour < 6) {
-        todayStep = StepMapperUtil.stepNight;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else {
-        todayStep = StepMapperUtil.stepAnytime;
-        todayTime = null;
-      }
-
-      dummyData.insert(0, {
-        'date': todayStr,
-        'title': '오늘의 일정',
-        'time': todayTime,
-        'step': todayStep,
-        'priority': 4,
-        'memo': '오늘 날짜 데이터',
-      });
-    }
 
     try {
-      int successCount = 0;
-      int failCount = 0;
-
-      for (var data in dummyData) {
-        try {
-          final todo = Todo.createNew(
-            title: data['title'] as String,
-            memo: data['memo'] as String?,
-            date: data['date'] as String,
-            time: data['time'] as String?,
-            step: data['step'] as int,
-            priority: data['priority'] as int,
-            isDone: false,
-            hasAlarm: false,
-          );
-
-          final id = await dbHandler.insertData(todo);
-          if (id > 0) {
-            successCount++;
-          } else {
-            failCount++;
-          }
-        } catch (e) {
-          failCount++;
-          AppLogger.e('더미 데이터 삽입 실패: ${data['title']}', tag: 'Home', error: e);
-        }
-      }
+      await dbHandler.allClearData();
 
       if (context.mounted) {
         CustomSnackBar.show(
           context,
-          message: '더미 데이터 삽입 완료!\n성공: $successCount개, 실패: $failCount개',
-          duration: const Duration(seconds: 3),
+          message: 'Todo 데이터가 모두 삭제되었습니다.',
+          duration: const Duration(seconds: 2),
         );
       }
     } catch (e) {
       if (context.mounted) {
         CustomSnackBar.show(
           context,
-          message: '더미 데이터 삽입 중 오류 발생: $e',
-          duration: const Duration(seconds: 3),
-        );
-      }
-    }
-  }
-
-  // 삭제된 Todo 더미 데이터 삽입 함수
-  //
-  // deleted_todo 테이블에 더미 데이터를 삽입합니다.
-  // - 7일 전 데이터 5개
-  // - 30일 전 데이터 10개
-  Future<void> _insertDeletedDummyData(BuildContext context) async {
-    final dbHandler = DatabaseHandler();
-    final now = DateTime.now();
-    final db = await dbHandler.initializeDB();
-
-    try {
-      int successCount = 0;
-      int failCount = 0;
-
-      // 7일 전 데이터 5개
-      final sevenDaysAgo = now.subtract(const Duration(days: 7));
-      final sevenDaysAgoDate = CustomCommonUtil.formatDate(
-        sevenDaysAgo,
-        'yyyy-MM-dd',
-      );
-      final sevenDaysAgoDeletedAt = CustomCommonUtil.formatDate(
-        sevenDaysAgo,
-        'yyyy-MM-dd HH:mm:ss',
-      );
-
-      final List<Map<String, dynamic>> sevenDaysData = [
-        {
-          'title': '7일 전 일정 1',
-          'memo': '7일 전 삭제된 메모 1',
-          'date': sevenDaysAgoDate,
-          'time': '09:00',
-          'step': StepMapperUtil.stepMorning,
-          'priority': 3,
-          'is_done': 0,
-          'deleted_at': sevenDaysAgoDeletedAt,
-        },
-        {
-          'title': '7일 전 일정 2',
-          'memo': '7일 전 삭제된 메모 2',
-          'date': sevenDaysAgoDate,
-          'time': '14:00',
-          'step': StepMapperUtil.stepNoon,
-          'priority': 4,
-          'is_done': 0,
-          'deleted_at': sevenDaysAgoDeletedAt,
-        },
-        {
-          'title': '7일 전 일정 3',
-          'memo': '7일 전 삭제된 메모 3',
-          'date': sevenDaysAgoDate,
-          'time': '19:00',
-          'step': StepMapperUtil.stepEvening,
-          'priority': 2,
-          'is_done': 1,
-          'deleted_at': sevenDaysAgoDeletedAt,
-        },
-        {
-          'title': '7일 전 일정 4',
-          'memo': '7일 전 삭제된 메모 4',
-          'date': sevenDaysAgoDate,
-          'time': '02:00',
-          'step': StepMapperUtil.stepNight,
-          'priority': 5,
-          'is_done': 0,
-          'deleted_at': sevenDaysAgoDeletedAt,
-        },
-        {
-          'title': '7일 전 일정 5',
-          'memo': '7일 전 삭제된 메모 5',
-          'date': sevenDaysAgoDate,
-          'time': null,
-          'step': StepMapperUtil.stepAnytime,
-          'priority': 1,
-          'is_done': 0,
-          'deleted_at': sevenDaysAgoDeletedAt,
-        },
-      ];
-
-      // 30일 전 데이터 10개
-      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
-      final thirtyDaysAgoDate = CustomCommonUtil.formatDate(
-        thirtyDaysAgo,
-        'yyyy-MM-dd',
-      );
-      final thirtyDaysAgoDeletedAt = CustomCommonUtil.formatDate(
-        thirtyDaysAgo,
-        'yyyy-MM-dd HH:mm:ss',
-      );
-
-      final List<Map<String, dynamic>> thirtyDaysData = [
-        {
-          'title': '30일 전 일정 1',
-          'memo': '30일 전 삭제된 메모 1',
-          'date': thirtyDaysAgoDate,
-          'time': '08:00',
-          'step': StepMapperUtil.stepMorning,
-          'priority': 3,
-          'is_done': 0,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 2',
-          'memo': '30일 전 삭제된 메모 2',
-          'date': thirtyDaysAgoDate,
-          'time': '10:00',
-          'step': StepMapperUtil.stepMorning,
-          'priority': 4,
-          'is_done': 1,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 3',
-          'memo': '30일 전 삭제된 메모 3',
-          'date': thirtyDaysAgoDate,
-          'time': '13:00',
-          'step': StepMapperUtil.stepNoon,
-          'priority': 2,
-          'is_done': 0,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 4',
-          'memo': '30일 전 삭제된 메모 4',
-          'date': thirtyDaysAgoDate,
-          'time': '15:00',
-          'step': StepMapperUtil.stepNoon,
-          'priority': 5,
-          'is_done': 0,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 5',
-          'memo': '30일 전 삭제된 메모 5',
-          'date': thirtyDaysAgoDate,
-          'time': '18:00',
-          'step': StepMapperUtil.stepEvening,
-          'priority': 1,
-          'is_done': 1,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 6',
-          'memo': '30일 전 삭제된 메모 6',
-          'date': thirtyDaysAgoDate,
-          'time': '20:00',
-          'step': StepMapperUtil.stepEvening,
-          'priority': 3,
-          'is_done': 0,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 7',
-          'memo': '30일 전 삭제된 메모 7',
-          'date': thirtyDaysAgoDate,
-          'time': '01:00',
-          'step': StepMapperUtil.stepNight,
-          'priority': 4,
-          'is_done': 0,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 8',
-          'memo': '30일 전 삭제된 메모 8',
-          'date': thirtyDaysAgoDate,
-          'time': '03:00',
-          'step': StepMapperUtil.stepNight,
-          'priority': 2,
-          'is_done': 1,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 9',
-          'memo': '30일 전 삭제된 메모 9',
-          'date': thirtyDaysAgoDate,
-          'time': null,
-          'step': StepMapperUtil.stepAnytime,
-          'priority': 5,
-          'is_done': 0,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-        {
-          'title': '30일 전 일정 10',
-          'memo': '30일 전 삭제된 메모 10',
-          'date': thirtyDaysAgoDate,
-          'time': null,
-          'step': StepMapperUtil.stepAnytime,
-          'priority': 1,
-          'is_done': 1,
-          'deleted_at': thirtyDaysAgoDeletedAt,
-        },
-      ];
-
-      // 7일 전 데이터 삽입
-      for (var data in sevenDaysData) {
-        try {
-          await db.insert('deleted_todo', data);
-          successCount++;
-        } catch (e) {
-          AppLogger.e(
-            '7일 전 더미 데이터 삽입 실패: ${data['title']}',
-            tag: 'Home',
-            error: e,
-          );
-          failCount++;
-        }
-      }
-
-      // 30일 전 데이터 삽입
-      for (var data in thirtyDaysData) {
-        try {
-          await db.insert('deleted_todo', data);
-          successCount++;
-        } catch (e) {
-          AppLogger.e(
-            '30일 전 더미 데이터 삽입 실패: ${data['title']}',
-            tag: 'Home',
-            error: e,
-          );
-          failCount++;
-        }
-      }
-
-      if (context.mounted) {
-        CustomSnackBar.show(
-          context,
-          message:
-              '삭제된 Todo 더미 데이터 삽입 완료!\n성공: $successCount개, 실패: $failCount개',
-          duration: const Duration(seconds: 3),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        CustomSnackBar.show(
-          context,
-          message: '삭제된 Todo 더미 데이터 삽입 중 오류 발생: $e',
+          message: 'Todo 데이터 삭제 중 오류 발생: $e',
           duration: const Duration(seconds: 3),
         );
       }
@@ -1111,33 +558,6 @@ class _HomeState extends State<Home> {
         message: '콘솔에서 등록된 알람 목록을 확인하세요.',
         duration: const Duration(seconds: 2),
       );
-    }
-  }
-
-  // 삭제된 Todo 데이터 삭제 함수
-  //
-  // deleted_todo 테이블의 모든 데이터를 삭제합니다.
-  Future<void> _clearDeletedData(BuildContext context) async {
-    final dbHandler = DatabaseHandler();
-
-    try {
-      await dbHandler.allClearDeletedData();
-
-      if (context.mounted) {
-        CustomSnackBar.show(
-          context,
-          message: '삭제된 Todo 데이터가 모두 삭제되었습니다.',
-          duration: const Duration(seconds: 2),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        CustomSnackBar.show(
-          context,
-          message: '삭제된 Todo 데이터 삭제 중 오류 발생: $e',
-          duration: const Duration(seconds: 3),
-        );
-      }
     }
   }
 }

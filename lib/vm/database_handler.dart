@@ -119,6 +119,63 @@ class DatabaseHandler {
     return queryResult.map((e) => Todo.fromMap(e)).toList();
   }
 
+  /// 날짜 범위 내 모든 todo 조회
+  /// 
+  /// [startDate] 시작 날짜 ('YYYY-MM-DD' 형식)
+  /// [endDate] 종료 날짜 ('YYYY-MM-DD' 형식, 포함)
+  /// 반환: 날짜↑, 시간↑, 중요도↓ 순으로 정렬된 Todo 리스트
+  Future<List<Todo>> queryDataByDateRange(String startDate, String endDate) async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.rawQuery(
+      """
+      SELECT * 
+      FROM todo 
+      WHERE date BETWEEN ? AND ? 
+      ORDER BY date ASC, time ASC, priority DESC
+      """,
+      [startDate, endDate],
+    );
+    return queryResult.map((e) => Todo.fromMap(e)).toList();
+  }
+
+  /// 데이터가 존재하는 최소 날짜 조회
+  /// 
+  /// 반환: 가장 이른 날짜 ('YYYY-MM-DD' 형식), 데이터가 없으면 null
+  Future<String?> queryMinDate() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.rawQuery(
+      """
+      SELECT MIN(date) as min_date
+      FROM todo
+      """,
+    );
+    
+    if (queryResult.isEmpty || queryResult[0]['min_date'] == null) {
+      return null;
+    }
+    
+    return queryResult[0]['min_date'] as String;
+  }
+
+  /// 데이터가 존재하는 최대 날짜 조회
+  /// 
+  /// 반환: 가장 늦은 날짜 ('YYYY-MM-DD' 형식), 데이터가 없으면 null
+  Future<String?> queryMaxDate() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.rawQuery(
+      """
+      SELECT MAX(date) as max_date
+      FROM todo
+      """,
+    );
+    
+    if (queryResult.isEmpty || queryResult[0]['max_date'] == null) {
+      return null;
+    }
+    
+    return queryResult[0]['max_date'] as String;
+  }
+
   /// ID로 단일 todo 조회
   Future<Todo?> queryDataById(int id) async {
     final Database db = await initializeDB();

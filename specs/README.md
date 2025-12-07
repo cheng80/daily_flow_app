@@ -25,21 +25,27 @@
    - [dbdiagram.io](https://dbdiagram.io)에서 시각화 가능
    - 모든 핵심 기능 구현 완료 상태 반영
 
+4. **STATISTICS_DESIGN.md** ✅
+   - 달력 범위 선택 및 통계 기능 설계 문서
+   - 추가 가능한 통계 항목 정리
+   - 각 통계 항목에 적합한 Syncfusion 차트 타입 제안
+   - 우선순위 및 구현 순서 제안
+
 ### 진행 상황 문서
 
-3. **PROGRESS.md**
+4. **PROGRESS.md**
    - 개발 진행 상황 추적
    - 완료된 작업, 진행 중인 작업, 다음 작업 예정
    - 작업 일지 포함
 
-4. **TODO.md**
+5. **TODO.md**
    - 할 일 목록 관리
    - 우선순위별 작업 분류
    - 테스트 및 검증 항목 포함
 
 ### 참고 문서
 
-5. **REFERENCE.md**
+6. **REFERENCE.md**
    - 개발 시 참고할 중요한 사항들
    - 프로젝트 구조, 데이터베이스 구조
    - 색상 시스템, Step/Priority 설명
@@ -48,7 +54,7 @@
    - 로깅 시스템 (AppLogger) ✅
    - 설정 기능 (Drawer 통합) ✅
 
-6. **TEST_RESULTS.md**
+7. **TEST_RESULTS.md**
    - 단위 테스트 결과 문서
    - 테스트 항목별 통과 여부 표
    - 테스트 실행 방법 및 환경 정보
@@ -65,6 +71,7 @@
 4. `PROGRESS.md` - 현재 진행 상황 확인 (모든 핵심 기능 구현 완료 ✅)
 5. `TODO.md` - 다음 작업 확인 (고도화 개발 예정 항목 포함)
 6. `REFERENCE.md` - 개발 시 참고사항 확인
+7. `STATISTICS_DESIGN.md` - 통계 기능 설계 확인 (고도화 기능)
 
 ### 작업 이어가기
 1. `PROGRESS.md` - 최근 완료된 작업 확인

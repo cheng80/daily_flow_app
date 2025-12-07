@@ -48,11 +48,19 @@ DailyFlow MVP에서 사용하는 SQLite 테이블은 다음 2개를 기본으로
 
 - 특정 날짜의 일정: `WHERE date = ?`
 - 날짜 + Step 필터: `WHERE date = ? AND step = ?`
+- 날짜 범위의 일정: `WHERE date BETWEEN ? AND ?` (고도화 개발 예정) ✅
 
 이에 따른 인덱스:
 
 - `idx_todo_date` : `date` 단일 인덱스
+  - 특정 날짜 조회 최적화
+  - 날짜 범위 조회 최적화 (BETWEEN 쿼리에서 활용 가능) ✅
 - `idx_todo_date_step` : `date, step` 복합 인덱스
+  - 특정 날짜 + Step 조회 최적화
+
+**인덱스 활용 범위 쿼리:**
+- `idx_todo_date` 인덱스는 `WHERE date BETWEEN ? AND ?` 쿼리에서도 효율적으로 사용됩니다.
+- SQLite는 범위 쿼리에서도 단일 컬럼 인덱스를 활용할 수 있어 추가 인덱스가 필요하지 않습니다.
 
 ### 1.4 SQLite CREATE TABLE / INDEX 코드
 
@@ -153,7 +161,261 @@ CREATE INDEX IF NOT EXISTS idx_deleted_todo_deleted_at
 
 ---
 
-## 3. 환경 설정 저장 전략 – shared\_preferences (MVP 기준)
+## 3. 날짜 범위 조회 및 통계 기능 (고도화 개발 예정) ✅
+
+### 3.1 목적
+
+- 사용자가 달력에서 시작날짜와 끝날짜를 선택하여 기간 내 일정 통계를 확인할 수 있는 기능
+- 단일 날짜 모드와 범위 모드 간 전환 지원
+
+### 3.2 데이터베이스 스키마 변경 필요 여부
+
+**✅ DB 스키마 변경 불필요**
+
+현재 `todo` 테이블의 모든 컬럼이 범위 선택 및 통계 기능에 충분합니다:
+
+| 통계 항목 | 필요한 컬럼 | 현재 상태 |
+|----------|------------|----------|
+| 날짜 범위 조회 | `date` | ✅ 존재 |
+| Step별 통계 | `step` | ✅ 존재 |
+| 중요도별 통계 | `priority` | ✅ 존재 |
+| 완료율 통계 | `is_done` | ✅ 존재 |
+| 알람 설정률 | `has_alarm` | ✅ 존재 |
+| 메모 작성률 | `memo` (IS NOT NULL 체크) | ✅ 존재 (nullable) |
+| 시간 설정률 | `time` (IS NOT NULL 체크) | ✅ 존재 (nullable) |
+| 생성 추이 | `created_at` | ✅ 존재 |
+| 수정 빈도 | `updated_at` | ✅ 존재 |
+
+**결론:**
+- **DB 스키마 변경 불필요** ✅
+- **인덱스도 이미 존재** (`idx_todo_date`, `idx_todo_date_step`) ✅
+- **DatabaseHandler에 쿼리 메서드만 추가하면 됨** ✅
+
+### 3.3 데이터베이스 쿼리 설계
+
+#### 날짜 범위 조회 쿼리
+
+```sql
+-- 날짜 범위 내 모든 Todo 조회
+SELECT * 
+FROM todo 
+WHERE date BETWEEN ? AND ? 
+ORDER BY date ASC, time ASC, priority DESC
+```
+
+**성능 고려사항:**
+- `idx_todo_date` 인덱스가 범위 쿼리에서도 효율적으로 작동합니다.
+- `BETWEEN ? AND ?` 조건은 인덱스 스캔을 활용하여 빠른 조회가 가능합니다.
+- 넓은 범위(예: 1년) 선택 시에도 인덱스 덕분에 성능 저하가 최소화됩니다.
+
+#### 집계 쿼리 (통계 계산용)
+
+```sql
+-- 날짜 범위 내 전체 Todo 개수 및 완료 개수
+SELECT 
+  COUNT(*) as total_count,
+  SUM(CASE WHEN is_done = 1 THEN 1 ELSE 0 END) as done_count
+FROM todo 
+WHERE date BETWEEN ? AND ?
+
+-- 날짜 범위 내 Step별 Todo 개수
+SELECT 
+  step,
+  COUNT(*) as count
+FROM todo 
+WHERE date BETWEEN ? AND ?
+GROUP BY step
+ORDER BY step ASC
+
+-- 날짜 범위 내 중요도별 Todo 개수
+SELECT 
+  priority,
+  COUNT(*) as count
+FROM todo 
+WHERE date BETWEEN ? AND ?
+GROUP BY priority
+ORDER BY priority ASC
+
+-- 날짜 범위 내 Step별 + 중요도별 집계 (필요시)
+SELECT 
+  step,
+  priority,
+  COUNT(*) as count,
+  SUM(CASE WHEN is_done = 1 THEN 1 ELSE 0 END) as done_count
+FROM todo 
+WHERE date BETWEEN ? AND ?
+GROUP BY step, priority
+ORDER BY step ASC, priority ASC
+```
+
+### 3.3 DatabaseHandler 메서드 설계
+
+#### 날짜 범위 조회 메서드
+
+```dart
+/// 날짜 범위 내 모든 todo 조회
+/// 
+/// [startDate] 시작 날짜 ('YYYY-MM-DD' 형식)
+/// [endDate] 종료 날짜 ('YYYY-MM-DD' 형식, 포함)
+/// 반환: 날짜↑, 시간↑, 중요도↓ 순으로 정렬된 Todo 리스트
+Future<List<Todo>> queryDataByDateRange(String startDate, String endDate) async {
+  final Database db = await initializeDB();
+  final List<Map<String, Object?>> queryResult = await db.rawQuery(
+    """
+    SELECT * 
+    FROM todo 
+    WHERE date BETWEEN ? AND ? 
+    ORDER BY date ASC, time ASC, priority DESC
+    """,
+    [startDate, endDate],
+  );
+  return queryResult.map((e) => Todo.fromMap(e)).toList();
+}
+```
+
+#### 날짜 범위 + Step 조회 메서드 (선택사항)
+
+```dart
+/// 날짜 범위 내 특정 Step의 todo 조회
+/// 
+/// [startDate] 시작 날짜 ('YYYY-MM-DD' 형식)
+/// [endDate] 종료 날짜 ('YYYY-MM-DD' 형식, 포함)
+/// [step] Step 값 (0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
+/// 반환: 날짜↑, 시간↑, 중요도↓ 순으로 정렬된 Todo 리스트
+Future<List<Todo>> queryDataByDateRangeAndStep(
+  String startDate, 
+  String endDate, 
+  int step
+) async {
+  final Database db = await initializeDB();
+  final List<Map<String, Object?>> queryResult = await db.rawQuery(
+    """
+    SELECT * 
+    FROM todo 
+    WHERE date BETWEEN ? AND ? 
+      AND step = ?
+    ORDER BY date ASC, time ASC, priority DESC
+    """,
+    [startDate, endDate, step],
+  );
+  return queryResult.map((e) => Todo.fromMap(e)).toList();
+}
+```
+
+**인덱스 활용:**
+- `queryDataByDateRange`: `idx_todo_date` 인덱스 사용
+- `queryDataByDateRangeAndStep`: `idx_todo_date_step` 인덱스 사용 (더 효율적)
+
+#### 날짜 범위 제약을 위한 조회 메서드
+
+```dart
+/// 데이터가 존재하는 최소 날짜 조회
+/// 
+/// 반환: 가장 이른 날짜 ('YYYY-MM-DD' 형식), 데이터가 없으면 null
+Future<String?> queryMinDate() async {
+  final Database db = await initializeDB();
+  final List<Map<String, Object?>> queryResult = await db.rawQuery(
+    """
+    SELECT MIN(date) as min_date
+    FROM todo
+    """,
+  );
+  
+  if (queryResult.isEmpty || queryResult[0]['min_date'] == null) {
+    return null;
+  }
+  
+  return queryResult[0]['min_date'] as String;
+}
+
+/// 데이터가 존재하는 최대 날짜 조회
+/// 
+/// 반환: 가장 늦은 날짜 ('YYYY-MM-DD' 형식), 데이터가 없으면 null
+Future<String?> queryMaxDate() async {
+  final Database db = await initializeDB();
+  final List<Map<String, Object?>> queryResult = await db.rawQuery(
+    """
+    SELECT MAX(date) as max_date
+    FROM todo
+    """,
+  );
+  
+  if (queryResult.isEmpty || queryResult[0]['max_date'] == null) {
+    return null;
+  }
+  
+  return queryResult[0]['max_date'] as String;
+}
+```
+
+**성능 고려사항:**
+- `MIN(date)`와 `MAX(date)`는 `idx_todo_date` 인덱스를 효율적으로 활용합니다.
+- SQLite는 인덱스에서 최소/최대 값을 빠르게 찾을 수 있습니다.
+- 데이터가 없을 경우를 대비해 null 체크 필요합니다.
+
+### 3.4 통계 계산 설계
+
+#### 통계 데이터 모델 (애플리케이션 레이어)
+
+통계 계산은 애플리케이션 레이어에서 수행하며, DB는 조회만 담당합니다.
+
+**이유:**
+- SQLite 집계 함수로도 가능하지만, Dart 코드에서 계산하는 것이 더 유연합니다.
+- Step별 비율, 중요도별 분포 등 복잡한 계산을 쉽게 구현할 수 있습니다.
+- 기존 `AppCommonUtil.calculateSummaryRatios()` 로직 재사용 가능합니다.
+
+**통계 계산 예시:**
+```dart
+// 1. 날짜 범위 내 모든 Todo 조회
+final todos = await databaseHandler.queryDataByDateRange(startDate, endDate);
+
+// 2. 애플리케이션 레이어에서 통계 계산
+final statistics = AppCommonUtil.calculateRangeStatistics(
+  todos: todos,
+  startDate: startDate,
+  endDate: endDate,
+);
+```
+
+### 3.5 성능 최적화 고려사항
+
+1. **인덱스 활용**
+   - 기존 `idx_todo_date` 인덱스로 범위 쿼리 최적화
+   - 넓은 범위(예: 1년) 조회 시에도 효율적
+
+2. **쿼리 최적화**
+   - `BETWEEN` 연산자는 인덱스 범위 스캔을 활용
+   - 필요한 컬럼만 조회하는 것보다 전체 조회가 더 효율적 (통계 계산에 모든 필드 필요)
+
+3. **메모리 관리**
+   - 넓은 범위 조회 시 메모리 사용량 고려
+   - 필요 시 페이지네이션 또는 샘플링 검토
+
+4. **캐싱 전략** (선택사항)
+   - 자주 조회되는 범위의 통계 결과 캐싱
+   - Todo 변경 시 캐시 무효화
+
+### 3.6 구현 순서
+
+1. ✅ DB 스펙 문서 업데이트 (현재 작업)
+2. ✅ **DB 스키마 변경 불필요 확인** (모든 필요한 컬럼 이미 존재)
+3. `DatabaseHandler`에 쿼리 메서드 추가:
+   - `queryDataByDateRange()` - 날짜 범위 조회
+   - `queryMinDate()` - 최소 날짜 조회
+   - `queryMaxDate()` - 최대 날짜 조회
+4. 통계 계산 모델 클래스 추가 (`AppRangeStatistics`)
+5. 통계 계산 함수 추가 (`AppCommonUtil.calculateRangeStatistics`)
+6. UI 구현 (달력 범위 선택, 통계 카드)
+
+**중요:** 
+- ✅ **DB 마이그레이션이나 스키마 변경 불필요**
+- ✅ **기존 테이블 구조 그대로 사용 가능**
+- ✅ **인덱스도 이미 존재** (`idx_todo_date`, `idx_todo_date_step`)
+- ✅ **DatabaseHandler에 쿼리 메서드만 추가하면 됨**
+
+---
+
+## 4. 환경 설정 저장 전략 – shared\_preferences (MVP 기준)
 
 ### 3.1 결정 사항
 
@@ -180,17 +442,18 @@ CREATE INDEX IF NOT EXISTS idx_deleted_todo_deleted_at
 
 ---
 
-## 4. 요약
+## 5. 요약
 
 - `todo` : 활성 일정 관리용 메인 테이블 (알람/중요도/Step/완료 여부 포함)
 - `deleted_todo` : 삭제된 일정 보관 및 복구/완전 삭제용 테이블
 - 환경 설정(테마 모드 등): SQLite가 아닌 `shared_preferences`로 관리
+- 날짜 범위 조회: 기존 `idx_todo_date` 인덱스 활용하여 효율적인 범위 쿼리 지원 ✅
 
 이 설계서를 기준으로 Flutter의 sqflite 초기화 코드에 위 CREATE TABLE/INDEX 구문을 포함시키면 된다.
 
 ---
 
-## 5. DBML 정의 (dbdiagram.io용)
+## 6. DBML 정의 (dbdiagram.io용)
 
 아래 DBML 스키마를 [https://dbdiagram.io](https://dbdiagram.io) 에 입력하면 ERD를 시각적으로 확인할 수 있다.
 
