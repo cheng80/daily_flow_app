@@ -40,69 +40,69 @@ Color? _getThemeChipSelectedTextColor(BuildContext context) {
   }
 }
 
-/// 태그, 필터, 선택 표시용 Chip 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomChip(label: "태그", onDeleted: () {})
-/// CustomChip(label: "필터", selectable: true, selected: true, onSelected: (selected) {})
-/// CustomChip(label: "고정 크기", width: 120) // 너비 고정
-/// CustomChip(label: "고정 크기", width: 120, height: 50) // 너비와 높이 모두 고정
-/// ```
+// 태그, 필터, 선택 표시용 Chip 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomChip(label: "태그", onDeleted: () {})
+// CustomChip(label: "필터", selectable: true, selected: true, onSelected: (selected) {})
+// CustomChip(label: "고정 크기", width: 120) // 너비 고정
+// CustomChip(label: "고정 크기", width: 120, height: 50) // 너비와 높이 모두 고정
+// ```
 class CustomChip extends StatelessWidget {
-  /// Chip에 표시할 라벨 (필수)
-  /// String인 경우 Text로 자동 변환, Widget인 경우 그대로 사용
+  // Chip에 표시할 라벨 (필수)
+  // String인 경우 Text로 자동 변환, Widget인 경우 그대로 사용
   final dynamic label;
 
-  /// 삭제 버튼 클릭 시 콜백
+  // 삭제 버튼 클릭 시 콜백
   final VoidCallback? onDeleted;
 
-  /// 선택 가능한 Chip인지 여부
+  // 선택 가능한 Chip인지 여부
   final bool selectable;
 
-  /// 선택된 상태 (selectable이 true일 때만 유효)
+  // 선택된 상태 (selectable이 true일 때만 유효)
   final bool selected;
 
-  /// 선택 상태 변경 시 콜백 (selectable이 true일 때만 유효)
+  // 선택 상태 변경 시 콜백 (selectable이 true일 때만 유효)
   final ValueChanged<bool>? onSelected;
 
-  /// 왼쪽에 표시할 아바타
+  // 왼쪽에 표시할 아바타
   final Widget? avatar;
 
-  /// 배경색
+  // 배경색
   final Color? backgroundColor;
 
-  /// 선택된 상태의 배경색
+  // 선택된 상태의 배경색
   final Color? selectedColor;
 
-  /// 삭제 아이콘 색상
+  // 삭제 아이콘 색상
   final Color? deleteIconColor;
 
-  /// 라벨 색상
+  // 라벨 색상
   final Color? labelColor;
 
-  /// 선택된 상태의 라벨 색상
+  // 선택된 상태의 라벨 색상
   final Color? selectedLabelColor;
 
-  /// 패딩
+  // 패딩
   final EdgeInsetsGeometry? padding;
 
-  /// 모서리 둥글기
+  // 모서리 둥글기
   final double? borderRadius;
 
-  /// 아이콘 크기
+  // 아이콘 크기
   final double? iconSize;
 
-  /// 삭제 아이콘
+  // 삭제 아이콘
   final IconData? deleteIcon;
 
-  /// 툴팁 메시지
+  // 툴팁 메시지
   final String? tooltip;
 
-  /// Chip의 너비 (지정하면 크기 고정, 생략하면 유동적)
+  // Chip의 너비 (지정하면 크기 고정, 생략하면 유동적)
   final double? width;
 
-  /// Chip의 높이 (지정하면 크기 고정, 생략하면 유동적)
+  // Chip의 높이 (지정하면 크기 고정, 생략하면 유동적)
   final double? height;
 
   const CustomChip({

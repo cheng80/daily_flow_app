@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-/// 페이지 전환 애니메이션 타입
+// 페이지 전환 애니메이션 타입
 enum PageTransitionType {
-  /// 슬라이드 애니메이션 (기본값)
+  // 슬라이드 애니메이션 (기본값)
   slide,
 
-  /// 페이드 애니메이션
+  // 페이드 애니메이션
   fade,
 
-  /// 없음 (즉시 전환)
+  // 없음 (즉시 전환)
   none,
 }
 
-/// 스와이프 백 제스처가 비활성화된 PageRoute
-/// PopScope를 사용하여 iOS 스와이프 백을 완전히 차단
+// 스와이프 백 제스처가 비활성화된 PageRoute
+// PopScope를 사용하여 iOS 스와이프 백을 완전히 차단
 class _NoSwipeBackPageRoute<T> extends PageRouteBuilder<T> {
   _NoSwipeBackPageRoute({
     required WidgetBuilder builder,
@@ -78,57 +78,57 @@ class _NoSwipeBackPageRoute<T> extends PageRouteBuilder<T> {
        );
 }
 
-/// 네비게이션 유틸리티 클래스
-/// GetX의 Get.to, Get.toNamed 등과 유사한 기능을 제공합니다.
+// 네비게이션 유틸리티 클래스
+// GetX의 Get.to, Get.toNamed 등과 유사한 기능을 제공합니다.
 class CustomNavigationUtil {
   // ============================================
   // 기본 네비게이션 기능
   // ============================================
 
-  /// 새 페이지로 이동 (Get.to와 유사)
-  ///
-  /// [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
-  /// [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
-  /// CustomNavigationUtil.to(
-  ///   context,
-  ///   const NextPage(),
-  /// );
-  ///
-  /// // 스와이프 백 활성화
-  /// CustomNavigationUtil.to(
-  ///   context,
-  ///   const NextPage(),
-  ///   enableSwipeBack: true,
-  /// );
-  ///
-  /// // 페이드 애니메이션 사용
-  /// CustomNavigationUtil.to(
-  ///   context,
-  ///   const NextPage(),
-  ///   transitionType: PageTransitionType.fade,
-  /// );
-  ///
-  /// // 애니메이션 없음
-  /// CustomNavigationUtil.to(
-  ///   context,
-  ///   const NextPage(),
-  ///   transitionType: PageTransitionType.none,
-  /// );
-  ///
-  /// // .then() 사용
-  /// CustomNavigationUtil.to(context, const NextPage())
-  ///   .then((result) {
-  ///     print('반환값: $result');
-  ///   });
-  ///
-  /// // await 사용
-  /// final result = await CustomNavigationUtil.to(context, const NextPage());
-  /// print('반환값: $result');
-  /// ```
+  // 새 페이지로 이동 (Get.to와 유사)
+  //
+  // [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
+  // [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
+  //
+  // 사용 예시:
+  // ```dart
+  // // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
+  // CustomNavigationUtil.to(
+  //   context,
+  //   const NextPage(),
+  // );
+  //
+  // // 스와이프 백 활성화
+  // CustomNavigationUtil.to(
+  //   context,
+  //   const NextPage(),
+  //   enableSwipeBack: true,
+  // );
+  //
+  // // 페이드 애니메이션 사용
+  // CustomNavigationUtil.to(
+  //   context,
+  //   const NextPage(),
+  //   transitionType: PageTransitionType.fade,
+  // );
+  //
+  // // 애니메이션 없음
+  // CustomNavigationUtil.to(
+  //   context,
+  //   const NextPage(),
+  //   transitionType: PageTransitionType.none,
+  // );
+  //
+  // // .then() 사용
+  // CustomNavigationUtil.to(context, const NextPage())
+  //   .then((result) {
+  //     print('반환값: $result');
+  //   });
+  //
+  // // await 사용
+  // final result = await CustomNavigationUtil.to(context, const NextPage());
+  // print('반환값: $result');
+  // ```
   static Future<T?> to<T extends Object?>(
     BuildContext context,
     Widget page, {
@@ -153,26 +153,26 @@ class CustomNavigationUtil {
     }
   }
 
-  /// 라우트 이름으로 이동 (Get.toNamed와 유사)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// // 기본 사용
-  /// CustomNavigationUtil.toNamed(
-  ///   context,
-  ///   '/detail',
-  ///   arguments: {'id': 123},
-  /// );
-  ///
-  /// // .then() 사용
-  /// CustomNavigationUtil.toNamed(context, '/detail')
-  ///   .then((result) {
-  ///     print('반환값: $result');
-  ///   });
-  ///
-  /// // await 사용
-  /// final result = await CustomNavigationUtil.toNamed(context, '/detail');
-  /// ```
+  // 라우트 이름으로 이동 (Get.toNamed와 유사)
+  //
+  // 사용 예시:
+  // ```dart
+  // // 기본 사용
+  // CustomNavigationUtil.toNamed(
+  //   context,
+  //   '/detail',
+  //   arguments: {'id': 123},
+  // );
+  //
+  // // .then() 사용
+  // CustomNavigationUtil.toNamed(context, '/detail')
+  //   .then((result) {
+  //     print('반환값: $result');
+  //   });
+  //
+  // // await 사용
+  // final result = await CustomNavigationUtil.toNamed(context, '/detail');
+  // ```
   static Future<T?> toNamed<T extends Object?>(
     BuildContext context,
     String routeName, {
@@ -181,33 +181,33 @@ class CustomNavigationUtil {
     return Navigator.pushNamed<T>(context, routeName, arguments: arguments);
   }
 
-  /// 현재 페이지를 대체하고 이동 (Get.off와 유사)
-  ///
-  /// [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
-  /// [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
-  /// CustomNavigationUtil.off(
-  ///   context,
-  ///   const NextPage(),
-  /// );
-  ///
-  /// // 스와이프 백 활성화
-  /// CustomNavigationUtil.off(
-  ///   context,
-  ///   const NextPage(),
-  ///   enableSwipeBack: true,
-  /// );
-  ///
-  /// // 페이드 애니메이션 사용
-  /// CustomNavigationUtil.off(
-  ///   context,
-  ///   const NextPage(),
-  ///   transitionType: PageTransitionType.fade,
-  /// );
-  /// ```
+  // 현재 페이지를 대체하고 이동 (Get.off와 유사)
+  //
+  // [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
+  // [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
+  //
+  // 사용 예시:
+  // ```dart
+  // // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
+  // CustomNavigationUtil.off(
+  //   context,
+  //   const NextPage(),
+  // );
+  //
+  // // 스와이프 백 활성화
+  // CustomNavigationUtil.off(
+  //   context,
+  //   const NextPage(),
+  //   enableSwipeBack: true,
+  // );
+  //
+  // // 페이드 애니메이션 사용
+  // CustomNavigationUtil.off(
+  //   context,
+  //   const NextPage(),
+  //   transitionType: PageTransitionType.fade,
+  // );
+  // ```
   static Future<T?> off<T extends Object?>(
     BuildContext context,
     Widget page, {
@@ -232,16 +232,16 @@ class CustomNavigationUtil {
     }
   }
 
-  /// 현재 페이지를 대체하고 라우트로 이동 (Get.offNamed와 유사)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomNavigationUtil.offNamed(
-  ///   context,
-  ///   '/login',
-  ///   arguments: {'from': 'home'},
-  /// );
-  /// ```
+  // 현재 페이지를 대체하고 라우트로 이동 (Get.offNamed와 유사)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomNavigationUtil.offNamed(
+  //   context,
+  //   '/login',
+  //   arguments: {'from': 'home'},
+  // );
+  // ```
   static Future<T?> offNamed<T extends Object?, TO extends Object?>(
     BuildContext context,
     String routeName, {
@@ -256,33 +256,33 @@ class CustomNavigationUtil {
     );
   }
 
-  /// 모든 페이지를 제거하고 이동 (Get.offAll와 유사)
-  ///
-  /// [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
-  /// [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
-  /// CustomNavigationUtil.offAll(
-  ///   context,
-  ///   const HomePage(),
-  /// );
-  ///
-  /// // 스와이프 백 활성화
-  /// CustomNavigationUtil.offAll(
-  ///   context,
-  ///   const HomePage(),
-  ///   enableSwipeBack: true,
-  /// );
-  ///
-  /// // 페이드 애니메이션 사용
-  /// CustomNavigationUtil.offAll(
-  ///   context,
-  ///   const HomePage(),
-  ///   transitionType: PageTransitionType.fade,
-  /// );
-  /// ```
+  // 모든 페이지를 제거하고 이동 (Get.offAll와 유사)
+  //
+  // [enableSwipeBack]: 스와이프 백 제스처 활성화 여부 (기본값: false)
+  // [transitionType]: 페이지 전환 애니메이션 타입 (기본값: PageTransitionType.slide)
+  //
+  // 사용 예시:
+  // ```dart
+  // // 기본 사용 (스와이프 백 비활성화, 슬라이드 애니메이션)
+  // CustomNavigationUtil.offAll(
+  //   context,
+  //   const HomePage(),
+  // );
+  //
+  // // 스와이프 백 활성화
+  // CustomNavigationUtil.offAll(
+  //   context,
+  //   const HomePage(),
+  //   enableSwipeBack: true,
+  // );
+  //
+  // // 페이드 애니메이션 사용
+  // CustomNavigationUtil.offAll(
+  //   context,
+  //   const HomePage(),
+  //   transitionType: PageTransitionType.fade,
+  // );
+  // ```
   static Future<T?> offAll<T extends Object?>(
     BuildContext context,
     Widget page, {
@@ -309,15 +309,15 @@ class CustomNavigationUtil {
     }
   }
 
-  /// 모든 페이지를 제거하고 라우트로 이동 (Get.offAllNamed와 유사)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomNavigationUtil.offAllNamed(
-  ///   context,
-  ///   '/home',
-  /// );
-  /// ```
+  // 모든 페이지를 제거하고 라우트로 이동 (Get.offAllNamed와 유사)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomNavigationUtil.offAllNamed(
+  //   context,
+  //   '/home',
+  // );
+  // ```
   static Future<T?> offAllNamed<T extends Object?>(
     BuildContext context,
     String routeName, {
@@ -331,28 +331,28 @@ class CustomNavigationUtil {
     );
   }
 
-  /// 이전 페이지로 돌아가기 (Get.back와 유사)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomNavigationUtil.back(
-  ///   context,
-  ///   result: '반환값',
-  /// );
-  /// ```
+  // 이전 페이지로 돌아가기 (Get.back와 유사)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomNavigationUtil.back(
+  //   context,
+  //   result: '반환값',
+  // );
+  // ```
   static void back<T extends Object?>(BuildContext context, {T? result}) {
     Navigator.pop<T>(context, result);
   }
 
-  /// 특정 조건까지 뒤로 가기 (Get.until와 유사)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomNavigationUtil.until(
-  ///   context,
-  ///   (route) => route.settings.name == '/home',
-  /// );
-  /// ```
+  // 특정 조건까지 뒤로 가기 (Get.until와 유사)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomNavigationUtil.until(
+  //   context,
+  //   (route) => route.settings.name == '/home',
+  // );
+  // ```
   static void until(
     BuildContext context,
     bool Function(Route<dynamic>) predicate,
@@ -360,72 +360,72 @@ class CustomNavigationUtil {
     Navigator.popUntil(context, predicate);
   }
 
-  /// 특정 라우트까지 뒤로 가기
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomNavigationUtil.untilNamed(
-  ///   context,
-  ///   '/home',
-  /// );
-  /// ```
+  // 특정 라우트까지 뒤로 가기
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomNavigationUtil.untilNamed(
+  //   context,
+  //   '/home',
+  // );
+  // ```
   static void untilNamed(BuildContext context, String routeName) {
     Navigator.popUntil(context, (route) => route.settings.name == routeName);
   }
 
-  /// 첫 번째 페이지까지 뒤로 가기
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomNavigationUtil.untilFirst(
-  ///   context,
-  /// );
-  /// ```
+  // 첫 번째 페이지까지 뒤로 가기
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomNavigationUtil.untilFirst(
+  //   context,
+  // );
+  // ```
   static void untilFirst(BuildContext context) {
     Navigator.popUntil(context, (route) => route.isFirst);
   }
 
-  /// 현재 라우트 이름 가져오기
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// final currentRoute = CustomNavigationUtil.currentRoute(context);
-  /// print('현재 라우트: $currentRoute');
-  /// ```
+  // 현재 라우트 이름 가져오기
+  //
+  // 사용 예시:
+  // ```dart
+  // final currentRoute = CustomNavigationUtil.currentRoute(context);
+  // print('현재 라우트: $currentRoute');
+  // ```
   static String? currentRoute(BuildContext context) {
     return ModalRoute.of(context)?.settings.name;
   }
 
-  /// 현재 라우트의 arguments 가져오기
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// final args = CustomNavigationUtil.arguments<Map<String, dynamic>>(context);
-  /// final id = args?['id'];
-  /// ```
+  // 현재 라우트의 arguments 가져오기
+  //
+  // 사용 예시:
+  // ```dart
+  // final args = CustomNavigationUtil.arguments<Map<String, dynamic>>(context);
+  // final id = args?['id'];
+  // ```
   static T? arguments<T extends Object?>(BuildContext context) {
     return ModalRoute.of(context)?.settings.arguments as T?;
   }
 
-  /// 특정 라우트로 이동할 수 있는지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// if (CustomNavigationUtil.canPop(context)) {
-  ///   CustomNavigationUtil.back(context);
-  /// }
-  /// ```
+  // 특정 라우트로 이동할 수 있는지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // if (CustomNavigationUtil.canPop(context)) {
+  //   CustomNavigationUtil.back(context);
+  // }
+  // ```
   static bool canPop(BuildContext context) {
     return Navigator.canPop(context);
   }
 
-  /// 스택에 있는 페이지 수 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// final count = CustomNavigationUtil.stackCount(context);
-  /// print('스택에 $count개의 페이지가 있습니다.');
-  /// ```
+  // 스택에 있는 페이지 수 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // final count = CustomNavigationUtil.stackCount(context);
+  // print('스택에 $count개의 페이지가 있습니다.');
+  // ```
   static int stackCount(BuildContext context) {
     int count = 0;
     Navigator.popUntil(context, (route) {

@@ -44,47 +44,47 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// 다이얼로그 타입 enum
+// 다이얼로그 타입 enum
 enum DialogType {
-  /// 확인만 있는 다이얼로그 (단일 버튼)
+  // 확인만 있는 다이얼로그 (단일 버튼)
   single,
 
-  /// 확인/취소가 있는 다이얼로그 (이중 버튼)
+  // 확인/취소가 있는 다이얼로그 (이중 버튼)
   dual,
 
-  /// 커스텀 버튼들을 사용하는 다이얼로그
+  // 커스텀 버튼들을 사용하는 다이얼로그
   custom,
 }
 
-/// 다이얼로그 액션 아이템 클래스
-/// 각 버튼의 정보를 담는 클래스입니다.
+// 다이얼로그 액션 아이템 클래스
+// 각 버튼의 정보를 담는 클래스입니다.
 class DialogActionItem {
-  /// 버튼에 표시할 텍스트 또는 위젯
-  /// String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
+  // 버튼에 표시할 텍스트 또는 위젯
+  // String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
   final dynamic label;
 
-  /// 버튼 클릭 시 실행될 콜백
+  // 버튼 클릭 시 실행될 콜백
   final VoidCallback? onTap;
 
-  /// 버튼 클릭 시 실행될 콜백 (Dialog context 전달)
+  // 버튼 클릭 시 실행될 콜백 (Dialog context 전달)
   final void Function(BuildContext dialogContext)? onTapWithContext;
 
-  /// 버튼 타입 (기본값: ButtonType.text)
+  // 버튼 타입 (기본값: ButtonType.text)
   final ButtonType buttonType;
 
-  /// 버튼 배경색
+  // 버튼 배경색
   final Color? backgroundColor;
 
-  /// 버튼 전경색/텍스트 색상
+  // 버튼 전경색/텍스트 색상
   final Color? foregroundColor;
 
-  /// 버튼 최소 크기
+  // 버튼 최소 크기
   final Size? minimumSize;
 
-  /// 버튼 모서리 둥글기
+  // 버튼 모서리 둥글기
   final double? borderRadius;
 
-  /// 이 버튼 클릭 시 다이얼로그가 자동으로 닫힐지 여부 (기본값: true)
+  // 이 버튼 클릭 시 다이얼로그가 자동으로 닫힐지 여부 (기본값: true)
   final bool autoDismiss;
 
   DialogActionItem({
@@ -103,23 +103,23 @@ class DialogActionItem {
        );
 }
 
-/// 다이얼로그 액션 그룹 클래스
-/// 버튼들을 그룹으로 묶어서 배치 방향을 지정할 수 있습니다.
-/// Column과 Row를 섞어서 그리드처럼 배치할 수 있습니다.
+// 다이얼로그 액션 그룹 클래스
+// 버튼들을 그룹으로 묶어서 배치 방향을 지정할 수 있습니다.
+// Column과 Row를 섞어서 그리드처럼 배치할 수 있습니다.
 class DialogActionGroup {
-  /// 이 그룹의 버튼들
+  // 이 그룹의 버튼들
   final List<DialogActionItem> actions;
 
-  /// 배치 방향 (기본값: Axis.vertical, Column 사용)
+  // 배치 방향 (기본값: Axis.vertical, Column 사용)
   final Axis direction;
 
-  /// 주축 정렬 (Row의 경우 MainAxisAlignment, Column의 경우 MainAxisAlignment)
+  // 주축 정렬 (Row의 경우 MainAxisAlignment, Column의 경우 MainAxisAlignment)
   final MainAxisAlignment mainAxisAlignment;
 
-  /// 교차축 정렬 (Row의 경우 CrossAxisAlignment, Column의 경우 CrossAxisAlignment)
+  // 교차축 정렬 (Row의 경우 CrossAxisAlignment, Column의 경우 CrossAxisAlignment)
   final CrossAxisAlignment crossAxisAlignment;
 
-  /// 버튼 간 간격
+  // 버튼 간 간격
   final double? spacing;
 
   DialogActionGroup({
@@ -131,15 +131,15 @@ class DialogActionGroup {
   });
 }
 
-/// 다이얼로그 헬퍼 클래스
-///
-/// 사용 예시:
-/// ```dart
-/// CustomDialog.show(context, title: "알림", message: "메시지")
-/// CustomDialog.show(context, title: "확인", message: "진행하시겠습니까?", type: DialogType.dual, onConfirm: () {})
-/// ```
+// 다이얼로그 헬퍼 클래스
+//
+// 사용 예시:
+// ```dart
+// CustomDialog.show(context, title: "알림", message: "메시지")
+// CustomDialog.show(context, title: "확인", message: "진행하시겠습니까?", type: DialogType.dual, onConfirm: () {})
+// ```
 class CustomDialog {
-  /// 다이얼로그를 표시하는 정적 메서드
+  // 다이얼로그를 표시하는 정적 메서드
   static Future<void> show(
     BuildContext context, {
     required dynamic title,
@@ -235,7 +235,10 @@ class CustomDialog {
                     height: double.infinity,
                     child: Center(
                       child: AlertDialog(
-                        backgroundColor: backgroundColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
+                        backgroundColor:
+                            backgroundColor ??
+                            _getThemeCardBackgroundColor(context) ??
+                            Colors.white,
                         shape: borderRadius != null
                             ? RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
@@ -279,7 +282,7 @@ class CustomDialog {
     );
   }
 
-  /// 다이얼로그 액션 버튼들을 생성하는 메서드
+  // 다이얼로그 액션 버튼들을 생성하는 메서드
   static List<Widget> _buildActions({
     required BuildContext ctx,
     required BuildContext scaffoldContext,

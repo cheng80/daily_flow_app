@@ -24,63 +24,63 @@ Color? _getThemeTextPrimaryColor(BuildContext context) {
   }
 }
 
-/// 버튼 타입을 선택하는 enum
+// 버튼 타입을 선택하는 enum
 enum ButtonType {
-  /// TextButton 타입
+  // TextButton 타입
   text,
 
-  /// ElevatedButton 타입
+  // ElevatedButton 타입
   elevated,
 
-  /// OutlinedButton 타입
+  // OutlinedButton 타입
   outlined,
 }
 
-/// 버튼 위젯 (TextButton, ElevatedButton, OutlinedButton 지원)
-///
-/// 사용 예시:
-/// ```dart
-/// CustomButton(btnText: "확인", onCallBack: () {})
-/// CustomButton(btnText: "확인", buttonType: ButtonType.elevated, backgroundColor: Colors.red, onCallBack: () {})
-/// ```
+// 버튼 위젯 (TextButton, ElevatedButton, OutlinedButton 지원)
+//
+// 사용 예시:
+// ```dart
+// CustomButton(btnText: "확인", onCallBack: () {})
+// CustomButton(btnText: "확인", buttonType: ButtonType.elevated, backgroundColor: Colors.red, onCallBack: () {})
+// ```
 class CustomButton extends StatelessWidget {
-  /// 버튼에 표시할 텍스트 또는 위젯 (필수)
-  /// String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
+  // 버튼에 표시할 텍스트 또는 위젯 (필수)
+  // String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
   final dynamic btnText;
 
-  /// 버튼 클릭 시 실행될 콜백 함수 (필수)
+  // 버튼 클릭 시 실행될 콜백 함수 (필수)
   final VoidCallback onCallBack;
 
-  /// 버튼 타입 (기본값: ButtonType.text)
+  // 버튼 타입 (기본값: ButtonType.text)
   final ButtonType buttonType;
 
-  /// 버튼 배경색 (기본값: Colors.blue)
+  // 버튼 배경색 (기본값: Colors.blue)
   final Color? backgroundColor;
 
-  /// 버튼 전경색/텍스트 색상
-  /// - TextButton, ElevatedButton: 기본값 Colors.white (배경색이 있으므로)
-  /// - OutlinedButton: 기본값 Colors.black (배경색이 없으므로)
+  // 버튼 전경색/텍스트 색상
+  // - TextButton, ElevatedButton: 기본값 Colors.white (배경색이 있으므로)
+  // - OutlinedButton: 기본값 Colors.black (배경색이 없으므로)
   final Color? foregroundColor;
 
-  /// 버튼 최소 크기 (기본값: Size(100, 60))
+  // 버튼 최소 크기 (기본값: Size(100, 60))
   final Size? minimumSize;
 
-  /// 버튼 모서리 둥글기 (기본값: 10)
+  // 버튼 모서리 둥글기 (기본값: 10)
   final double? borderRadius;
 
-  /// 커스텀 버튼 스타일 (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
+  // 커스텀 버튼 스타일 (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
   final ButtonStyle? btnStyle;
 
-  /// CustomText의 fontSize (기본값: 20)
+  // CustomText의 fontSize (기본값: 20)
   final double? textFontSize;
 
-  /// CustomText의 fontWeight (기본값: FontWeight.bold)
+  // CustomText의 fontWeight (기본값: FontWeight.bold)
   final FontWeight? textFontWeight;
 
-  /// CustomText의 color
-  /// - textColor가 명시되면 그것을 사용
-  /// - 배경색이 있는 버튼(TextButton, ElevatedButton): 기본값 Colors.white
-  /// - 배경색이 없는 버튼(OutlinedButton): 기본값 Colors.black
+  // CustomText의 color
+  // - textColor가 명시되면 그것을 사용
+  // - 배경색이 있는 버튼(TextButton, ElevatedButton): 기본값 Colors.white
+  // - 배경색이 없는 버튼(OutlinedButton): 기본값 Colors.black
   final Color? textColor;
 
   CustomButton({
@@ -168,7 +168,7 @@ class CustomButton extends StatelessWidget {
     }
   }
 
-  /// 기본 버튼 스타일을 생성하는 메서드
+  // 기본 버튼 스타일을 생성하는 메서드
   ButtonStyle _createButtonStyle(BuildContext context) {
     final bgColor =
         backgroundColor ?? _getThemePrimaryColor(context) ?? Colors.blue;

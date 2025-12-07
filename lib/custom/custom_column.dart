@@ -1,35 +1,35 @@
 import 'package:flutter/material.dart';
 
-/// Column 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomColumn(children: [Widget1(), Widget2()])
-/// CustomColumn(children: [...], spacing: 16, padding: EdgeInsets.all(16))
-/// ```
+// Column 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomColumn(children: [Widget1(), Widget2()])
+// CustomColumn(children: [...], spacing: 16, padding: EdgeInsets.all(16))
+// ```
 class CustomColumn extends StatelessWidget {
-  /// Column의 자식 위젯들 (필수)
+  // Column의 자식 위젯들 (필수)
   final List<Widget> children;
 
-  /// 자식 위젯들 사이의 간격 (기본값: 12)
+  // 자식 위젯들 사이의 간격 (기본값: 12)
   final double? spacing;
 
-  /// Column의 정렬 방식 (기본값: MainAxisAlignment.start)
+  // Column의 정렬 방식 (기본값: MainAxisAlignment.start)
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// Column의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
+  // Column의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// Column 전체에 적용할 패딩
+  // Column 전체에 적용할 패딩
   final EdgeInsets? padding;
 
-  /// Column의 너비 (기본값: double.infinity)
+  // Column의 너비 (기본값: double.infinity)
   final double? width;
 
-  /// Column의 높이
+  // Column의 높이
   final double? height;
 
-  /// 배경색
+  // 배경색
   final Color? backgroundColor;
 
   const CustomColumn({
@@ -80,7 +80,7 @@ class CustomColumn extends StatelessWidget {
     return column;
   }
 
-  /// children 리스트에 spacing을 추가하는 메서드
+  // children 리스트에 spacing을 추가하는 메서드
   List<Widget> _addSpacing(List<Widget> children, double spacing) {
     if (children.isEmpty) return children;
 

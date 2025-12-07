@@ -3,30 +3,30 @@ import 'custom_calendar.dart';
 import '../theme/app_colors.dart';
 import '../custom/custom.dart';
 
-/// 날짜 선택 다이얼로그
-///
-/// CustomCalendar를 사용하여 다이얼로그 형태로 날짜를 선택할 수 있습니다.
-/// 화면에 배치된 달력이 필요한 경우에는 CustomCalendar를 직접 사용하세요.
-///
-/// 사용 예시:
-/// ```dart
-/// final selectedDate = await CustomCalendarPicker.showDatePicker(
-///   context: context,
-///   initialDate: DateTime.now(),
-/// );
-///
-/// if (selectedDate != null) {
-///   // 선택된 날짜 사용
-///   print('선택된 날짜: $selectedDate');
-/// }
-/// ```
+// 날짜 선택 다이얼로그
+//
+// CustomCalendar를 사용하여 다이얼로그 형태로 날짜를 선택할 수 있습니다.
+// 화면에 배치된 달력이 필요한 경우에는 CustomCalendar를 직접 사용하세요.
+//
+// 사용 예시:
+// ```dart
+// final selectedDate = await CustomCalendarPicker.showDatePicker(
+//   context: context,
+//   initialDate: DateTime.now(),
+// );
+//
+// if (selectedDate != null) {
+//   // 선택된 날짜 사용
+//   print('선택된 날짜: $selectedDate');
+// }
+// ```
 class CustomCalendarPicker {
-  /// 날짜 선택 다이얼로그 표시
-  ///
-  /// [context] BuildContext
-  /// [initialDate] 초기 선택 날짜 (기본값: 오늘)
-  ///
-  /// 반환값: 선택된 날짜 (DateTime) 또는 null (취소 시)
+  // 날짜 선택 다이얼로그 표시
+  //
+  // [context] BuildContext
+  // [initialDate] 초기 선택 날짜 (기본값: 오늘)
+  //
+  // 반환값: 선택된 날짜 (DateTime) 또는 null (취소 시)
   static Future<DateTime?> showDatePicker({
     required BuildContext context,
     DateTime? initialDate,
@@ -42,7 +42,7 @@ class CustomCalendarPicker {
   }
 }
 
-/// 날짜 선택 다이얼로그 위젯
+// 날짜 선택 다이얼로그 위젯
 class _DatePickerDialog extends StatefulWidget {
   final DateTime initialDate;
 

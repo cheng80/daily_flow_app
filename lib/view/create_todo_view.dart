@@ -10,14 +10,11 @@ import '../model/todo_model.dart';
 import '../service/notification_service.dart';
 import '../custom/util/log/custom_log_util.dart';
 
-/// 함수 타입 enum
+// 함수 타입 enum
 enum FunctionType { update, delete }
 
 class CreateTodoView extends StatefulWidget {
-  /// 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
-
-  /// 초기 선택 날짜 (아규먼트로 전달, 없으면 현재 날짜 사용)
   final DateTime? initialDate;
 
   const CreateTodoView({
@@ -31,37 +28,15 @@ class CreateTodoView extends StatefulWidget {
 }
 
 class _CreateTodoViewState extends State<CreateTodoView> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
-  // late bool _themeBool;
-
-  /// 데이터베이스 핸들러
   late DatabaseHandler _handler;
-
-  /// 선택된 날짜
   late DateTime _selectedDay;
-
-  /// 제목 입력 컨트롤러
   final TextEditingController _titleController = TextEditingController();
-
-  /// 메모 입력 컨트롤러
   final TextEditingController _memoController = TextEditingController();
-
-  /// 선택된 시간 (HH:MM 형식, null이면 시간 없음)
-  String? _selectedTime;
-
-  /// 알람 활성 여부
+  String? _selectedTime; // 'HH:MM'
   bool _hasAlarm = false;
-
-  /// 선택된 Step 값 (0=오전, 1=오후, 2=저녁, 3=야간, 4=종일, 기본값: 4=종일)
   int _selectedStep = StepMapperUtil.stepAnytime;
-
-  /// 선택된 중요도 (1~5, 기본값: 3=보통)
   int _selectedPriority = 3;
 
-  /// 위젯 초기화
-  ///
-  /// 페이지가 새로 생성될 때 한 번 호출됩니다.
-  /// 테마 상태를 라이트 모드(false)로 초기화하고, 날짜를 오늘로 설정합니다.
   @override
   void initState() {
     super.initState();
@@ -77,9 +52,9 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     super.dispose();
   }
 
-  /// 위젯 빌드
-  ///
-  /// 테스트 화면 선택 메뉴를 구성합니다.
+  // 위젯 빌드
+  //
+  // 테스트 화면 선택 메뉴를 구성합니다.
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근
@@ -518,7 +493,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   //-- Function
   //----------------------------------
 
-  /// 날짜 선택 다이얼로그 표시
+  // 날짜 선택 다이얼로그 표시
   Future<void> _showDatePicker() async {
     final selectedDate = await CustomCalendarPicker.showDatePicker(
       context: context,
@@ -532,7 +507,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     }
   }
 
-  /// 시간 선택 다이얼로그 표시
+  // 시간 선택 다이얼로그 표시
   Future<void> _showTimePicker() async {
     final TimeOfDay? picked = await CustomTimePicker.showTimePicker(
       context: context,
@@ -557,7 +532,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
     }
   }
 
-  /// Todo 저장
+  // Todo 저장
   Future<void> _saveTodo() async {
     // 제목 필수 입력 검증
     if (!CustomTextField.textCheck(context, _titleController)) {

@@ -7,35 +7,23 @@ import '../model/todo_model.dart';
 import '../vm/database_handler.dart';
 import '../custom/util/log/custom_log_util.dart';
 
-/// 로컬 알람 서비스 클래스
-///
-/// flutter_local_notifications를 사용하여 Todo 알람을 관리합니다.
-/// 1 Todo당 최대 1개의 알람만 지원합니다.
+// 로컬 알람 서비스 클래스
+//
+// flutter_local_notifications를 사용하여 Todo 알람을 관리합니다.
+// 1 Todo당 최대 1개의 알람만 지원합니다.
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  /// FlutterLocalNotificationsPlugin 인스턴스
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
-
-  /// 초기화 완료 여부
   bool _isInitialized = false;
-
-  /// 알람 채널 ID (Android)
   static const String _channelId = 'daily_flow_alarm_channel';
-
-  /// 알람 채널 이름 (Android)
   static const String _channelName = 'DailyFlow 알람';
-
-  /// 알람 채널 설명 (Android)
   static const String _channelDescription = '일정 알람 알림';
 
-  /// 알람 서비스 초기화
-  ///
-  /// Android와 iOS 플랫폼에 맞게 알람을 초기화합니다.
-  /// 앱 시작 시 한 번만 호출하면 됩니다.
+  /// 알람 서비스 초기화 (앱 시작 시 한 번만 호출)
   Future<bool> initialize() async {
     if (_isInitialized) {
       return true;
@@ -84,7 +72,6 @@ class NotificationService {
     }
   }
 
-  /// Android 알람 채널 생성
   Future<void> _createNotificationChannel() async {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       _channelId,
@@ -103,23 +90,13 @@ class NotificationService {
   }
 
   /// 알람 권한 상태 확인
-  ///
-  /// Android 13+에서 알람 권한 상태를 확인합니다.
-  /// 반환값: 권한이 허용되었는지 여부
   Future<bool> checkPermission() async {
-    // Android 13+ (API 33+)에서만 권한 확인 필요
     final status = await Permission.notification.status;
     AppLogger.d('알람 권한 상태: $status', tag: 'Permission');
     return status.isGranted;
   }
 
-  /// 알람 권한 요청
-  ///
-  /// iOS와 Android 13+에서 알람 권한을 요청합니다.
-  /// - Android 13+: 권한이 거부되지 않았을 때만 요청 (영구 거부 제외)
-  /// - iOS: 권한이 거부되지 않았을 때만 요청
-  /// [context] 다이얼로그 표시를 위한 BuildContext (영구 거부 시 필요)
-  /// 반환값: 권한이 허용되었는지 여부
+  /// 알람 권한 요청 (영구 거부 시 다이얼로그 표시)
   Future<bool> requestPermission({BuildContext? context}) async {
     if (!_isInitialized) {
       await initialize();
@@ -226,8 +203,6 @@ class NotificationService {
   }
 
   /// 즉시 알람 테스트 (디버깅용)
-  ///
-  /// 알람이 제대로 작동하는지 즉시 테스트할 수 있는 메서드입니다.
   Future<void> showTestNotification() async {
     if (!_isInitialized) {
       await initialize();
@@ -270,13 +245,8 @@ class NotificationService {
 
   /// 알람 등록
   ///
-  /// [todo] 알람을 등록할 Todo 객체
-  /// 반환값: 등록된 알람의 notification_id (실패 시 null)
-  ///
-  /// 알람 정책:
-  /// - has_alarm = true AND time IS NOT NULL일 때만 알람 등록
-  /// - 1 Todo당 최대 1개의 알람만 지원
-  /// - 기존 알람이 있으면 자동으로 취소 후 새 알람 등록
+  /// has_alarm=true AND time IS NOT NULL일 때만 등록
+  /// 1 Todo당 최대 1개 알람만 지원, 기존 알람 자동 취소
   Future<int?> scheduleNotification(Todo todo) async {
     AppLogger.d('=== 알람 등록 시작 ===', tag: 'Notification');
     AppLogger.d(
@@ -546,8 +516,6 @@ class NotificationService {
   }
 
   /// 알람 취소
-  ///
-  /// [notificationId] 취소할 알람의 notification_id
   Future<void> cancelNotification(int notificationId) async {
     AppLogger.d('=== 알람 취소 시작 ===', tag: 'Notification');
     AppLogger.d('취소할 notificationId: $notificationId', tag: 'Notification');
@@ -568,11 +536,7 @@ class NotificationService {
     }
   }
 
-  /// 알람 업데이트
-  ///
-  /// 기존 알람을 취소하고 새 알람을 등록합니다.
-  /// [todo] 업데이트할 Todo 객체
-  /// 반환값: 등록된 알람의 notification_id (실패 시 null)
+  /// 알람 업데이트 (기존 알람 취소 후 새 알람 등록)
   Future<int?> updateNotification(Todo todo) async {
     // 기존 알람 취소
     if (todo.notificationId != null) {
@@ -594,8 +558,6 @@ class NotificationService {
   }
 
   /// 등록된 알람 목록 확인 (디버깅용)
-  ///
-  /// Android에서 등록된 알람 목록을 확인합니다.
   Future<void> checkPendingNotifications() async {
     try {
       final pendingNotifications = await _notifications
@@ -626,11 +588,7 @@ class NotificationService {
     }
   }
 
-  /// 날짜와 시간 문자열을 DateTime으로 파싱
-  ///
-  /// [date] 'YYYY-MM-DD' 형식의 날짜 문자열
-  /// [time] 'HH:MM' 형식의 시간 문자열
-  /// 반환값: 파싱된 DateTime 객체 (실패 시 null)
+  /// 날짜/시간 문자열을 DateTime으로 파싱 ('YYYY-MM-DD', 'HH:MM')
   DateTime? _parseDateTime(String date, String time) {
     try {
       final dateParts = date.split('-');
@@ -653,9 +611,6 @@ class NotificationService {
     }
   }
 
-  /// 알람 탭 콜백
-  ///
-  /// 사용자가 알람을 탭했을 때 호출됩니다.
   void _onNotificationTapped(NotificationResponse response) {
     AppLogger.d(
       '알람 탭됨: id=${response.id}, payload=${response.payload}',
@@ -664,12 +619,7 @@ class NotificationService {
     // TODO: 알람 탭 시 상세 화면으로 이동하는 로직 추가 가능
   }
 
-  /// 과거 알람 정리
-  ///
-  /// 앱 시작 시 호출하여 이미 지나간 알람들을 자동으로 정리합니다.
-  /// 알람 시간이 현재 시간보다 이전인 Todo의 알람을 취소하고 notificationId를 제거합니다.
-  ///
-  /// [databaseHandler] 데이터베이스 핸들러 (선택적, 없으면 새로 생성)
+  /// 과거 알람 정리 (앱 시작/포그라운드 복귀 시 자동 호출)
   Future<void> cleanupExpiredNotifications({
     DatabaseHandler? databaseHandler,
   }) async {
@@ -824,11 +774,11 @@ class NotificationService {
     }
   }
 
-  /// 권한 영구 거부 시 다이얼로그 표시
-  ///
-  /// 사용자에게 설정으로 이동해야 한다는 안내를 표시합니다.
-  /// 뒤로가기 버튼과 바깥 영역 탭으로는 닫히지 않습니다.
-  /// 반환값: 설정으로 이동할지 여부
+  // 권한 영구 거부 시 다이얼로그 표시
+  //
+  // 사용자에게 설정으로 이동해야 한다는 안내를 표시합니다.
+  // 뒤로가기 버튼과 바깥 영역 탭으로는 닫히지 않습니다.
+  // 반환값: 설정으로 이동할지 여부
   Future<bool> _showPermissionDeniedDialog(
     BuildContext context, {
     required bool isIOS,

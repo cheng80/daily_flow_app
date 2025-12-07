@@ -21,44 +21,44 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// TabBar 위젯 (TabBarView 포함)
-///
-/// 사용 예시:
-/// ```dart
-/// CustomTabBar(tabs: ["탭1", "탭2"], children: [Widget1(), Widget2()])
-/// ```
+// TabBar 위젯 (TabBarView 포함)
+//
+// 사용 예시:
+// ```dart
+// CustomTabBar(tabs: ["탭1", "탭2"], children: [Widget1(), Widget2()])
+// ```
 class CustomTabBar extends StatefulWidget {
-  /// 탭 라벨 리스트 (필수)
+  // 탭 라벨 리스트 (필수)
   final List<String> tabs;
 
-  /// 각 탭에 해당하는 위젯 리스트 (필수, tabs와 개수가 동일해야 함)
+  // 각 탭에 해당하는 위젯 리스트 (필수, tabs와 개수가 동일해야 함)
   final List<Widget> children;
 
-  /// 탭 색상 (기본값: Colors.blue)
+  // 탭 색상 (기본값: Colors.blue)
   final Color? tabColor;
 
-  /// 선택되지 않은 탭 색상
+  // 선택되지 않은 탭 색상
   final Color? unselectedTabColor;
 
-  /// 탭 인디케이터 색상
+  // 탭 인디케이터 색상
   final Color? indicatorColor;
 
-  /// 탭 인디케이터 높이 (기본값: 3)
+  // 탭 인디케이터 높이 (기본값: 3)
   final double? indicatorHeight;
 
-  /// 탭 라벨 스타일
+  // 탭 라벨 스타일
   final TextStyle? labelStyle;
 
-  /// 선택되지 않은 탭 라벨 스타일
+  // 선택되지 않은 탭 라벨 스타일
   final TextStyle? unselectedLabelStyle;
 
-  /// 탭이 스크롤 가능한지 여부 (기본값: false)
+  // 탭이 스크롤 가능한지 여부 (기본값: false)
   final bool isScrollable;
 
-  /// 탭 위치 (기본값: TabBarPosition.top)
+  // 탭 위치 (기본값: TabBarPosition.top)
   final TabBarPosition position;
 
-  /// 탭 클릭 시 콜백 (선택된 탭 인덱스 전달)
+  // 탭 클릭 시 콜백 (선택된 탭 인덱스 전달)
   final ValueChanged<int>? onTap;
 
   const CustomTabBar({
@@ -98,8 +98,12 @@ class _CustomTabBarState extends State<CustomTabBar>
 
   @override
   Widget build(BuildContext context) {
-    final tabColor = widget.tabColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
-    final unselectedTabColor = widget.unselectedTabColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey;
+    final tabColor =
+        widget.tabColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+    final unselectedTabColor =
+        widget.unselectedTabColor ??
+        _getThemeTextSecondaryColor(context) ??
+        Colors.grey;
     final indicatorColor = widget.indicatorColor ?? tabColor;
     final indicatorHeight = widget.indicatorHeight ?? 3.0;
 
@@ -144,11 +148,11 @@ class _CustomTabBarState extends State<CustomTabBar>
   }
 }
 
-/// 탭바 위치 enum
+// 탭바 위치 enum
 enum TabBarPosition {
-  /// 상단에 탭바 표시
+  // 상단에 탭바 표시
   top,
 
-  /// 하단에 탭바 표시
+  // 하단에 탭바 표시
   bottom,
 }

@@ -17,11 +17,10 @@ import 'deleted_todos_view.dart';
 import 'todo_detail_dialog.dart';
 import 'home.dart';
 
-/// 함수 타입 enum
+// 함수 타입 enum
 enum FunctionType { update, delete }
 
 class MainView extends StatefulWidget {
-  /// 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const MainView({super.key, required this.onToggleTheme});
@@ -31,58 +30,22 @@ class MainView extends StatefulWidget {
 }
 
 class _MainViewState extends State<MainView> {
-  /// 테마 상태를 라이트 모드(false)로 초기화합니다.
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
-
-  /// 데이터베이스 핸들러
   late DatabaseHandler _handler;
-
-  /// 선택된 날짜
   late DateTime _selectedDay;
-
-  /// 포커스된 날짜 (현재 보이는 달의 날짜)
   late DateTime _focusedDay;
-
-  /// 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=종일)
-  int? _selectedStep;
-
-  /// 날짜별 Todo 데이터 캐시 (달력 이벤트 표시용)
-  /// 키: 'YYYY-MM-DD' 형식의 날짜 문자열
-  /// 값: 해당 날짜의 Todo 리스트
+  int? _selectedStep; // null=전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일
   Map<String, List<Todo>> _todoCache = {};
-
-  /// 오전 비율 (0.0 ~ 1.0) - 선택된 날짜 기준으로 계산
   double _morningRatio = 0.0;
-
-  /// 오후 비율 (0.0 ~ 1.0) - 선택된 날짜 기준으로 계산
   double _noonRatio = 0.0;
-
-  /// 저녁 비율 (0.0 ~ 1.0) - 선택된 날짜 기준으로 계산
   double _eveningRatio = 0.0;
-
-  /// 야간 비율 (0.0 ~ 1.0) - 선택된 날짜 기준으로 계산
   double _nightRatio = 0.0;
-
-  /// 종일 비율 (0.0 ~ 1.0) - 선택된 날짜 기준으로 계산
   double _anytimeRatio = 0.0;
-
-  /// 정렬 방식 (true: 중요도순, false: 시간순 )
-  bool _sortByTime = false;
-
-  /// 달력 ExpansionTile 확장 상태 (기본값: true)
+  bool _sortByTime = false; // true=중요도순, false=시간순
   bool _calendarExpanded = true;
-
-  /// 필터 및 요약 ExpansionTile 확장 상태 (기본값: false)
   bool _filterExpanded = false;
-
-  /// 바 높이 (픽셀)
   final double _barHeight = 20.0;
 
-  /// 위젯 초기화
-  ///
-  /// 페이지가 새로 생성될 때 한 번 호출됩니다.
-  /// 테마 상태를 라이트 모드(false)로 초기화하고, 날짜를 오늘로 설정합니다.
   @override
   void initState() {
     super.initState();
@@ -99,7 +62,7 @@ class _MainViewState extends State<MainView> {
     _calculateSummaryRatios();
   }
 
-  /// 달력 이벤트 데이터 로드 (현재 보이는 달의 데이터)
+  // 달력 이벤트 데이터 로드 (현재 보이는 달의 데이터)
   Future<void> _loadCalendarEvents() async {
     // 현재 포커스된 달의 시작일과 종료일 계산
     // 예시 :
@@ -126,7 +89,11 @@ class _MainViewState extends State<MainView> {
         final todos = await _handler.queryDataByDate(dateStr);
         newCache[dateStr] = todos;
       } catch (e) {
-        AppLogger.e("Error loading events for $dateStr", tag: 'MainView', error: e);
+        AppLogger.e(
+          "Error loading events for $dateStr",
+          tag: 'MainView',
+          error: e,
+        );
         newCache[dateStr] = [];
       }
     }
@@ -136,9 +103,9 @@ class _MainViewState extends State<MainView> {
     });
   }
 
-  /// 위젯 빌드
-  ///
-  /// 테스트 화면 선택 메뉴를 구성합니다.
+  // 위젯 빌드
+  //
+  // 테스트 화면 선택 메뉴를 구성합니다.
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근
@@ -517,12 +484,12 @@ class _MainViewState extends State<MainView> {
   //-- Function
   //----------------------------------
 
-  /// Todo 리스트 정렬
-  ///
-  /// [todos] 정렬할 Todo 리스트
-  /// 반환값: 정렬된 Todo 리스트
-  /// - 중요도순: priority 내림차순, 같으면 time 오름차순
-  /// - 시간순: time이 null이면 뒤로, 같으면 priority 내림차순
+  // Todo 리스트 정렬
+  //
+  // [todos] 정렬할 Todo 리스트
+  // 반환값: 정렬된 Todo 리스트
+  // - 중요도순: priority 내림차순, 같으면 time 오름차순
+  // - 시간순: time이 null이면 뒤로, 같으면 priority 내림차순
   List<Todo> _sortTodos(List<Todo> todos) {
     final sorted = List<Todo>.from(todos);
 
@@ -560,7 +527,7 @@ class _MainViewState extends State<MainView> {
     return sorted;
   }
 
-  /// 오늘 날짜로 이동
+  // 오늘 날짜로 이동
   void _goToToday() {
     final now = DateTime.now();
     setState(() {
@@ -569,10 +536,10 @@ class _MainViewState extends State<MainView> {
     });
   }
 
-  /// 날짜 선택 콜백
-  ///
-  /// [selectedDay] 사용자가 선택한 날짜
-  /// [focusedDay] 현재 포커스된 날짜
+  // 날짜 선택 콜백
+  //
+  // [selectedDay] 사용자가 선택한 날짜
+  // [focusedDay] 현재 포커스된 날짜
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       _selectedDay = selectedDay;
@@ -582,19 +549,22 @@ class _MainViewState extends State<MainView> {
     // 날짜 선택 시 Summary Bar 비율 재계산
     _calculateSummaryRatios();
 
-    AppLogger.d('선택된 날짜: ${_selectedDay.toString().split(' ')[0]}', tag: 'MainView');
+    AppLogger.d(
+      '선택된 날짜: ${_selectedDay.toString().split(' ')[0]}',
+      tag: 'MainView',
+    );
   }
 
-  /// 오늘 버튼 클릭 콜백
+  // 오늘 버튼 클릭 콜백
   void _onTodayPressed() {
     _goToToday();
     _loadCalendarEvents();
     _calculateSummaryRatios();
   }
 
-  /// 달력 페이지 변경 콜백
-  ///
-  /// [focusedDay] 변경된 포커스 날짜
+  // 달력 페이지 변경 콜백
+  //
+  // [focusedDay] 변경된 포커스 날짜
   void _onPageChanged(DateTime focusedDay) {
     setState(() {
       _focusedDay = focusedDay;
@@ -603,7 +573,7 @@ class _MainViewState extends State<MainView> {
     _loadCalendarEvents();
   }
 
-  /// 이전 월 이동 버튼 클릭 콜백
+  // 이전 월 이동 버튼 클릭 콜백
   void _onPreviousMonth() {
     final previousMonth = DateTime(
       _focusedDay.year,
@@ -613,7 +583,7 @@ class _MainViewState extends State<MainView> {
     _onPageChanged(previousMonth);
   }
 
-  /// 다음 월 이동 버튼 클릭 콜백
+  // 다음 월 이동 버튼 클릭 콜백
   void _onNextMonth() {
     final nextMonth = DateTime(
       _focusedDay.year,
@@ -623,10 +593,10 @@ class _MainViewState extends State<MainView> {
     _onPageChanged(nextMonth);
   }
 
-  /// 이벤트 로더 콜백
-  ///
-  /// [day] 조회할 날짜
-  /// 반환값: 해당 날짜의 Todo 리스트
+  // 이벤트 로더 콜백
+  //
+  // [day] 조회할 날짜
+  // 반환값: 해당 날짜의 Todo 리스트
   List<Todo> _eventLoader(DateTime day) {
     // 날짜를 'YYYY-MM-DD' 형식으로 변환
     final dateStr = CustomCommonUtil.formatDate(day, 'yyyy-MM-dd');
@@ -661,10 +631,10 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// 선택된 날짜의 일정을 Step별로 비율 계산하여 Summary Bar에 적용
-  ///
-  /// app_common_util.dart의 calculateAndUpdateSummaryRatios 함수를 사용하여
-  /// 비율을 계산하고 상태 변수에 저장합니다.
+  // 선택된 날짜의 일정을 Step별로 비율 계산하여 Summary Bar에 적용
+  //
+  // app_common_util.dart의 calculateAndUpdateSummaryRatios 함수를 사용하여
+  // 비율을 계산하고 상태 변수에 저장합니다.
   Future<void> _calculateSummaryRatios() async {
     await calculateAndUpdateSummaryRatios(
       _handler,
@@ -681,11 +651,11 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// 완료 상태에 따른 제목 텍스트 스타일 반환
-  ///
-  /// [isDone] 완료 여부
-  /// [p] AppColorScheme 객체
-  /// 반환값: 완료된 경우 취소선이 적용된 TextStyle, 미완료인 경우 일반 TextStyle
+  // 완료 상태에 따른 제목 텍스트 스타일 반환
+  //
+  // [isDone] 완료 여부
+  // [p] AppColorScheme 객체
+  // 반환값: 완료된 경우 취소선이 적용된 TextStyle, 미완료인 경우 일반 TextStyle
   TextStyle _getTitleTextStyle(bool isDone, AppColorScheme p) {
     return TextStyle(
       color: p.textPrimary,
@@ -695,9 +665,9 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// Todo 카드 위젯 생성
-  /// Todo 카드 빌드 (AsyncSnapshot 사용)
-  /// Todo 카드 빌드 (List 사용)
+  // Todo 카드 위젯 생성
+  // Todo 카드 빌드 (AsyncSnapshot 사용)
+  // Todo 카드 빌드 (List 사용)
   Widget _buildTodoCardFromList(List<Todo> todos, int index, AppColorScheme p) {
     final todo = todos[index];
 
@@ -836,19 +806,19 @@ class _MainViewState extends State<MainView> {
   //-- Data Management Functions
   //----------------------------------
 
-  /// 데이터 다시 로드
-  ///
-  /// Todo 리스트, 달력 이벤트, Summary Bar 비율을 모두 갱신합니다.
+  // 데이터 다시 로드
+  //
+  // Todo 리스트, 달력 이벤트, Summary Bar 비율을 모두 갱신합니다.
   void _reloadData() {
     setState(() {});
     _loadCalendarEvents();
     _calculateSummaryRatios();
   }
 
-  /// Todo 완료 상태 토글
-  ///
-  /// [todo] 완료 상태를 변경할 Todo 객체
-  /// [value] 새로운 완료 상태 (null일 수 있음)
+  // Todo 완료 상태 토글
+  //
+  // [todo] 완료 상태를 변경할 Todo 객체
+  // [value] 새로운 완료 상태 (null일 수 있음)
   Future<void> _toggleTodoDone(Todo todo, bool? value) async {
     if (todo.id != null) {
       await _handler.toggleDone(todo.id!, value ?? false);
@@ -856,7 +826,7 @@ class _MainViewState extends State<MainView> {
     }
   }
 
-  /// 데이터 변경 함수 (수정/삭제)
+  // 데이터 변경 함수 (수정/삭제)
   Future<void> _dataChangeFn(
     FunctionType type,
     List<Todo> todos,
@@ -889,7 +859,10 @@ class _MainViewState extends State<MainView> {
           if (todo.notificationId != null) {
             final notificationService = NotificationService();
             await notificationService.cancelNotification(todo.notificationId!);
-            AppLogger.s("알람 취소 완료: notificationId=${todo.notificationId}", tag: 'MainView');
+            AppLogger.s(
+              "알람 취소 완료: notificationId=${todo.notificationId}",
+              tag: 'MainView',
+            );
           }
 
           await _handler.deleteData(todo);
@@ -906,7 +879,7 @@ class _MainViewState extends State<MainView> {
     }
   }
 
-  /// 액션 패널 생성
+  // 액션 패널 생성
   ActionPane _getActionPlane(
     Color bgColor,
     IconData icon,
@@ -928,11 +901,11 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// 일정 등록 화면으로 이동
-  ///
-  /// 플로팅 액션 버튼 클릭 시 CreateTodoView로 이동하고,
-  /// 현재 선택된 날짜를 initialDate로 전달합니다.
-  /// 저장 완료 후 돌아오면 데이터를 새로고침합니다.
+  // 일정 등록 화면으로 이동
+  //
+  // 플로팅 액션 버튼 클릭 시 CreateTodoView로 이동하고,
+  // 현재 선택된 날짜를 initialDate로 전달합니다.
+  // 저장 완료 후 돌아오면 데이터를 새로고침합니다.
   Future<void> _navigateToCreateTodo() async {
     final result = await CustomNavigationUtil.to(
       context,
@@ -948,9 +921,9 @@ class _MainViewState extends State<MainView> {
     }
   }
 
-  /// 삭제된 Todo 화면으로 이동
-  ///
-  /// AppBar의 쓰레기통 아이콘 버튼 클릭 시 DeletedTodosView로 이동합니다.
+  // 삭제된 Todo 화면으로 이동
+  //
+  // AppBar의 쓰레기통 아이콘 버튼 클릭 시 DeletedTodosView로 이동합니다.
   Future<void> _navigateToDeletedTodos() async {
     await CustomNavigationUtil.to(
       context,
@@ -958,7 +931,7 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// TODO: 삭제 예정 - 임시 Home 화면으로 이동
+  // TODO: 삭제 예정 - 임시 Home 화면으로 이동
   Future<void> _navigateToHome() async {
     await CustomNavigationUtil.to(
       context,
@@ -966,9 +939,9 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  /// Todo 상세 다이얼로그 표시
-  ///
-  /// [todo] 표시할 Todo 객체
+  // Todo 상세 다이얼로그 표시
+  //
+  // [todo] 표시할 Todo 객체
   Future<void> _showTodoDetail(Todo todo) async {
     // 다이얼로그 표시
     final result = await TodoDetailDialog.show(context: context, todo: todo);

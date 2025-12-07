@@ -22,27 +22,27 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// 하단 네비게이션 바 아이템 모델
+// 하단 네비게이션 바 아이템 모델
 class BottomNavItem {
-  /// 아이콘 (선택사항, icon과 label 중 하나는 반드시 필요)
+  // 아이콘 (선택사항, icon과 label 중 하나는 반드시 필요)
   final IconData? icon;
 
-  /// 선택된 아이콘 (선택사항, 없으면 icon 사용)
+  // 선택된 아이콘 (선택사항, 없으면 icon 사용)
   final IconData? selectedIcon;
 
-  /// 라벨 (선택사항, icon과 label 중 하나는 반드시 필요)
-  /// String 또는 Widget을 받을 수 있습니다.
-  /// - String인 경우: Text 위젯으로 자동 변환
-  /// - Widget인 경우: 그대로 사용
+  // 라벨 (선택사항, icon과 label 중 하나는 반드시 필요)
+  // String 또는 Widget을 받을 수 있습니다.
+  // - String인 경우: Text 위젯으로 자동 변환
+  // - Widget인 경우: 그대로 사용
   final dynamic label;
 
-  /// 페이지 위젯
+  // 페이지 위젯
   final Widget page;
 
-  /// 이 아이템의 선택된 색상 (선택사항, 없으면 CustomBottomNavBar의 selectedColor 사용)
+  // 이 아이템의 선택된 색상 (선택사항, 없으면 CustomBottomNavBar의 selectedColor 사용)
   final Color? selectedColor;
 
-  /// 이 아이템의 선택되지 않은 색상 (선택사항, 없으면 CustomBottomNavBar의 unselectedColor 사용)
+  // 이 아이템의 선택되지 않은 색상 (선택사항, 없으면 CustomBottomNavBar의 unselectedColor 사용)
   final Color? unselectedColor;
 
   BottomNavItem({
@@ -62,49 +62,49 @@ class BottomNavItem {
        );
 }
 
-/// 하단 네비게이션 바 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomBottomNavBar(
-///   items: [
-///     BottomNavItem(icon: Icons.home, label: "홈", page: HomePage()),
-///     BottomNavItem(icon: Icons.favorite, page: FavoritePage()),
-///   ],
-/// )
-/// ```
+// 하단 네비게이션 바 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomBottomNavBar(
+//   items: [
+//     BottomNavItem(icon: Icons.home, label: "홈", page: HomePage()),
+//     BottomNavItem(icon: Icons.favorite, page: FavoritePage()),
+//   ],
+// )
+// ```
 class CustomBottomNavBar extends StatefulWidget {
-  /// 하단 네비게이션 바 아이템 리스트 (필수, 최소 2개, 최대 5개)
+  // 하단 네비게이션 바 아이템 리스트 (필수, 최소 2개, 최대 5개)
   final List<BottomNavItem> items;
 
-  /// 현재 선택된 인덱스 (필수)
+  // 현재 선택된 인덱스 (필수)
   final int currentIndex;
 
-  /// 탭 선택 시 호출되는 콜백 함수 (필수)
+  // 탭 선택 시 호출되는 콜백 함수 (필수)
   final ValueChanged<int> onTap;
 
-  /// 선택된 아이템 색상 (기본값: Colors.blue)
+  // 선택된 아이템 색상 (기본값: Colors.blue)
   final Color? selectedColor;
 
-  /// 선택되지 않은 아이템 색상 (기본값: Colors.grey)
+  // 선택되지 않은 아이템 색상 (기본값: Colors.grey)
   final Color? unselectedColor;
 
-  /// 배경색
+  // 배경색
   final Color? backgroundColor;
 
-  /// 아이템 타입 (기본값: BottomNavigationBarType.fixed)
+  // 아이템 타입 (기본값: BottomNavigationBarType.fixed)
   final BottomNavigationBarType type;
 
-  /// 아이콘 크기 (기본값: 24)
+  // 아이콘 크기 (기본값: 24)
   final double? iconSize;
 
-  /// 선택된 아이템 폰트 크기 (기본값: 14)
+  // 선택된 아이템 폰트 크기 (기본값: 14)
   final double? selectedFontSize;
 
-  /// 선택되지 않은 아이템 폰트 크기 (기본값: 12)
+  // 선택되지 않은 아이템 폰트 크기 (기본값: 12)
   final double? unselectedFontSize;
 
-  /// 현재 페이지를 표시할 위젯 (선택사항, 없으면 items의 page 사용)
+  // 현재 페이지를 표시할 위젯 (선택사항, 없으면 items의 page 사용)
   final Widget? currentPage;
 
   const CustomBottomNavBar({
@@ -130,10 +130,14 @@ class CustomBottomNavBar extends StatefulWidget {
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  /// 하단 네비게이션 바를 생성하는 메서드
+  // 하단 네비게이션 바를 생성하는 메서드
   BottomNavigationBar _buildBottomNavBar() {
-    final defaultSelectedColor = widget.selectedColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
-    final defaultUnselectedColor = widget.unselectedColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey;
+    final defaultSelectedColor =
+        widget.selectedColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
+    final defaultUnselectedColor =
+        widget.unselectedColor ??
+        _getThemeTextSecondaryColor(context) ??
+        Colors.grey;
     final iconSize = widget.iconSize ?? 24.0;
     final selectedFontSize = widget.selectedFontSize ?? 14.0;
     final unselectedFontSize = widget.unselectedFontSize ?? 12.0;
@@ -268,7 +272,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   }
 }
 
-/// Scaffold에 bottomNavigationBar를 추가하는 헬퍼 위젯
+// Scaffold에 bottomNavigationBar를 추가하는 헬퍼 위젯
 class _ScaffoldWithBottomNav extends StatelessWidget {
   final Scaffold scaffold;
   final BottomNavigationBar bottomNavBar;

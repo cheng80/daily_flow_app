@@ -34,22 +34,22 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// BottomSheet 항목 정보 클래스
+// BottomSheet 항목 정보 클래스
 class BottomSheetItem {
-  /// 항목의 텍스트 또는 위젯
-  /// String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
+  // 항목의 텍스트 또는 위젯
+  // String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
   final dynamic label;
 
-  /// 항목의 아이콘 (선택사항)
+  // 항목의 아이콘 (선택사항)
   final IconData? icon;
 
-  /// 항목의 텍스트 색상 (선택사항, 기본값: Colors.black)
+  // 항목의 텍스트 색상 (선택사항, 기본값: Colors.black)
   final Color? textColor;
 
-  /// 항목 클릭 시 실행될 콜백
+  // 항목 클릭 시 실행될 콜백
   final VoidCallback? onTap;
 
-  /// 이 항목이 위험한 작업인지 여부 (true일 경우 빨간색으로 표시)
+  // 이 항목이 위험한 작업인지 여부 (true일 경우 빨간색으로 표시)
   final bool isDestructive;
 
   BottomSheetItem({
@@ -64,18 +64,18 @@ class BottomSheetItem {
        );
 }
 
-/// 하단 시트 다이얼로그 헬퍼 클래스
-///
-/// 사용 예시:
-/// ```dart
-/// CustomBottomSheet.show(
-///   context: context,
-///   title: "옵션 선택",
-///   items: [BottomSheetItem(label: "옵션1", onTap: () {})],
-/// )
-/// ```
+// 하단 시트 다이얼로그 헬퍼 클래스
+//
+// 사용 예시:
+// ```dart
+// CustomBottomSheet.show(
+//   context: context,
+//   title: "옵션 선택",
+//   items: [BottomSheetItem(label: "옵션1", onTap: () {})],
+// )
+// ```
 class CustomBottomSheet {
-  /// BottomSheet를 표시하는 정적 메서드
+  // BottomSheet를 표시하는 정적 메서드
   static Future<T?> show<T>({
     required BuildContext context,
     String? title,

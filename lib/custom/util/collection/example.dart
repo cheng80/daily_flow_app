@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'custom_collection_util.dart';
 
-/// CollectionUtil 사용 예제
+// CollectionUtil 사용 예제
 void main() {
   runApp(const CollectionExampleApp());
 }
@@ -28,7 +28,7 @@ class CollectionExamplePage extends StatefulWidget {
 class _CollectionExamplePageState extends State<CollectionExamplePage> {
   String _result = '';
 
-  /// null-safe 체크 예제
+  // null-safe 체크 예제
   void _checkEmpty() {
     final emptyList = <int>[];
     List<int>? nullList;
@@ -45,7 +45,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 중복 제거 예제
+  // 중복 제거 예제
   void _uniqueExample() {
     final numbers = [1, 2, 2, 3, 3, 3, 4];
     final unique = CustomCollectionUtil.unique(numbers);
@@ -71,7 +71,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 그룹화 예제
+  // 그룹화 예제
   void _groupByExample() {
     final products = [
       Product(name: '사과', category: '과일'),
@@ -90,7 +90,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 평탄화 예제
+  // 평탄화 예제
   void _flattenExample() {
     final nested = [
       [1, 2, 3],
@@ -108,7 +108,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 필터링/매핑 예제
+  // 필터링/매핑 예제
   void _filterMapExample() {
     final numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     final evens = CustomCollectionUtil.filter(numbers, (n) => n % 2 == 0);
@@ -124,7 +124,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 청크 예제
+  // 청크 예제
   void _chunkExample() {
     final numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     final chunks = CustomCollectionUtil.chunk(numbers, 3);
@@ -138,7 +138,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// firstOrNull / lastOrNull 예제
+  // firstOrNull / lastOrNull 예제
   void _firstLastExample() {
     final numbers = [1, 2, 3, 4, 5];
     final empty = <int>[];
@@ -154,7 +154,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 합치기/섞기/정렬 예제
+  // 합치기/섞기/정렬 예제
   void _concatShuffleSortExample() {
     final list1 = [1, 2, 3];
     final list2 = [4, 5, 6];
@@ -180,7 +180,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// 딥카피 예제
+  // 딥카피 예제
   void _deepCopyExample() {
     // 리스트 딥카피
     final originalList = [User(id: 1, name: '홍길동'), User(id: 2, name: '김철수')];
@@ -253,7 +253,7 @@ class _CollectionExamplePageState extends State<CollectionExamplePage> {
     setState(() {});
   }
 
-  /// Record 유틸리티 예제
+  // Record 유틸리티 예제
   void _recordExample() {
     // Record 타입 정의 (이름 있는 필드)
     final records = [
@@ -401,7 +401,7 @@ Record 유틸리티 테스트:
   }
 }
 
-/// 예제용 User 클래스
+// 예제용 User 클래스
 class User {
   final int id;
   String name; // 딥카피 테스트를 위해 final 제거
@@ -409,7 +409,7 @@ class User {
   User({required this.id, required this.name});
 }
 
-/// 예제용 Product 클래스
+// 예제용 Product 클래스
 class Product {
   final String name;
   final String category;

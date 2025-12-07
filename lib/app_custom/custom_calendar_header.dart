@@ -1,45 +1,45 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-/// 달력 헤더 위젯
-///
-/// 월/연도 표시, 이전/다음 월 이동 버튼, 오늘로 가기 버튼을 포함합니다.
-///
-/// 사용 예시:
-/// ```dart
-/// CustomCalendarHeader(
-///   focusedDay: DateTime.now(),
-///   onPreviousMonth: () {
-///     setState(() {
-///       _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
-///     });
-///   },
-///   onNextMonth: () {
-///     setState(() {
-///       _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
-///     });
-///   },
-///   onTodayPressed: () {
-///     setState(() {
-///       _focusedDay = DateTime.now();
-///     });
-///   },
-/// )
-/// ```
+// 달력 헤더 위젯
+//
+// 월/연도 표시, 이전/다음 월 이동 버튼, 오늘로 가기 버튼을 포함합니다.
+//
+// 사용 예시:
+// ```dart
+// CustomCalendarHeader(
+//   focusedDay: DateTime.now(),
+//   onPreviousMonth: () {
+//     setState(() {
+//       _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
+//     });
+//   },
+//   onNextMonth: () {
+//     setState(() {
+//       _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
+//     });
+//   },
+//   onTodayPressed: () {
+//     setState(() {
+//       _focusedDay = DateTime.now();
+//     });
+//   },
+// )
+// ```
 class CustomCalendarHeader extends StatelessWidget {
-  /// 현재 포커스된 날짜 (월 이동 시 변경됨)
+  // 현재 포커스된 날짜 (월 이동 시 변경됨)
   final DateTime focusedDay;
 
-  /// 이전 월 이동 버튼 클릭 시 호출되는 콜백 함수
+  // 이전 월 이동 버튼 클릭 시 호출되는 콜백 함수
   final VoidCallback? onPreviousMonth;
 
-  /// 다음 월 이동 버튼 클릭 시 호출되는 콜백 함수
+  // 다음 월 이동 버튼 클릭 시 호출되는 콜백 함수
   final VoidCallback? onNextMonth;
 
-  /// 오늘로 가기 버튼 클릭 시 호출되는 콜백 함수
+  // 오늘로 가기 버튼 클릭 시 호출되는 콜백 함수
   final VoidCallback? onTodayPressed;
 
-  /// 헤더 높이 (기본값: 50.0)
+  // 헤더 높이 (기본값: 50.0)
   final double? height;
 
   const CustomCalendarHeader({
@@ -123,4 +123,3 @@ class CustomCalendarHeader extends StatelessWidget {
     );
   }
 }
-

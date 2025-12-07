@@ -10,14 +10,8 @@ import '../service/notification_service.dart';
 import '../custom/util/log/custom_log_util.dart';
 
 /// 일정 수정 화면
-///
-/// 기존 Todo 데이터를 수정할 수 있는 화면입니다.
-/// CreateTodoView와 유사한 구조를 가지며, 기존 데이터를 초기값으로 설정합니다.
 class EditTodoView extends StatefulWidget {
-  /// 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
-
-  /// 수정할 Todo 객체 (필수)
   final Todo todo;
 
   const EditTodoView({
@@ -31,43 +25,19 @@ class EditTodoView extends StatefulWidget {
 }
 
 class _EditTodoViewState extends State<EditTodoView> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
-  // late bool _themeBool;
-
-  /// 데이터베이스 핸들러
   late DatabaseHandler _handler;
-
-  /// 선택된 날짜
   late DateTime _selectedDay;
-
-  /// 제목 입력 컨트롤러
   late TextEditingController _titleController;
-
-  /// 메모 입력 컨트롤러
   late TextEditingController _memoController;
-
-  /// 선택된 시간 (HH:MM 형식, null이면 시간 없음)
-  String? _selectedTime;
-
-  /// 알람 활성 여부
+  String? _selectedTime; // 'HH:MM'
   bool _hasAlarm = false;
-
-  /// 선택된 Step 값 (0=오전, 1=오후, 2=저녁, 3=야간, 4=종일, 기본값: 4=종일)
   int _selectedStep = StepMapperUtil.stepAnytime;
-
-  /// 선택된 중요도 (1~5, 기본값: 3=보통)
   int _selectedPriority = 3;
 
-  /// 위젯 초기화
-  ///
-  /// 기존 Todo 데이터를 초기값으로 설정합니다.
   @override
   void initState() {
     super.initState();
-    // _themeBool = false;
     _handler = DatabaseHandler();
-
-    // 기존 Todo 데이터로 초기화
     final todo = widget.todo;
     _selectedDay = DateTime.parse(todo.date);
     _selectedTime = todo.time;
@@ -87,7 +57,7 @@ class _EditTodoViewState extends State<EditTodoView> {
     super.dispose();
   }
 
-  /// 위젯 빌드
+  // 위젯 빌드
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근
@@ -508,7 +478,7 @@ class _EditTodoViewState extends State<EditTodoView> {
   //-- Function
   //----------------------------------
 
-  /// 시간 선택 다이얼로그 표시
+  // 시간 선택 다이얼로그 표시
   Future<void> _showTimePicker() async {
     final TimeOfDay? picked = await CustomTimePicker.showTimePicker(
       context: context,
@@ -533,7 +503,7 @@ class _EditTodoViewState extends State<EditTodoView> {
     }
   }
 
-  /// Todo 수정
+  // Todo 수정
   Future<void> _updateTodo() async {
     // 제목 필수 입력 검증
     if (!CustomTextField.textCheck(context, _titleController)) {

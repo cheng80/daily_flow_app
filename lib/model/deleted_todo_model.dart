@@ -1,82 +1,18 @@
 import 'todo_model.dart';
 
-/// DeletedTodo 모델 클래스
-/// 
-/// 삭제된 일정을 나타내는 데이터 모델입니다.
-/// deleted_todo 테이블의 구조를 반영하며, SQLite 데이터베이스와 직접 매핑됩니다.
-/// 휴지통 기능에서 사용되며, 복구 또는 완전 삭제가 가능합니다.
-/// 
-/// 테이블 구조:
-/// - id: INTEGER PRIMARY KEY AUTOINCREMENT
-/// - original_id: INTEGER (NULL 허용, 원래 todo.id 값)
-/// - title: TEXT NOT NULL
-/// - memo: TEXT (NULL 허용)
-/// - date: TEXT NOT NULL (형식: 'YYYY-MM-DD')
-/// - time: TEXT (NULL 허용, 형식: 'HH:MM')
-/// - step: INTEGER NOT NULL DEFAULT 3 (0=아침, 1=낮, 2=저녁, 3=Anytime)
-/// - priority: INTEGER NOT NULL DEFAULT 3 (1~5단계)
-/// - is_done: INTEGER NOT NULL DEFAULT 0 (0=미완료, 1=완료)
-/// - deleted_at: TEXT NOT NULL (형식: 'YYYY-MM-DD HH:MM:SS')
+/// 삭제된 일정 데이터 모델 (휴지통)
 class DeletedTodo {
-  /// 휴지통 레코드 ID (PK, AUTOINCREMENT)
-  /// null일 경우 새로 삭제 보관함에 추가되는 레코드를 의미합니다.
-  final int? id;
-  
-  /// 원래 todo.id 값 (선택사항)
-  /// 삭제되기 전 todo 테이블의 id를 추적하기 위한 필드입니다.
-  /// NULL 허용입니다.
-  final int? originalId;
-  
-  /// 일정 제목 (필수)
-  /// 삭제 시점의 일정 제목을 보관합니다.
-  final String title;
-  
-  /// 메모 내용 (선택사항)
-  /// 삭제 시점의 메모 내용을 보관합니다.
-  /// NULL 허용입니다.
-  final String? memo;
-  
-  /// 일정 날짜 (필수)
-  /// 형식: 'YYYY-MM-DD' (예: '2024-01-15')
-  final String date;
-  
-  /// 일정 시간 (선택사항)
-  /// 형식: 'HH:MM' (예: '14:30')
-  /// NULL 허용입니다.
-  final String? time;
-  
-  /// 시간대 분류 (필수, 기본값: 3)
-  /// 0: 아침, 1: 낮, 2: 저녁, 3: Anytime
-  /// 삭제 시점의 시간대 분류를 보관합니다.
-  final int step;
-  
-  /// 중요도 1~5단계 (필수, 기본값: 3)
-  /// 1: 매우 낮음, 2: 낮음, 3: 보통, 4: 높음, 5: 매우 높음
-  /// 삭제 시점의 중요도를 보관합니다.
-  final int priority;
-  
-  /// 삭제 시점의 완료 여부 (필수, 기본값: false)
-  /// false(0): 미완료, true(1): 완료
-  /// 삭제 당시의 완료 상태를 보관합니다.
-  final bool isDone;
-  
-  /// 삭제 일시 (필수)
-  /// 형식: 'YYYY-MM-DD HH:MM:SS' (예: '2024-01-15 14:30:00')
-  /// 일정이 삭제된 정확한 시각을 기록합니다.
-  final String deletedAt;
-  
-  /// DeletedTodo 생성자
-  /// 
-  /// [id] 휴지통 레코드 ID (새 삭제 레코드 생성 시 null)
-  /// [originalId] 원래 todo.id 값 (선택사항)
-  /// [title] 일정 제목 (필수)
-  /// [memo] 메모 내용 (선택사항)
-  /// [date] 일정 날짜 'YYYY-MM-DD' 형식 (필수)
-  /// [time] 일정 시간 'HH:MM' 형식 (선택사항)
-  /// [step] 시간대 분류 (기본값: 3)
-  /// [priority] 중요도 (기본값: 3)
-  /// [isDone] 삭제 시점의 완료 여부 (기본값: false)
-  /// [deletedAt] 삭제 일시 'YYYY-MM-DD HH:MM:SS' 형식 (필수)
+  final int? id; // 휴지통 레코드 ID
+  final int? originalId; // 원래 todo ID
+  final String title; // 일정 제목
+  final String? memo; // 메모
+  final String date; // 'YYYY-MM-DD'
+  final String? time; // 'HH:MM'
+  final int step; // 시간대 (0=아침, 1=낮, 2=저녁, 3=야간, 4=종일)
+  final int priority; // 중요도 (1~5)
+  final bool isDone; // 완료 여부
+  final String deletedAt; // 'YYYY-MM-DD HH:MM:SS'
+
   DeletedTodo({
     this.id,
     this.originalId,
@@ -89,13 +25,7 @@ class DeletedTodo {
     this.isDone = false,
     required this.deletedAt,
   });
-  
-  /// SQLite Map → DeletedTodo 객체 변환 팩토리 생성자
-  /// 
-  /// 데이터베이스에서 조회한 Map 데이터를 DeletedTodo 객체로 변환합니다.
-  /// 
-  /// [map] SQLite에서 조회한 Map 데이터
-  /// 반환값: DeletedTodo 객체
+
   factory DeletedTodo.fromMap(Map<String, dynamic> map) {
     return DeletedTodo(
       id: map['id'] as int?,
@@ -110,12 +40,7 @@ class DeletedTodo {
       deletedAt: map['deleted_at'] as String,
     );
   }
-  
-  /// DeletedTodo 객체 → SQLite Map 변환 메서드
-  /// 
-  /// DeletedTodo 객체를 데이터베이스에 저장하기 위한 Map 형태로 변환합니다.
-  /// 
-  /// 반환값: SQLite에 저장 가능한 Map 데이터
+
   Map<String, dynamic> toMap() {
     return {
       if (id != null) 'id': id,
@@ -130,30 +55,20 @@ class DeletedTodo {
       'deleted_at': deletedAt,
     };
   }
-  
-  /// Todo → DeletedTodo 변환 팩토리 생성자
-  /// 
-  /// 활성 Todo 객체를 DeletedTodo로 변환합니다.
-  /// 소프트 삭제 시 사용되며, todo 테이블에서 deleted_todo 테이블로 이동할 때 호출됩니다.
-  /// 
-  /// 변환 과정:
-  /// - Todo의 모든 필드를 DeletedTodo로 복사
-  /// - original_id에 todo.id 값 저장
-  /// - deleted_at에 현재 시각 설정
-  /// - id는 null로 설정 (AUTOINCREMENT로 자동 생성)
-  /// 
-  /// [todo] 삭제할 Todo 객체
-  /// [originalId] 원래 todo.id 값 (기본값: todo.id)
-  /// 반환값: 현재 시간이 deleted_at으로 설정된 DeletedTodo 객체
+
+  /// Todo를 DeletedTodo로 변환 (소프트 삭제용)
+  ///
+  /// original_id에 todo.id 저장, deleted_at에 현재 시간 설정
   factory DeletedTodo.fromTodo(Todo todo, {int? originalId}) {
     final now = DateTime.now();
-    final deletedAtStr = '${now.year.toString().padLeft(4, '0')}-'
+    final deletedAtStr =
+        '${now.year.toString().padLeft(4, '0')}-'
         '${now.month.toString().padLeft(2, '0')}-'
         '${now.day.toString().padLeft(2, '0')} '
         '${now.hour.toString().padLeft(2, '0')}:'
         '${now.minute.toString().padLeft(2, '0')}:'
         '${now.second.toString().padLeft(2, '0')}';
-    
+
     return DeletedTodo(
       originalId: originalId ?? todo.id,
       title: todo.title,
@@ -166,22 +81,7 @@ class DeletedTodo {
       deletedAt: deletedAtStr,
     );
   }
-  
-  /// DeletedTodo 객체 복사 생성자
-  /// 
-  /// 기존 DeletedTodo 객체를 기반으로 일부 필드만 변경한 새로운 DeletedTodo 객체를 생성합니다.
-  /// 
-  /// [id] 휴지통 레코드 ID
-  /// [originalId] 원래 todo.id 값
-  /// [title] 일정 제목
-  /// [memo] 메모 내용
-  /// [date] 일정 날짜
-  /// [time] 일정 시간
-  /// [step] 시간대 분류
-  /// [priority] 중요도
-  /// [isDone] 삭제 시점의 완료 여부
-  /// [deletedAt] 삭제 일시
-  /// 반환값: 복사된 DeletedTodo 객체
+
   DeletedTodo copyWith({
     int? id,
     int? originalId,
@@ -207,11 +107,9 @@ class DeletedTodo {
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
-  
-  /// 디버깅용 toString 메서드
+
   @override
   String toString() {
     return 'DeletedTodo(id: $id, originalId: $originalId, title: $title, date: $date, deletedAt: $deletedAt)';
   }
 }
-

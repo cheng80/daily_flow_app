@@ -1,50 +1,50 @@
 import 'package:flutter/material.dart';
 
-/// 커스텀 공용 유틸리티 클래스
-/// 위젯 및 공통 기능 관련 유틸리티 함수들을 제공합니다.
+// 커스텀 공용 유틸리티 클래스
+// 위젯 및 공통 기능 관련 유틸리티 함수들을 제공합니다.
 class CustomCommonUtil {
   // ============================================
   // 위젯 관련 유틸리티
   // ============================================
 
-  /// label이 String인지 확인하는 메서드
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// if (CustomCommonUtil.isString(label)) {
-  ///   // String 처리
-  ///   Text(label as String)
-  /// } else if (CustomCommonUtil.isWidget(label)) {
-  ///   // Widget 처리
-  ///   label as Widget
-  /// }
-  /// ```
+  // label이 String인지 확인하는 메서드
+  //
+  // 사용 예시:
+  // ```dart
+  // if (CustomCommonUtil.isString(label)) {
+  //   // String 처리
+  //   Text(label as String)
+  // } else if (CustomCommonUtil.isWidget(label)) {
+  //   // Widget 처리
+  //   label as Widget
+  // }
+  // ```
   static bool isString(dynamic value) {
     return value is String;
   }
 
-  /// label이 Widget인지 확인하는 메서드
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// if (CustomCommonUtil.isWidget(label)) {
-  ///   return label as Widget;
-  /// }
-  /// ```
+  // label이 Widget인지 확인하는 메서드
+  //
+  // 사용 예시:
+  // ```dart
+  // if (CustomCommonUtil.isWidget(label)) {
+  //   return label as Widget;
+  // }
+  // ```
   static bool isWidget(dynamic value) {
     return value is Widget;
   }
 
-  /// label을 Widget으로 변환하는 메서드
-  /// String이면 Text 위젯으로, Widget이면 그대로 반환
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// final widget = CustomCommonUtil.toWidget(
-  ///   label,
-  ///   style: TextStyle(fontSize: 16),
-  /// );
-  /// ```
+  // label을 Widget으로 변환하는 메서드
+  // String이면 Text 위젯으로, Widget이면 그대로 반환
+  //
+  // 사용 예시:
+  // ```dart
+  // final widget = CustomCommonUtil.toWidget(
+  //   label,
+  //   style: TextStyle(fontSize: 16),
+  // );
+  // ```
   static Widget toWidget(
     dynamic label, {
     TextStyle? style,
@@ -69,16 +69,16 @@ class CustomCommonUtil {
     }
   }
 
-  /// label을 String으로 변환하는 메서드 (가능한 경우)
-  /// Widget인 경우 null 반환
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// final text = CustomCommonUtil.toLabelString(label);
-  /// if (text != null) {
-  ///   // String으로 처리
-  /// }
-  /// ```
+  // label을 String으로 변환하는 메서드 (가능한 경우)
+  // Widget인 경우 null 반환
+  //
+  // 사용 예시:
+  // ```dart
+  // final text = CustomCommonUtil.toLabelString(label);
+  // if (text != null) {
+  //   // String으로 처리
+  // }
+  // ```
   static String? toLabelString(dynamic label) {
     if (label is String) {
       return label;
@@ -90,25 +90,25 @@ class CustomCommonUtil {
   // 날짜/시간 관련 유틸리티 (DateUtil)
   // ============================================
 
-  /// 날짜를 지정된 형식으로 포맷팅
-  ///
-  /// [date] 포맷팅할 날짜
-  /// [format] 날짜 형식 (예: 'yyyy-MM-dd', 'yyyy년 MM월 dd일', 'yyyy-MM-dd HH:mm:ss')
-  ///
-  /// 지원하는 패턴:
-  /// - yyyy: 4자리 연도
-  /// - MM: 2자리 월 (01-12)
-  /// - dd: 2자리 일 (01-31)
-  /// - HH: 2자리 시간 (00-23)
-  /// - mm: 2자리 분 (00-59)
-  /// - ss: 2자리 초 (00-59)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd'); // '2024-01-15'
-  /// CustomCommonUtil.formatDate(DateTime.now(), 'yyyy년 MM월 dd일'); // '2024년 01월 15일'
-  /// CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd HH:mm:ss'); // '2024-01-15 14:30:00'
-  /// ```
+  // 날짜를 지정된 형식으로 포맷팅
+  //
+  // [date] 포맷팅할 날짜
+  // [format] 날짜 형식 (예: 'yyyy-MM-dd', 'yyyy년 MM월 dd일', 'yyyy-MM-dd HH:mm:ss')
+  //
+  // 지원하는 패턴:
+  // - yyyy: 4자리 연도
+  // - MM: 2자리 월 (01-12)
+  // - dd: 2자리 일 (01-31)
+  // - HH: 2자리 시간 (00-23)
+  // - mm: 2자리 분 (00-59)
+  // - ss: 2자리 초 (00-59)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd'); // '2024-01-15'
+  // CustomCommonUtil.formatDate(DateTime.now(), 'yyyy년 MM월 dd일'); // '2024년 01월 15일'
+  // CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd HH:mm:ss'); // '2024-01-15 14:30:00'
+  // ```
   static String formatDate(DateTime date, String format) {
     String result = format;
 
@@ -133,17 +133,17 @@ class CustomCommonUtil {
     return result;
   }
 
-  /// 시간을 12시간 형식(오전/오후)으로 변환
-  ///
-  /// [time] 변환할 시간 (HH:MM 형식 문자열 또는 TimeOfDay)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatTime12Hour("14:30"); // "오후 2:30"
-  /// CustomCommonUtil.formatTime12Hour(TimeOfDay(hour: 9, minute: 15)); // "오전 9:15"
-  /// CustomCommonUtil.formatTime12Hour("00:00"); // "오전 12:00"
-  /// CustomCommonUtil.formatTime12Hour("12:00"); // "오후 12:00"
-  /// ```
+  // 시간을 12시간 형식(오전/오후)으로 변환
+  //
+  // [time] 변환할 시간 (HH:MM 형식 문자열 또는 TimeOfDay)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatTime12Hour("14:30"); // "오후 2:30"
+  // CustomCommonUtil.formatTime12Hour(TimeOfDay(hour: 9, minute: 15)); // "오전 9:15"
+  // CustomCommonUtil.formatTime12Hour("00:00"); // "오전 12:00"
+  // CustomCommonUtil.formatTime12Hour("12:00"); // "오후 12:00"
+  // ```
   static String formatTime12Hour(dynamic time) {
     int hour;
     int minute;
@@ -166,27 +166,27 @@ class CustomCommonUtil {
     return '$period $displayHour:${minute.toString().padLeft(2, '0')}';
   }
 
-  /// 시간을 24시간 형식(HH:MM)으로 변환
-  ///
-  /// [time] 변환할 시간 (TimeOfDay)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatTime(TimeOfDay(hour: 9, minute: 15)); // "09:15"
-  /// CustomCommonUtil.formatTime(TimeOfDay(hour: 14, minute: 30)); // "14:30"
-  /// CustomCommonUtil.formatTime(TimeOfDay(hour: 0, minute: 5)); // "00:05"
-  /// ```
+  // 시간을 24시간 형식(HH:MM)으로 변환
+  //
+  // [time] 변환할 시간 (TimeOfDay)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatTime(TimeOfDay(hour: 9, minute: 15)); // "09:15"
+  // CustomCommonUtil.formatTime(TimeOfDay(hour: 14, minute: 30)); // "14:30"
+  // CustomCommonUtil.formatTime(TimeOfDay(hour: 0, minute: 5)); // "00:05"
+  // ```
   static String formatTime(TimeOfDay time) {
     return '${time.hour.toString().padLeft(2, '0')}:'
         '${time.minute.toString().padLeft(2, '0')}';
   }
 
-  /// 날짜가 오늘인지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isToday(DateTime.now()); // true
-  /// ```
+  // 날짜가 오늘인지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isToday(DateTime.now()); // true
+  // ```
   static bool isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year &&
@@ -194,43 +194,43 @@ class CustomCommonUtil {
         date.day == now.day;
   }
 
-  /// 두 날짜 사이의 일수 차이 계산
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.daysBetween(DateTime(2024, 1, 1), DateTime(2024, 1, 5)); // 4
-  /// ```
+  // 두 날짜 사이의 일수 차이 계산
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.daysBetween(DateTime(2024, 1, 1), DateTime(2024, 1, 5)); // 4
+  // ```
   static int daysBetween(DateTime start, DateTime end) {
     return end.difference(start).inDays;
   }
 
-  /// 날짜에 일수 추가
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.addDays(DateTime.now(), 7); // 7일 후
-  /// ```
+  // 날짜에 일수 추가
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.addDays(DateTime.now(), 7); // 7일 후
+  // ```
   static DateTime addDays(DateTime date, int days) {
     return date.add(Duration(days: days));
   }
 
-  /// 날짜에서 일수 빼기
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.subtractDays(DateTime.now(), 7); // 7일 전
-  /// ```
+  // 날짜에서 일수 빼기
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.subtractDays(DateTime.now(), 7); // 7일 전
+  // ```
   static DateTime subtractDays(DateTime date, int days) {
     return date.subtract(Duration(days: days));
   }
 
-  /// 상대 시간 표시 ("방금 전", "5분 전", "3일 전" 등)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.toRelativeTime(DateTime.now().subtract(Duration(minutes: 5))); // '5분 전'
-  /// CustomCommonUtil.toRelativeTime(DateTime.now().subtract(Duration(hours: 2))); // '2시간 전'
-  /// ```
+  // 상대 시간 표시 ("방금 전", "5분 전", "3일 전" 등)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.toRelativeTime(DateTime.now().subtract(Duration(minutes: 5))); // '5분 전'
+  // CustomCommonUtil.toRelativeTime(DateTime.now().subtract(Duration(hours: 2))); // '2시간 전'
+  // ```
   static String toRelativeTime(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -256,36 +256,36 @@ class CustomCommonUtil {
   // 문자열 관련 유틸리티 (StringUtil)
   // ============================================
 
-  /// 문자열이 비어있거나 null인지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isEmpty(null); // true
-  /// CustomCommonUtil.isEmpty(''); // true
-  /// CustomCommonUtil.isEmpty('   '); // true (trim 후)
-  /// ```
+  // 문자열이 비어있거나 null인지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isEmpty(null); // true
+  // CustomCommonUtil.isEmpty(''); // true
+  // CustomCommonUtil.isEmpty('   '); // true (trim 후)
+  // ```
   static bool isEmpty(String? value, {bool trim = true}) {
     if (value == null) return true;
     return trim ? value.trim().isEmpty : value.isEmpty;
   }
 
-  /// 문자열이 비어있지 않은지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isNotEmpty('hello'); // true
-  /// ```
+  // 문자열이 비어있지 않은지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isNotEmpty('hello'); // true
+  // ```
   static bool isNotEmpty(String? value, {bool trim = true}) {
     return !isEmpty(value, trim: trim);
   }
 
-  /// 문자열을 카멜케이스로 변환
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.toCamelCase('hello_world'); // 'helloWorld'
-  /// CustomCommonUtil.toCamelCase('hello-world'); // 'helloWorld'
-  /// ```
+  // 문자열을 카멜케이스로 변환
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.toCamelCase('hello_world'); // 'helloWorld'
+  // CustomCommonUtil.toCamelCase('hello-world'); // 'helloWorld'
+  // ```
   static String toCamelCase(String value) {
     final words = value.split(RegExp(r'[_\s-]+'));
     if (words.isEmpty) return value;
@@ -296,12 +296,12 @@ class CustomCommonUtil {
         }).join();
   }
 
-  /// 문자열을 스네이크케이스로 변환
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.toSnakeCase('helloWorld'); // 'hello_world'
-  /// ```
+  // 문자열을 스네이크케이스로 변환
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.toSnakeCase('helloWorld'); // 'hello_world'
+  // ```
   static String toSnakeCase(String value) {
     return value
         .replaceAllMapped(
@@ -311,12 +311,12 @@ class CustomCommonUtil {
         .replaceFirst(RegExp(r'^_'), '');
   }
 
-  /// 문자열을 지정된 길이로 자르고 말줄임표 추가
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.truncate('긴 텍스트입니다', maxLength: 5); // '긴 텍스트...'
-  /// ```
+  // 문자열을 지정된 길이로 자르고 말줄임표 추가
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.truncate('긴 텍스트입니다', maxLength: 5); // '긴 텍스트...'
+  // ```
   static String truncate(
     String value, {
     required int maxLength,
@@ -326,12 +326,12 @@ class CustomCommonUtil {
     return value.substring(0, maxLength) + ellipsis;
   }
 
-  /// 숫자에 천단위 콤마 추가
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatNumberString('1234567'); // '1,234,567'
-  /// ```
+  // 숫자에 천단위 콤마 추가
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatNumberString('1234567'); // '1,234,567'
+  // ```
   static String formatNumberString(String value) {
     try {
       final number = int.parse(value);
@@ -341,7 +341,7 @@ class CustomCommonUtil {
     }
   }
 
-  /// 숫자 문자열에 천단위 콤마 추가 (내부 헬퍼 함수)
+  // 숫자 문자열에 천단위 콤마 추가 (내부 헬퍼 함수)
   static String _addCommas(String numberStr) {
     // 소수점이 있는 경우 분리
     final parts = numberStr.split('.');
@@ -365,22 +365,22 @@ class CustomCommonUtil {
     return (isNegative ? '-' : '') + result + decimalPart;
   }
 
-  /// 문자열에서 특정 문자 제거
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.removeChar('010-1234-5678', '-'); // '01012345678'
-  /// ```
+  // 문자열에서 특정 문자 제거
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.removeChar('010-1234-5678', '-'); // '01012345678'
+  // ```
   static String removeChar(String value, String char) {
     return value.replaceAll(char, '');
   }
 
-  /// 문자열에서 여러 문자 제거
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.removeChars('010-1234-5678', ['-', ' ']); // '01012345678'
-  /// ```
+  // 문자열에서 여러 문자 제거
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.removeChars('010-1234-5678', ['-', ' ']); // '01012345678'
+  // ```
   static String removeChars(String value, List<String> chars) {
     String result = value;
     for (final char in chars) {
@@ -393,13 +393,13 @@ class CustomCommonUtil {
   // 검증 관련 유틸리티 (ValidationUtil)
   // ============================================
 
-  /// 이메일 형식 검증
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isEmail('test@example.com'); // true
-  /// CustomCommonUtil.isEmail('invalid'); // false
-  /// ```
+  // 이메일 형식 검증
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isEmail('test@example.com'); // true
+  // CustomCommonUtil.isEmail('invalid'); // false
+  // ```
   static bool isEmail(String value) {
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -407,14 +407,14 @@ class CustomCommonUtil {
     return emailRegex.hasMatch(value);
   }
 
-  /// 한국 전화번호 형식 검증 (010-1234-5678, 01012345678 등)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isPhoneNumber('010-1234-5678'); // true
-  /// CustomCommonUtil.isPhoneNumber('01012345678'); // true
-  /// CustomCommonUtil.isPhoneNumber('02-1234-5678'); // true
-  /// ```
+  // 한국 전화번호 형식 검증 (010-1234-5678, 01012345678 등)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isPhoneNumber('010-1234-5678'); // true
+  // CustomCommonUtil.isPhoneNumber('01012345678'); // true
+  // CustomCommonUtil.isPhoneNumber('02-1234-5678'); // true
+  // ```
   static bool isPhoneNumber(String value) {
     // 하이픈 제거 후 검증
     final cleaned = removeChars(value, ['-', ' ', '(', ')']);
@@ -424,14 +424,14 @@ class CustomCommonUtil {
     return phoneRegex.hasMatch(cleaned);
   }
 
-  /// URL 형식 검증
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isUrl('https://example.com'); // true
-  /// CustomCommonUtil.isUrl('http://example.com'); // true
-  /// CustomCommonUtil.isUrl('invalid'); // false
-  /// ```
+  // URL 형식 검증
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isUrl('https://example.com'); // true
+  // CustomCommonUtil.isUrl('http://example.com'); // true
+  // CustomCommonUtil.isUrl('invalid'); // false
+  // ```
   static bool isUrl(String value) {
     try {
       final uri = Uri.parse(value);
@@ -441,15 +441,15 @@ class CustomCommonUtil {
     }
   }
 
-  /// 비밀번호 강도 검증
-  /// 반환값: 0 (약함), 1 (보통), 2 (강함), 3 (매우 강함)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.validatePassword('password'); // 0 (약함)
-  /// CustomCommonUtil.validatePassword('Password123'); // 2 (강함)
-  /// CustomCommonUtil.validatePassword('P@ssw0rd!'); // 3 (매우 강함)
-  /// ```
+  // 비밀번호 강도 검증
+  // 반환값: 0 (약함), 1 (보통), 2 (강함), 3 (매우 강함)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.validatePassword('password'); // 0 (약함)
+  // CustomCommonUtil.validatePassword('Password123'); // 2 (강함)
+  // CustomCommonUtil.validatePassword('P@ssw0rd!'); // 3 (매우 강함)
+  // ```
   static int validatePassword(String password) {
     int strength = 0;
 
@@ -476,35 +476,35 @@ class CustomCommonUtil {
     return 3; // 매우 강함
   }
 
-  /// 숫자만 포함하는지 검증
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isNumeric('123'); // true
-  /// CustomCommonUtil.isNumeric('12a'); // false
-  /// ```
+  // 숫자만 포함하는지 검증
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isNumeric('123'); // true
+  // CustomCommonUtil.isNumeric('12a'); // false
+  // ```
   static bool isNumeric(String value) {
     return RegExp(r'^\d+$').hasMatch(value);
   }
 
-  /// 영문자만 포함하는지 검증
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isAlphabetic('abc'); // true
-  /// CustomCommonUtil.isAlphabetic('abc123'); // false
-  /// ```
+  // 영문자만 포함하는지 검증
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isAlphabetic('abc'); // true
+  // CustomCommonUtil.isAlphabetic('abc123'); // false
+  // ```
   static bool isAlphabetic(String value) {
     return RegExp(r'^[a-zA-Z]+$').hasMatch(value);
   }
 
-  /// 영문자와 숫자만 포함하는지 검증
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isAlphanumeric('abc123'); // true
-  /// CustomCommonUtil.isAlphanumeric('abc-123'); // false
-  /// ```
+  // 영문자와 숫자만 포함하는지 검증
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isAlphanumeric('abc123'); // true
+  // CustomCommonUtil.isAlphanumeric('abc-123'); // false
+  // ```
   static bool isAlphanumeric(String value) {
     return RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value);
   }
@@ -513,14 +513,14 @@ class CustomCommonUtil {
   // 포맷팅 관련 유틸리티 (FormatUtil)
   // ============================================
 
-  /// 파일 크기를 읽기 쉬운 형식으로 포맷팅 (KB, MB, GB)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatFileSize(1024); // '1.0 KB'
-  /// CustomCommonUtil.formatFileSize(1048576); // '1.0 MB'
-  /// CustomCommonUtil.formatFileSize(1073741824); // '1.0 GB'
-  /// ```
+  // 파일 크기를 읽기 쉬운 형식으로 포맷팅 (KB, MB, GB)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatFileSize(1024); // '1.0 KB'
+  // CustomCommonUtil.formatFileSize(1048576); // '1.0 MB'
+  // CustomCommonUtil.formatFileSize(1073741824); // '1.0 GB'
+  // ```
   static String formatFileSize(int bytes) {
     if (bytes < 1024) {
       return '$bytes B';
@@ -533,13 +533,13 @@ class CustomCommonUtil {
     }
   }
 
-  /// Duration을 읽기 쉬운 형식으로 포맷팅 (분:초, 시간:분:초)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatDuration(Duration(seconds: 125)); // '2:05'
-  /// CustomCommonUtil.formatDuration(Duration(hours: 2, minutes: 30, seconds: 45)); // '2:30:45'
-  /// ```
+  // Duration을 읽기 쉬운 형식으로 포맷팅 (분:초, 시간:분:초)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatDuration(Duration(seconds: 125)); // '2:05'
+  // CustomCommonUtil.formatDuration(Duration(hours: 2, minutes: 30, seconds: 45)); // '2:30:45'
+  // ```
   static String formatDuration(Duration duration) {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
@@ -555,13 +555,13 @@ class CustomCommonUtil {
     }
   }
 
-  /// 거리를 읽기 쉬운 형식으로 포맷팅 (미터 → km)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatDistance(1500); // '1.5 km'
-  /// CustomCommonUtil.formatDistance(500); // '500 m'
-  /// ```
+  // 거리를 읽기 쉬운 형식으로 포맷팅 (미터 → km)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatDistance(1500); // '1.5 km'
+  // CustomCommonUtil.formatDistance(500); // '500 m'
+  // ```
   static String formatDistance(int meters) {
     if (meters < 1000) {
       return '$meters m';
@@ -570,24 +570,24 @@ class CustomCommonUtil {
     }
   }
 
-  /// 가격을 원화 형식으로 포맷팅
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatPrice(10000); // '10,000원'
-  /// CustomCommonUtil.formatPrice(1000000); // '1,000,000원'
-  /// ```
+  // 가격을 원화 형식으로 포맷팅
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatPrice(10000); // '10,000원'
+  // CustomCommonUtil.formatPrice(1000000); // '1,000,000원'
+  // ```
   static String formatPrice(int price) {
     return '${_addCommas(price.toString())}원';
   }
 
-  /// 퍼센트를 포맷팅
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatPercent(0.25); // '25%'
-  /// CustomCommonUtil.formatPercent(0.1234, decimals: 2); // '12.34%'
-  /// ```
+  // 퍼센트를 포맷팅
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatPercent(0.25); // '25%'
+  // CustomCommonUtil.formatPercent(0.1234, decimals: 2); // '12.34%'
+  // ```
   static String formatPercent(double value, {int decimals = 0}) {
     final percent = value * 100;
     if (decimals == 0) {
@@ -601,14 +601,14 @@ class CustomCommonUtil {
   // 숫자 관련 유틸리티 (NumberUtil)
   // ============================================
 
-  /// 숫자에 천단위 콤마 추가
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatNumber(1234567); // '1,234,567'
-  /// CustomCommonUtil.formatNumber(1234567.89); // '1,234,567.89'
-  /// CustomCommonUtil.formatNumber(1234567.89, decimals: 2); // '1,234,567.89'
-  /// ```
+  // 숫자에 천단위 콤마 추가
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatNumber(1234567); // '1,234,567'
+  // CustomCommonUtil.formatNumber(1234567.89); // '1,234,567.89'
+  // CustomCommonUtil.formatNumber(1234567.89, decimals: 2); // '1,234,567.89'
+  // ```
   static String formatNumber(num value, {int? decimals}) {
     if (decimals != null && value is double) {
       // 소수점 자리수 제한
@@ -623,79 +623,79 @@ class CustomCommonUtil {
     }
   }
 
-  /// 문자열을 안전하게 int로 변환 (실패 시 null 반환)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.safeParseInt('123'); // 123
-  /// CustomCommonUtil.safeParseInt('abc'); // null
-  /// ```
+  // 문자열을 안전하게 int로 변환 (실패 시 null 반환)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.safeParseInt('123'); // 123
+  // CustomCommonUtil.safeParseInt('abc'); // null
+  // ```
   static int? safeParseInt(String? value) {
     if (value == null || value.isEmpty) return null;
     return int.tryParse(value);
   }
 
-  /// 문자열을 안전하게 double로 변환 (실패 시 null 반환)
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.safeParseDouble('123.45'); // 123.45
-  /// CustomCommonUtil.safeParseDouble('abc'); // null
-  /// ```
+  // 문자열을 안전하게 double로 변환 (실패 시 null 반환)
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.safeParseDouble('123.45'); // 123.45
+  // CustomCommonUtil.safeParseDouble('abc'); // null
+  // ```
   static double? safeParseDouble(String? value) {
     if (value == null || value.isEmpty) return null;
     return double.tryParse(value);
   }
 
-  /// 숫자가 양수인지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isPositive(5); // true
-  /// CustomCommonUtil.isPositive(-5); // false
-  /// ```
+  // 숫자가 양수인지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isPositive(5); // true
+  // CustomCommonUtil.isPositive(-5); // false
+  // ```
   static bool isPositive(num value) {
     return value > 0;
   }
 
-  /// 숫자가 음수인지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isNegative(-5); // true
-  /// CustomCommonUtil.isNegative(5); // false
-  /// ```
+  // 숫자가 음수인지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isNegative(-5); // true
+  // CustomCommonUtil.isNegative(5); // false
+  // ```
   static bool isNegative(num value) {
     return value < 0;
   }
 
-  /// 숫자가 범위 내에 있는지 확인
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.isInRange(5, min: 1, max: 10); // true
-  /// CustomCommonUtil.isInRange(15, min: 1, max: 10); // false
-  /// ```
+  // 숫자가 범위 내에 있는지 확인
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.isInRange(5, min: 1, max: 10); // true
+  // CustomCommonUtil.isInRange(15, min: 1, max: 10); // false
+  // ```
   static bool isInRange(num value, {required num min, required num max}) {
     return value >= min && value <= max;
   }
 
-  /// 숫자를 원화 형식으로 포맷팅
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.formatCurrency(10000); // '10,000원'
-  /// ```
+  // 숫자를 원화 형식으로 포맷팅
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.formatCurrency(10000); // '10,000원'
+  // ```
   static String formatCurrency(int value) {
     return formatPrice(value);
   }
 
-  /// 숫자를 퍼센트로 변환
-  ///
-  /// 사용 예시:
-  /// ```dart
-  /// CustomCommonUtil.toPercent(0.25); // '25%'
-  /// ```
+  // 숫자를 퍼센트로 변환
+  //
+  // 사용 예시:
+  // ```dart
+  // CustomCommonUtil.toPercent(0.25); // '25%'
+  // ```
   static String toPercent(double value, {int decimals = 0}) {
     return formatPercent(value, decimals: decimals);
   }

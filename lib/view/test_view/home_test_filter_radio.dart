@@ -4,18 +4,18 @@ import '../../theme/app_colors.dart';
 import '../../app_custom/custom_filter_radio.dart';
 import '../../app_custom/step_mapper_util.dart';
 
-/// Filter Radio 위젯 테스트 화면
-///
-/// **목적:** `CustomFilterRadio` 위젯의 동작을 테스트하고 검증합니다.
-///
-/// 테스트 항목:
-/// - 전체/오전/오후/저녁/종일 라디오 선택 기능
-/// - 각 상태별 색상을 배경색으로 가지는 둥근 라운드 컨테이너
-/// - 라디오 버튼과 라벨 표시
-/// - 선택된 Step 값 반환
-/// - 테마 색상 적용
+// Filter Radio 위젯 테스트 화면
+//
+// **목적:** `CustomFilterRadio` 위젯의 동작을 테스트하고 검증합니다.
+//
+// 테스트 항목:
+// - 전체/오전/오후/저녁/종일 라디오 선택 기능
+// - 각 상태별 색상을 배경색으로 가지는 둥근 라운드 컨테이너
+// - 라디오 버튼과 라벨 표시
+// - 선택된 Step 값 반환
+// - 테마 색상 적용
 class HomeTestFilterRadio extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const HomeTestFilterRadio({super.key, required this.onToggleTheme});
@@ -25,10 +25,10 @@ class HomeTestFilterRadio extends StatefulWidget {
 }
 
 class _HomeTestFilterRadioState extends State<HomeTestFilterRadio> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=종일)
+  // 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=종일)
   int? _selectedStep;
 
   @override

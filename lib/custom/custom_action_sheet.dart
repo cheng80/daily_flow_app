@@ -34,23 +34,23 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// 액션시트 아이템 클래스
-/// 각 액션 항목의 정보를 담는 클래스입니다.
+// 액션시트 아이템 클래스
+// 각 액션 항목의 정보를 담는 클래스입니다.
 class ActionSheetItem {
-  /// 액션 항목의 텍스트 또는 위젯
-  /// String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
+  // 액션 항목의 텍스트 또는 위젯
+  // String인 경우 CustomText로 자동 변환, Widget인 경우 그대로 사용
   final dynamic label;
 
-  /// 액션 항목의 아이콘 (선택사항)
+  // 액션 항목의 아이콘 (선택사항)
   final IconData? icon;
 
-  /// 액션 항목의 텍스트 색상 (선택사항, 기본값: Colors.black)
+  // 액션 항목의 텍스트 색상 (선택사항, 기본값: Colors.black)
   final Color? textColor;
 
-  /// 액션 항목 클릭 시 실행될 콜백
+  // 액션 항목 클릭 시 실행될 콜백
   final VoidCallback? onTap;
 
-  /// 이 항목이 위험한 작업인지 여부 (true일 경우 빨간색으로 표시)
+  // 이 항목이 위험한 작업인지 여부 (true일 경우 빨간색으로 표시)
   final bool isDestructive;
 
   ActionSheetItem({
@@ -65,18 +65,18 @@ class ActionSheetItem {
        );
 }
 
-/// ActionSheet 헬퍼 클래스
-///
-/// 사용 예시:
-/// ```dart
-/// CustomActionSheet.show(
-///   context,
-///   title: "선택하세요",
-///   items: [ActionSheetItem(label: "옵션1", onTap: () {})],
-/// )
-/// ```
+// ActionSheet 헬퍼 클래스
+//
+// 사용 예시:
+// ```dart
+// CustomActionSheet.show(
+//   context,
+//   title: "선택하세요",
+//   items: [ActionSheetItem(label: "옵션1", onTap: () {})],
+// )
+// ```
 class CustomActionSheet {
-  /// ActionSheet를 표시하는 정적 메서드
+  // ActionSheet를 표시하는 정적 메서드
   static Future<void> show(
     BuildContext context, {
     String? title,
@@ -89,7 +89,10 @@ class CustomActionSheet {
   }) {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: backgroundColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
+      backgroundColor:
+          backgroundColor ??
+          _getThemeCardBackgroundColor(context) ??
+          Colors.white,
       shape: borderRadius != null
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
@@ -116,7 +119,9 @@ class CustomActionSheet {
                           title,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: _getThemeTextPrimaryColor(context) ?? Colors.black,
+                          color:
+                              _getThemeTextPrimaryColor(context) ??
+                              Colors.black,
                         ),
                       if (message != null) ...[
                         if (title != null) const SizedBox(height: 4),
@@ -124,7 +129,9 @@ class CustomActionSheet {
                           message,
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
-                          color: _getThemeTextSecondaryColor(context) ?? Colors.grey.shade600,
+                          color:
+                              _getThemeTextSecondaryColor(context) ??
+                              Colors.grey.shade600,
                         ),
                       ],
                     ],
@@ -146,7 +153,9 @@ class CustomActionSheet {
                     fontWeight: FontWeight.normal,
                     color: item.isDestructive
                         ? Colors.red
-                        : (item.textColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black),
+                        : (item.textColor ??
+                              _getThemeTextPrimaryColor(context) ??
+                              Colors.black),
                   );
                 } else {
                   // Widget인 경우 그대로 사용
@@ -159,7 +168,9 @@ class CustomActionSheet {
                           item.icon,
                           color: item.isDestructive
                               ? Colors.red
-                              : (item.textColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black),
+                              : (item.textColor ??
+                                    _getThemeTextPrimaryColor(context) ??
+                                    Colors.black),
                         )
                       : null,
                   title: labelWidget,
@@ -178,7 +189,9 @@ class CustomActionSheet {
                     cancelText,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: _getThemeTextSecondaryColor(context) ?? Colors.grey.shade700,
+                    color:
+                        _getThemeTextSecondaryColor(context) ??
+                        Colors.grey.shade700,
                   ),
                   onTap: () {
                     CustomNavigationUtil.back(ctx);
@@ -192,7 +205,7 @@ class CustomActionSheet {
     );
   }
 
-  /// 간단한 액션시트를 표시하는 메서드 (라벨만 있는 경우)
+  // 간단한 액션시트를 표시하는 메서드 (라벨만 있는 경우)
   static Future<void> showSimple(
     BuildContext context, {
     required List<String> labels,

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'custom_timer_util.dart';
 
-/// TimerUtil 사용 예제
+// TimerUtil 사용 예제
 void main() {
   runApp(const TimerExampleApp());
 }
@@ -38,7 +38,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     super.dispose();
   }
 
-  /// 기본 타이머 예제
+  // 기본 타이머 예제
   void _basicTimerExample() {
     _result = '기본 타이머: 2초 후 실행 예정\n';
     setState(() {});
@@ -51,7 +51,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// 반복 타이머 예제
+  // 반복 타이머 예제
   void _periodicTimerExample() {
     _counter = 0;
     _periodicTimer?.cancel();
@@ -75,7 +75,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// waitForSeconds 예제
+  // waitForSeconds 예제
   Future<void> _waitForSecondsExample() async {
     _result = 'waitForSeconds 예제:\n';
     setState(() {});
@@ -96,7 +96,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// waitUntil 예제
+  // waitUntil 예제
   Future<void> _waitUntilExample() async {
     _result = 'waitUntil 예제:\n대기 중...\n';
     setState(() {});
@@ -115,7 +115,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// waitWhile 예제
+  // waitWhile 예제
   Future<void> _waitWhileExample() async {
     _result = 'waitWhile 예제:\n로딩 중...\n';
     setState(() {});
@@ -134,7 +134,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// withTimeout 예제
+  // withTimeout 예제
   Future<void> _withTimeoutExample() async {
     _result = 'withTimeout 예제:\n';
     setState(() {});
@@ -157,7 +157,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     }
   }
 
-  /// retry 예제
+  // retry 예제
   Future<void> _retryExample() async {
     _result = 'retry 예제:\n';
     setState(() {});
@@ -193,7 +193,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     }
   }
 
-  /// debounce 예제
+  // debounce 예제
   void _debounceExample() {
     _result = 'debounce 예제:\n';
     setState(() {});
@@ -215,7 +215,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// throttle 예제
+  // throttle 예제
   void _throttleExample() {
     _result = 'throttle 예제:\n';
     setState(() {});
@@ -237,7 +237,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// sequence 예제
+  // sequence 예제
   Future<void> _sequenceExample() async {
     _result = 'sequence 예제:\n';
     setState(() {});
@@ -267,7 +267,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     ]);
   }
 
-  /// 타이머 취소 예제
+  // 타이머 취소 예제
   void _cancelTimerExample() {
     _periodicTimer?.cancel();
     _timerManager.cancelAll();
@@ -276,7 +276,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// 여러 타이머 독립 실행 예제
+  // 여러 타이머 독립 실행 예제
   void _multipleTimersExample() {
     _result = '여러 타이머 독립 실행:\n';
     setState(() {});
@@ -343,7 +343,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     _timerManager.add(timer2);
   }
 
-  /// async 함수 여러 개 동시 실행 예제
+  // async 함수 여러 개 동시 실행 예제
   Future<void> _multipleAsyncTimersExample() async {
     _result = '여러 async 타이머 동시 실행:\n';
     setState(() {});
@@ -388,7 +388,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// ID 기반 타이머 제어 예제
+  // ID 기반 타이머 제어 예제
   void _idBasedTimerExample() {
     _result = 'ID 기반 타이머 제어:\n';
     setState(() {});
@@ -441,7 +441,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// ID로 타이머 취소 예제
+  // ID로 타이머 취소 예제
   void _cancelByIdExample() {
     _result = 'ID로 타이머 취소:\n';
     setState(() {});
@@ -500,7 +500,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// 모든 ID 기반 타이머 취소 예제
+  // 모든 ID 기반 타이머 취소 예제
   void _cancelAllByIdExample() {
     _result = '모든 ID 기반 타이머 취소:\n';
     setState(() {});
@@ -555,7 +555,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// ID로 타이머 일시정지/재개 예제
+  // ID로 타이머 일시정지/재개 예제
   void _pauseResumeExample() {
     _result = 'ID로 타이머 일시정지/재개:\n';
     setState(() {});
@@ -606,7 +606,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// 지연 타이머 일시정지/재개 예제
+  // 지연 타이머 일시정지/재개 예제
   void _pauseResumeDelayedExample() {
     _result = '지연 타이머 일시정지/재개:\n';
     setState(() {});
@@ -645,7 +645,7 @@ class _TimerExamplePageState extends State<TimerExamplePage> {
     });
   }
 
-  /// 모든 타이머 일시정지/재개 예제
+  // 모든 타이머 일시정지/재개 예제
   void _pauseResumeAllExample() {
     _result = '모든 타이머 일시정지/재개:\n';
     setState(() {});

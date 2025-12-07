@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'custom_navigation_util.dart';
 
-/// CustomNavigationUtil 사용 예제
+// CustomNavigationUtil 사용 예제
 void main() {
   runApp(const NavigationExampleApp());
 }
@@ -38,10 +38,7 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Get.to와 유사
-                CustomNavigationUtil.to(
-                  context,
-                  const NextPage(),
-                );
+                CustomNavigationUtil.to(context, const NextPage());
               },
               child: const Text('to() - 새 페이지로 이동'),
             ),
@@ -49,11 +46,12 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // .then() 사용 예제
-                CustomNavigationUtil.to(context, const NextPage())
-                    .then((result) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('반환값: $result')),
-                  );
+                CustomNavigationUtil.to(context, const NextPage()).then((
+                  result,
+                ) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('반환값: $result')));
                 });
               },
               child: const Text('to().then() - 반환값 처리'),
@@ -67,9 +65,9 @@ class HomePage extends StatelessWidget {
                   const NextPage(),
                 );
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('반환값: $result')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('반환값: $result')));
                 }
               },
               child: const Text('await to() - 비동기 처리'),
@@ -90,10 +88,7 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Get.off와 유사
-                CustomNavigationUtil.off(
-                  context,
-                  const NextPage(),
-                );
+                CustomNavigationUtil.off(context, const NextPage());
               },
               child: const Text('off() - 현재 페이지 대체'),
             ),
@@ -101,10 +96,7 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Get.offNamed와 유사
-                CustomNavigationUtil.offNamed(
-                  context,
-                  '/settings',
-                );
+                CustomNavigationUtil.offNamed(context, '/settings');
               },
               child: const Text('offNamed() - 라우트로 대체'),
             ),
@@ -112,10 +104,7 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Get.offAll와 유사
-                CustomNavigationUtil.offAll(
-                  context,
-                  const NextPage(),
-                );
+                CustomNavigationUtil.offAll(context, const NextPage());
               },
               child: const Text('offAll() - 모든 페이지 제거 후 이동'),
             ),
@@ -123,10 +112,7 @@ class HomePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Get.offAllNamed와 유사
-                CustomNavigationUtil.offAllNamed(
-                  context,
-                  '/',
-                );
+                CustomNavigationUtil.offAllNamed(context, '/');
               },
               child: const Text('offAllNamed() - 모든 페이지 제거 후 라우트로 이동'),
             ),
@@ -186,9 +172,9 @@ class NextPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 final route = CustomNavigationUtil.currentRoute(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('현재 라우트: $route')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('현재 라우트: $route')));
               },
               child: const Text('currentRoute() - 현재 라우트 확인'),
             ),
@@ -196,9 +182,9 @@ class NextPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 final canPop = CustomNavigationUtil.canPop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('뒤로 갈 수 있나: $canPop')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('뒤로 갈 수 있나: $canPop')));
               },
               child: const Text('canPop() - 뒤로 갈 수 있는지 확인'),
             ),
@@ -259,4 +245,3 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
-

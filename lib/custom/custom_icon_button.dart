@@ -13,39 +13,39 @@ Color? _getThemeTextPrimaryColor(BuildContext context) {
   }
 }
 
-/// IconButton 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomIconButton(icon: Icons.favorite, onPressed: () {})
-/// CustomIconButton(icon: Icons.star, iconColor: Colors.amber, iconSize: 32, onPressed: () {})
-/// ```
+// IconButton 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomIconButton(icon: Icons.favorite, onPressed: () {})
+// CustomIconButton(icon: Icons.star, iconColor: Colors.amber, iconSize: 32, onPressed: () {})
+// ```
 class CustomIconButton extends StatelessWidget {
-  /// 표시할 아이콘 (필수)
+  // 표시할 아이콘 (필수)
   final IconData icon;
 
-  /// 아이콘 버튼 클릭 시 실행될 콜백 함수 (필수)
+  // 아이콘 버튼 클릭 시 실행될 콜백 함수 (필수)
   final VoidCallback onPressed;
 
-  /// 아이콘 크기 (기본값: 24)
+  // 아이콘 크기 (기본값: 24)
   final double? iconSize;
 
-  /// 아이콘 색상 (기본값: Colors.black)
+  // 아이콘 색상 (기본값: Colors.black)
   final Color? iconColor;
 
-  /// 아이콘 버튼 배경색
+  // 아이콘 버튼 배경색
   final Color? backgroundColor;
 
-  /// 아이콘 버튼 크기 (기본값: 48)
+  // 아이콘 버튼 크기 (기본값: 48)
   final double? size;
 
-  /// 아이콘 버튼 모서리 둥글기
+  // 아이콘 버튼 모서리 둥글기
   final double? borderRadius;
 
-  /// 툴팁 메시지
+  // 툴팁 메시지
   final String? tooltip;
 
-  /// 아이콘 버튼이 비활성화되어 있는지 여부
+  // 아이콘 버튼이 비활성화되어 있는지 여부
   final bool enabled;
 
   const CustomIconButton({
@@ -65,7 +65,8 @@ class CustomIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonSize = size ?? 48.0;
     final iconSizeFinal = iconSize ?? 24.0;
-    final iconColorFinal = iconColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black;
+    final iconColorFinal =
+        iconColor ?? _getThemeTextPrimaryColor(context) ?? Colors.black;
 
     Widget iconButton;
 

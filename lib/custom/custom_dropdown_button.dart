@@ -33,74 +33,74 @@ Color? _getThemeCardBackgroundColor(BuildContext context) {
   }
 }
 
-/// DropdownButton 위젯 (String/Widget 지원)
-///
-/// 사용 예시:
-/// ```dart
-/// CustomDropdownButton(value: selectedValue, items: ['옵션1', '옵션2'], onChanged: (value) {})
-/// ```
+// DropdownButton 위젯 (String/Widget 지원)
+//
+// 사용 예시:
+// ```dart
+// CustomDropdownButton(value: selectedValue, items: ['옵션1', '옵션2'], onChanged: (value) {})
+// ```
 class CustomDropdownButton<T> extends StatelessWidget {
-  /// 현재 선택된 값
+  // 현재 선택된 값
   final T? value;
 
-  /// 선택 가능한 항목 리스트 (필수)
-  /// String 또는 Widget 리스트를 지원합니다.
+  // 선택 가능한 항목 리스트 (필수)
+  // String 또는 Widget 리스트를 지원합니다.
   final List<dynamic> items;
 
-  /// 값 변경 시 호출되는 콜백 함수 (필수)
+  // 값 변경 시 호출되는 콜백 함수 (필수)
   final ValueChanged<T?>? onChanged;
 
-  /// 드롭다운 버튼 힌트 텍스트
+  // 드롭다운 버튼 힌트 텍스트
   final String? hint;
 
-  /// 드롭다운 버튼 힌트 위젯
+  // 드롭다운 버튼 힌트 위젯
   final Widget? hintWidget;
 
-  /// 드롭다운 버튼 비활성화 여부 (기본값: false)
+  // 드롭다운 버튼 비활성화 여부 (기본값: false)
   final bool isEnabled;
 
-  /// 드롭다운 버튼 배경색
+  // 드롭다운 버튼 배경색
   final Color? backgroundColor;
 
-  /// 드롭다운 버튼 테두리 색상
+  // 드롭다운 버튼 테두리 색상
   final Color? borderColor;
 
-  /// 드롭다운 버튼 테두리 두께
+  // 드롭다운 버튼 테두리 두께
   final double? borderWidth;
 
-  /// 드롭다운 버튼 모서리 둥글기
+  // 드롭다운 버튼 모서리 둥글기
   final double? borderRadius;
 
-  /// 드롭다운 버튼 패딩
+  // 드롭다운 버튼 패딩
   final EdgeInsets? padding;
 
-  /// 드롭다운 버튼 너비
+  // 드롭다운 버튼 너비
   final double? width;
 
-  /// 드롭다운 버튼 높이
+  // 드롭다운 버튼 높이
   final double? height;
 
-  /// 텍스트 스타일
+  // 텍스트 스타일
   final TextStyle? textStyle;
 
-  /// 아이콘 색상
+  // 아이콘 색상
   final Color? iconColor;
 
-  /// 아이콘 크기
+  // 아이콘 크기
   final double? iconSize;
 
-  /// 드롭다운 메뉴 배경색
+  // 드롭다운 메뉴 배경색
   final Color? dropdownColor;
 
-  /// 드롭다운 메뉴 아이템 높이
+  // 드롭다운 메뉴 아이템 높이
   final double? itemHeight;
 
-  /// 커스텀 아이템 빌더 함수
-  /// null이면 기본 Text 위젯 또는 Widget을 사용합니다.
+  // 커스텀 아이템 빌더 함수
+  // null이면 기본 Text 위젯 또는 Widget을 사용합니다.
   final Widget Function(dynamic item)? itemBuilder;
 
-  /// 커스텀 선택된 아이템 빌더 함수
-  /// null이면 기본 Text 위젯 또는 Widget을 사용합니다.
+  // 커스텀 선택된 아이템 빌더 함수
+  // null이면 기본 Text 위젯 또는 Widget을 사용합니다.
   final Widget Function(T? value)? selectedItemBuilder;
 
   const CustomDropdownButton({
@@ -131,14 +131,18 @@ class CustomDropdownButton<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     // DropdownMenuItem 리스트 생성
     final List<DropdownMenuItem<T>> dropdownItems = items.map((item) {
-
       return DropdownMenuItem<T>(
         value: item is T ? item : null,
         child: itemBuilder != null
             ? itemBuilder!(item)
             : CustomCommonUtil.toWidget(
                 item,
-                style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
+                style:
+                    textStyle ??
+                    TextStyle(
+                      fontSize: 16,
+                      color: _getThemeTextPrimaryColor(context) ?? Colors.black,
+                    ),
               ),
       );
     }).toList();
@@ -157,7 +161,13 @@ class CustomDropdownButton<T> extends StatelessWidget {
               ? itemBuilder!(item)
               : CustomCommonUtil.toWidget(
                   item,
-                  style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
+                  style:
+                      textStyle ??
+                      TextStyle(
+                        fontSize: 16,
+                        color:
+                            _getThemeTextPrimaryColor(context) ?? Colors.black,
+                      ),
                 );
         }).toList();
       };
@@ -169,19 +179,34 @@ class CustomDropdownButton<T> extends StatelessWidget {
               ? itemBuilder!(item)
               : CustomCommonUtil.toWidget(
                   item,
-                  style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
+                  style:
+                      textStyle ??
+                      TextStyle(
+                        fontSize: 16,
+                        color:
+                            _getThemeTextPrimaryColor(context) ?? Colors.black,
+                      ),
                 );
         }).toList();
       };
     }
 
     // 힌트 위젯
-    final Widget? hintWidgetToUse = hintWidget ??
+    final Widget? hintWidgetToUse =
+        hintWidget ??
         (hint != null
             ? Text(
                 hint!,
-                style: textStyle?.copyWith(color: _getThemeTextSecondaryColor(context) ?? Colors.grey) ??
-                    TextStyle(fontSize: 16, color: _getThemeTextSecondaryColor(context) ?? Colors.grey),
+                style:
+                    textStyle?.copyWith(
+                      color:
+                          _getThemeTextSecondaryColor(context) ?? Colors.grey,
+                    ) ??
+                    TextStyle(
+                      fontSize: 16,
+                      color:
+                          _getThemeTextSecondaryColor(context) ?? Colors.grey,
+                    ),
               )
             : null);
 
@@ -192,13 +217,21 @@ class CustomDropdownButton<T> extends StatelessWidget {
       onChanged: isEnabled ? onChanged : null,
       hint: hintWidgetToUse,
       selectedItemBuilder: selectedItemListBuilder,
-      style: textStyle ?? TextStyle(fontSize: 16, color: _getThemeTextPrimaryColor(context) ?? Colors.black),
+      style:
+          textStyle ??
+          TextStyle(
+            fontSize: 16,
+            color: _getThemeTextPrimaryColor(context) ?? Colors.black,
+          ),
       icon: Icon(
         Icons.arrow_drop_down,
         color: iconColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey,
         size: iconSize ?? 24,
       ),
-      dropdownColor: dropdownColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
+      dropdownColor:
+          dropdownColor ??
+          _getThemeCardBackgroundColor(context) ??
+          Colors.white,
       itemHeight: itemHeight ?? kMinInteractiveDimension,
       isExpanded: width != null,
     );
@@ -207,11 +240,18 @@ class CustomDropdownButton<T> extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: backgroundColor ?? _getThemeCardBackgroundColor(context) ?? Colors.white,
+        color:
+            backgroundColor ??
+            _getThemeCardBackgroundColor(context) ??
+            Colors.white,
         border: Border.all(
-          color: borderColor ?? _getThemeTextSecondaryColor(context) ?? Colors.grey.shade300,
+          color:
+              borderColor ??
+              _getThemeTextSecondaryColor(context) ??
+              Colors.grey.shade300,
           width: borderWidth ?? 1.0,
         ),
         borderRadius: BorderRadius.circular(borderRadius ?? 4.0),
@@ -220,4 +260,3 @@ class CustomDropdownButton<T> extends StatelessWidget {
     );
   }
 }
-

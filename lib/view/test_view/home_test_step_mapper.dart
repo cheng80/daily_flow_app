@@ -3,18 +3,18 @@ import '../../custom/custom.dart';
 import '../../theme/app_colors.dart';
 import '../../app_custom/step_mapper_util.dart';
 
-/// StepMapperUtil 유틸리티 테스트 화면
-///
-/// **목적:** `StepMapperUtil` 클래스의 동작을 테스트하고 검증합니다.
-///
-/// 테스트 항목:
-/// - 시간 → Step 변환 (`mapTimeToStep`)
-/// - Step → 한국어 변환 (`stepToKorean`)
-/// - 다양한 시간대 테스트 (아침/낮/저녁/Anytime)
-/// - 경계값 테스트
-/// - 에러 처리 테스트
+// StepMapperUtil 유틸리티 테스트 화면
+//
+// **목적:** `StepMapperUtil` 클래스의 동작을 테스트하고 검증합니다.
+//
+// 테스트 항목:
+// - 시간 → Step 변환 (`mapTimeToStep`)
+// - Step → 한국어 변환 (`stepToKorean`)
+// - 다양한 시간대 테스트 (아침/낮/저녁/Anytime)
+// - 경계값 테스트
+// - 에러 처리 테스트
 class HomeTestStepMapper extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const HomeTestStepMapper({super.key, required this.onToggleTheme});
@@ -24,19 +24,19 @@ class HomeTestStepMapper extends StatefulWidget {
 }
 
 class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 시간 입력 컨트롤러
+  // 시간 입력 컨트롤러
   final TextEditingController _timeController = TextEditingController();
 
-  /// Step 입력 컨트롤러
+  // Step 입력 컨트롤러
   final TextEditingController _stepController = TextEditingController();
 
-  /// 시간 → Step 변환 결과
+  // 시간 → Step 변환 결과
   String _timeToStepResult = '';
 
-  /// Step → 한국어 변환 결과
+  // Step → 한국어 변환 결과
   String _stepToKoreanResult = '';
 
   @override
@@ -54,7 +54,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
     super.dispose();
   }
 
-  /// 시간 → Step 변환 테스트
+  // 시간 → Step 변환 테스트
   void _testTimeToStep() {
     final time = _timeController.text.trim();
     final step = StepMapperUtil.mapTimeToStep(time.isEmpty ? null : time);
@@ -65,7 +65,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
     });
   }
 
-  /// Step → 한국어 변환 테스트
+  // Step → 한국어 변환 테스트
   void _testStepToKorean() {
     final stepText = _stepController.text.trim();
     try {
@@ -82,7 +82,7 @@ class _HomeTestStepMapperState extends State<HomeTestStepMapper> {
     }
   }
 
-  /// 빠른 테스트 케이스 실행
+  // 빠른 테스트 케이스 실행
   void _runQuickTest(String time, String description) {
     _timeController.text = time;
     _testTimeToStep();

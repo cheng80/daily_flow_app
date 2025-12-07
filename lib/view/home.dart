@@ -15,19 +15,19 @@ import '../model/todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../service/notification_service.dart';
 
-/// 모듈 테스트용 홈 화면 위젯 (인덱스)
-///
-/// **주의:** 이 파일은 실제 메인 화면이 아닌, 커스텀 모듈 및 함수의 테스트/프로토타이핑 용도로 사용됩니다.
-///
-/// 사용 목적:
-/// - 새로 개발된 커스텀 위젯/함수를 빠르게 테스트
-/// - 디자인 화면 작업 전 모듈 동작 확인
-/// - 테마 색상 및 스타일 검증
-///
-/// 실제 메인 화면은 `lib/view/main/main_view.dart`에서 별도로 구현됩니다.
-/// 각 모듈 개발 완료 후, 완성된 커스텀 모듈과 함수를 사용하여 실제 화면을 구성합니다.
+// 모듈 테스트용 홈 화면 위젯 (인덱스)
+//
+// **주의:** 이 파일은 실제 메인 화면이 아닌, 커스텀 모듈 및 함수의 테스트/프로토타이핑 용도로 사용됩니다.
+//
+// 사용 목적:
+// - 새로 개발된 커스텀 위젯/함수를 빠르게 테스트
+// - 디자인 화면 작업 전 모듈 동작 확인
+// - 테마 색상 및 스타일 검증
+//
+// 실제 메인 화면은 `lib/view/main/main_view.dart`에서 별도로 구현됩니다.
+// 각 모듈 개발 완료 후, 완성된 커스텀 모듈과 함수를 사용하여 실제 화면을 구성합니다.
 class Home extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const Home({super.key, required this.onToggleTheme});
@@ -37,22 +37,22 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 위젯 초기화
-  ///
-  /// 페이지가 새로 생성될 때 한 번 호출됩니다.
-  /// 테마 상태를 라이트 모드(false)로 초기화합니다.
+  // 위젯 초기화
+  //
+  // 페이지가 새로 생성될 때 한 번 호출됩니다.
+  // 테마 상태를 라이트 모드(false)로 초기화합니다.
   @override
   void initState() {
     super.initState();
     _themeBool = false;
   }
 
-  /// 위젯 빌드
-  ///
-  /// 테스트 화면 선택 메뉴를 구성합니다.
+  // 위젯 빌드
+  //
+  // 테스트 화면 선택 메뉴를 구성합니다.
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근
@@ -302,7 +302,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  /// 모든 데이터 삭제 함수
+  // 모든 데이터 삭제 함수
   Future<void> _clearAllData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
 
@@ -328,11 +328,11 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 2025년 12월 더미 데이터 삽입 함수
-  ///
-  /// 다양한 날짜, 시간대, 우선순위의 Todo 데이터를 생성하여 데이터베이스에 삽입합니다.
-  /// 오늘 날짜 데이터도 포함됩니다.
-  /// 중복 추가를 방지하기 위해 기존 데이터를 확인합니다.
+  // 2025년 12월 더미 데이터 삽입 함수
+  //
+  // 다양한 날짜, 시간대, 우선순위의 Todo 데이터를 생성하여 데이터베이스에 삽입합니다.
+  // 오늘 날짜 데이터도 포함됩니다.
+  // 중복 추가를 방지하기 위해 기존 데이터를 확인합니다.
   Future<void> _insertDummyData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
     final now = DateTime.now();
@@ -731,11 +731,11 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 삭제된 Todo 더미 데이터 삽입 함수
-  ///
-  /// deleted_todo 테이블에 더미 데이터를 삽입합니다.
-  /// - 7일 전 데이터 5개
-  /// - 30일 전 데이터 10개
+  // 삭제된 Todo 더미 데이터 삽입 함수
+  //
+  // deleted_todo 테이블에 더미 데이터를 삽입합니다.
+  // - 7일 전 데이터 5개
+  // - 30일 전 데이터 10개
   Future<void> _insertDeletedDummyData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
     final now = DateTime.now();
@@ -929,7 +929,11 @@ class _HomeState extends State<Home> {
           await db.insert('deleted_todo', data);
           successCount++;
         } catch (e) {
-          AppLogger.e('7일 전 더미 데이터 삽입 실패: ${data['title']}', tag: 'Home', error: e);
+          AppLogger.e(
+            '7일 전 더미 데이터 삽입 실패: ${data['title']}',
+            tag: 'Home',
+            error: e,
+          );
           failCount++;
         }
       }
@@ -940,7 +944,11 @@ class _HomeState extends State<Home> {
           await db.insert('deleted_todo', data);
           successCount++;
         } catch (e) {
-          AppLogger.e('30일 전 더미 데이터 삽입 실패: ${data['title']}', tag: 'Home', error: e);
+          AppLogger.e(
+            '30일 전 더미 데이터 삽입 실패: ${data['title']}',
+            tag: 'Home',
+            error: e,
+          );
           failCount++;
         }
       }
@@ -964,7 +972,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 알람 등록 테스트 (1분 후 알람)
+  // 알람 등록 테스트 (1분 후 알람)
   Future<void> _testScheduleNotification(BuildContext context) async {
     final notificationService = NotificationService();
 
@@ -1006,7 +1014,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 알람 취소 테스트
+  // 알람 취소 테스트
   Future<void> _testCancelNotification(BuildContext context) async {
     final notificationService = NotificationService();
 
@@ -1049,7 +1057,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 모든 알람 취소 테스트
+  // 모든 알람 취소 테스트
   Future<void> _testCancelAllNotifications(BuildContext context) async {
     final notificationService = NotificationService();
     await notificationService.cancelAllNotifications();
@@ -1063,7 +1071,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 즉시 알람 테스트
+  // 즉시 알람 테스트
   Future<void> _testShowNotification(BuildContext context) async {
     final notificationService = NotificationService();
 
@@ -1092,7 +1100,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 등록된 알람 목록 확인
+  // 등록된 알람 목록 확인
   Future<void> _testCheckPendingNotifications(BuildContext context) async {
     final notificationService = NotificationService();
     await notificationService.checkPendingNotifications();
@@ -1106,9 +1114,9 @@ class _HomeState extends State<Home> {
     }
   }
 
-  /// 삭제된 Todo 데이터 삭제 함수
-  ///
-  /// deleted_todo 테이블의 모든 데이터를 삭제합니다.
+  // 삭제된 Todo 데이터 삭제 함수
+  //
+  // deleted_todo 테이블의 모든 데이터를 삭제합니다.
   Future<void> _clearDeletedData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
 

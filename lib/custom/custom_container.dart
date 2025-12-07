@@ -12,57 +12,57 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// Container 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomContainer(child: Widget())
-/// CustomContainer(child: Widget(), padding: EdgeInsets.all(16), backgroundColor: Colors.white)
-/// ```
+// Container 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomContainer(child: Widget())
+// CustomContainer(child: Widget(), padding: EdgeInsets.all(16), backgroundColor: Colors.white)
+// ```
 class CustomContainer extends StatelessWidget {
-  /// Container 내부에 표시할 자식 위젯 (필수)
+  // Container 내부에 표시할 자식 위젯 (필수)
   final Widget child;
 
-  /// Container 배경색
+  // Container 배경색
   final Color? backgroundColor;
 
-  /// Container 모서리 둥글기
+  // Container 모서리 둥글기
   final double? borderRadius;
 
-  /// Container 전체에 적용할 패딩
+  // Container 전체에 적용할 패딩
   final EdgeInsets? padding;
 
-  /// Container 테두리 색상
+  // Container 테두리 색상
   final Color? borderColor;
 
-  /// Container 테두리 두께
+  // Container 테두리 두께
   final double? borderWidth;
 
-  /// Container 그림자 색상
+  // Container 그림자 색상
   final Color? shadowColor;
 
-  /// Container 그림자 블러 반경
+  // Container 그림자 블러 반경
   final double? blurRadius;
 
-  /// Container 그림자 확산 반경
+  // Container 그림자 확산 반경
   final double? spreadRadius;
 
-  /// Container 그림자 오프셋
+  // Container 그림자 오프셋
   final Offset? shadowOffset;
 
-  /// Container 너비
+  // Container 너비
   final double? width;
 
-  /// Container 높이
+  // Container 높이
   final double? height;
 
-  /// Container 마진
+  // Container 마진
   final EdgeInsets? margin;
 
-  /// Container 정렬 방식
+  // Container 정렬 방식
   final AlignmentGeometry? alignment;
 
-  /// Container 제약 조건
+  // Container 제약 조건
   final BoxConstraints? constraints;
 
   const CustomContainer({

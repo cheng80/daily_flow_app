@@ -31,69 +31,69 @@ Color? _getThemeTextPrimaryColor(BuildContext context) {
   }
 }
 
-/// Slider 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomSlider(value: _sliderValue, onChanged: (value) {})
-/// CustomSlider(value: _sliderValue, min: 0, max: 100, label: "볼륨", divisions: 10, onChanged: (value) {})
-/// ```
+// Slider 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomSlider(value: _sliderValue, onChanged: (value) {})
+// CustomSlider(value: _sliderValue, min: 0, max: 100, label: "볼륨", divisions: 10, onChanged: (value) {})
+// ```
 class CustomSlider extends StatelessWidget {
-  /// Slider의 현재 값 (필수)
+  // Slider의 현재 값 (필수)
   final double value;
 
-  /// Slider 값 변경 시 호출되는 콜백 함수 (필수)
+  // Slider 값 변경 시 호출되는 콜백 함수 (필수)
   final ValueChanged<double>? onChanged;
 
-  /// Slider 값 변경 완료 시 호출되는 콜백 함수
+  // Slider 값 변경 완료 시 호출되는 콜백 함수
   final ValueChanged<double>? onChangeEnd;
 
-  /// Slider 값 변경 시작 시 호출되는 콜백 함수
+  // Slider 값 변경 시작 시 호출되는 콜백 함수
   final ValueChanged<double>? onChangeStart;
 
-  /// Slider의 최소값 (기본값: 0.0)
+  // Slider의 최소값 (기본값: 0.0)
   final double? min;
 
-  /// Slider의 최대값 (기본값: 1.0)
+  // Slider의 최대값 (기본값: 1.0)
   final double? max;
 
-  /// Slider의 분할 수 (null인 경우 연속적인 슬라이더)
+  // Slider의 분할 수 (null인 경우 연속적인 슬라이더)
   final int? divisions;
 
-  /// Slider의 레이블 텍스트
+  // Slider의 레이블 텍스트
   final String? label;
 
-  /// Slider 활성화 상태의 색상 (기본값: Colors.blue)
+  // Slider 활성화 상태의 색상 (기본값: Colors.blue)
   final Color? activeColor;
 
-  /// Slider 비활성화 상태의 색상
+  // Slider 비활성화 상태의 색상
   final Color? inactiveColor;
 
-  /// Slider 썸(thumb) 색상
+  // Slider 썸(thumb) 색상
   final Color? thumbColor;
 
-  /// Slider 오버레이 색상
+  // Slider 오버레이 색상
   final Color? overlayColor;
 
-  /// Slider 위에 표시할 제목 텍스트
+  // Slider 위에 표시할 제목 텍스트
   final String? title;
 
-  /// 제목 텍스트 스타일
+  // 제목 텍스트 스타일
   final TextStyle? titleStyle;
 
-  /// Slider 아래에 표시할 현재 값 텍스트
+  // Slider 아래에 표시할 현재 값 텍스트
   final bool showValue;
 
-  /// 값 텍스트 스타일
+  // 값 텍스트 스타일
   final TextStyle? valueStyle;
 
-  /// Slider와 제목/값 사이의 간격 (기본값: 8)
+  // Slider와 제목/값 사이의 간격 (기본값: 8)
   final double? spacing;
 
-  /// Slider의 시각적 밀도
+  // Slider의 시각적 밀도
   final VisualDensity? visualDensity;
 
-  /// 커스텀 SliderThemeData (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
+  // 커스텀 SliderThemeData (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
   final SliderThemeData? sliderTheme;
 
   const CustomSlider({

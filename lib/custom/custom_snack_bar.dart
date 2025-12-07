@@ -30,16 +30,16 @@ Color? _getThemeSnackBarTextColor(BuildContext context) {
   }
 }
 
-/// SnackBar 헬퍼 클래스
-///
-/// 사용 예시:
-/// ```dart
-/// CustomSnackBar.show(context, message: "메시지")
-/// CustomSnackBar.showSuccess(context, message: "성공했습니다")
-/// CustomSnackBar.showError(context, message: "에러가 발생했습니다")
-/// ```
+// SnackBar 헬퍼 클래스
+//
+// 사용 예시:
+// ```dart
+// CustomSnackBar.show(context, message: "메시지")
+// CustomSnackBar.showSuccess(context, message: "성공했습니다")
+// CustomSnackBar.showError(context, message: "에러가 발생했습니다")
+// ```
 class CustomSnackBar {
-  /// SnackBar를 표시하는 정적 메서드
+  // SnackBar를 표시하는 정적 메서드
   static void show(
     BuildContext context, {
     required dynamic message,
@@ -96,7 +96,7 @@ class CustomSnackBar {
     );
   }
 
-  /// 성공 메시지를 표시하는 메서드 (녹색 배경)
+  // 성공 메시지를 표시하는 메서드 (녹색 배경)
   static void showSuccess(
     BuildContext context, {
     required dynamic message,
@@ -119,7 +119,7 @@ class CustomSnackBar {
     );
   }
 
-  /// 에러 메시지를 표시하는 메서드 (빨간색 배경)
+  // 에러 메시지를 표시하는 메서드 (빨간색 배경)
   static void showError(
     BuildContext context, {
     required dynamic message,
@@ -142,7 +142,7 @@ class CustomSnackBar {
     );
   }
 
-  /// 경고 메시지를 표시하는 메서드 (주황색 배경)
+  // 경고 메시지를 표시하는 메서드 (주황색 배경)
   static void showWarning(
     BuildContext context, {
     required dynamic message,
@@ -165,7 +165,7 @@ class CustomSnackBar {
     );
   }
 
-  /// 정보 메시지를 표시하는 메서드 (파란색 배경)
+  // 정보 메시지를 표시하는 메서드 (파란색 배경)
   static void showInfo(
     BuildContext context, {
     required dynamic message,

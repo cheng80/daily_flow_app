@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'custom_address_util.dart';
 
-/// CustomAddressUtil 사용 예제
+// CustomAddressUtil 사용 예제
 void main() async {
   // BigDataCloud API 응답 예시 JSON
   const jsonString = '''
@@ -95,10 +95,11 @@ void main() async {
 
   // 8. 간단한 주소 가져오기 (국가 제외) - 예외 처리 포함
   try {
-    final simpleAddressFromCoords = await CustomAddressUtil.getSimpleAddressFromCoordinates(
-      37.497429,
-      127.127782,
-    );
+    final simpleAddressFromCoords =
+        await CustomAddressUtil.getSimpleAddressFromCoordinates(
+          37.497429,
+          127.127782,
+        );
     print('간단한 주소: $simpleAddressFromCoords');
     // 출력: 간단한 주소: 서울특별시 송파구 가락2동
   } on AddressException catch (e) {
@@ -107,10 +108,11 @@ void main() async {
 
   // 9. 상세 주소 정보 가져오기 - 예외 처리 포함
   try {
-    final addressInfoFromCoords = await CustomAddressUtil.getAddressInfoFromCoordinates(
-      37.497429,
-      127.127782,
-    );
+    final addressInfoFromCoords =
+        await CustomAddressUtil.getAddressInfoFromCoordinates(
+          37.497429,
+          127.127782,
+        );
     if (addressInfoFromCoords != null) {
       print('\n상세 주소 정보:');
       print('국가: ${addressInfoFromCoords['countryName']}');
@@ -133,4 +135,3 @@ void main() async {
     // 출력: 예외 발생: 유효하지 않은 좌표입니다. 위도: 999.0, 경도: 999.0 (코드: INVALID_COORDINATE)
   }
 }
-

@@ -4,20 +4,20 @@ import 'step_mapper_util.dart';
 import '../custom/custom_container.dart';
 import '../custom/custom_text.dart';
 
-/// 필터 라디오 옵션 정보 클래스
-///
-/// 각 필터 라디오 옵션의 정보를 담는 클래스입니다.
+// 필터 라디오 옵션 정보 클래스
+//
+// 각 필터 라디오 옵션의 정보를 담는 클래스입니다.
 class FilterRadioOption {
-  /// 옵션에 표시할 라벨
+  // 옵션에 표시할 라벨
   final String label;
 
-  /// Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
+  // Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
   final int? step;
 
-  /// 배경색 가져오기 함수
+  // 배경색 가져오기 함수
   final Color Function(AppColorScheme) getBackgroundColor;
 
-  /// 텍스트 색상 가져오기 함수
+  // 텍스트 색상 가져오기 함수
   final Color Function(AppColorScheme) getTextColor;
 
   const FilterRadioOption({
@@ -28,13 +28,13 @@ class FilterRadioOption {
   });
 }
 
-/// 필터 라디오 유틸리티 클래스
-///
-/// 필터 라디오 옵션 정보를 제공하는 유틸리티 클래스입니다.
+// 필터 라디오 유틸리티 클래스
+//
+// 필터 라디오 옵션 정보를 제공하는 유틸리티 클래스입니다.
 class FilterRadioUtil {
-  /// 기본 필터 라디오 옵션 리스트 반환
-  ///
-  /// 전체/오전/오후/저녁/종일 5개의 옵션 정보를 반환합니다.
+  // 기본 필터 라디오 옵션 리스트 반환
+  //
+  // 전체/오전/오후/저녁/종일 5개의 옵션 정보를 반환합니다.
   static List<FilterRadioOption> getDefaultOptions() {
     return [
       FilterRadioOption(
@@ -77,83 +77,83 @@ class FilterRadioUtil {
   }
 }
 
-/// 필터 라디오 위젯
-///
-/// 각 상태별 색상을 배경색으로 가지는 둥근 라운드 컨테이너에
-/// 라디오 버튼과 라벨을 표시하는 필터 위젯입니다.
-///
-/// **사용 위치**: 세로 화면의 달력과 다른 위젯들 사이에 Column의 자식으로 배치됩니다.
-///
-/// 사용 예시:
-/// ```dart
-/// CustomColumn(
-///   children: [
-///     // 달력 위젯
-///     CustomCalendar(...),
-///
-///     // Summary Bar
-///     actionFourRangeBar(...),
-///
-///     // Filter Radio (Column의 자식으로 배치)
-///     Padding(
-///       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-///       child: Wrap(
-///         spacing: 8.0,
-///         runSpacing: 8.0,
-///         children: FilterRadioUtil.getDefaultOptions().map((option) {
-///           return CustomFilterRadio(
-///             option: option,
-///             selectedStep: _selectedStep,
-///             onStepSelected: (step) {
-///               setState(() {
-///                 _selectedStep = step;
-///               });
-///             },
-///           );
-///         }).toList(),
-///       ),
-///     ),
-///
-///     // Todo List
-///     TodoList(...),
-///   ],
-/// )
-/// ```
+// 필터 라디오 위젯
+//
+// 각 상태별 색상을 배경색으로 가지는 둥근 라운드 컨테이너에
+// 라디오 버튼과 라벨을 표시하는 필터 위젯입니다.
+//
+// **사용 위치**: 세로 화면의 달력과 다른 위젯들 사이에 Column의 자식으로 배치됩니다.
+//
+// 사용 예시:
+// ```dart
+// CustomColumn(
+//   children: [
+//     // 달력 위젯
+//     CustomCalendar(...),
+//
+//     // Summary Bar
+//     actionFourRangeBar(...),
+//
+//     // Filter Radio (Column의 자식으로 배치)
+//     Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//       child: Wrap(
+//         spacing: 8.0,
+//         runSpacing: 8.0,
+//         children: FilterRadioUtil.getDefaultOptions().map((option) {
+//           return CustomFilterRadio(
+//             option: option,
+//             selectedStep: _selectedStep,
+//             onStepSelected: (step) {
+//               setState(() {
+//                 _selectedStep = step;
+//               });
+//             },
+//           );
+//         }).toList(),
+//       ),
+//     ),
+//
+//     // Todo List
+//     TodoList(...),
+//   ],
+// )
+// ```
 class CustomFilterRadio extends StatelessWidget {
-  /// 필터 라디오 옵션 정보
+  // 필터 라디오 옵션 정보
   final FilterRadioOption option;
 
-  /// 현재 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
+  // 현재 선택된 Step 값 (null = 전체, 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
   final int? selectedStep;
 
-  /// Step 선택 시 호출되는 콜백 함수
+  // Step 선택 시 호출되는 콜백 함수
   final void Function(int? step) onStepSelected;
 
-  /// 컨테이너 패딩 (기본값: EdgeInsets.symmetric(horizontal: 16, vertical: 10))
+  // 컨테이너 패딩 (기본값: EdgeInsets.symmetric(horizontal: 16, vertical: 10))
   final EdgeInsets? padding;
 
-  /// 컨테이너 모서리 둥글기 (기본값: 16.0)
+  // 컨테이너 모서리 둥글기 (기본값: 16.0)
   final double? borderRadius;
 
-  /// 컨테이너 너비 (기본값: null, 내용에 맞게 자동 조정)
+  // 컨테이너 너비 (기본값: null, 내용에 맞게 자동 조정)
   final double? width;
 
-  /// 컨테이너 높이 (기본값: null, 내용에 맞게 자동 조정)
+  // 컨테이너 높이 (기본값: null, 내용에 맞게 자동 조정)
   final double? height;
 
-  /// 라디오 버튼과 라벨 사이의 간격 (기본값: 8.0)
+  // 라디오 버튼과 라벨 사이의 간격 (기본값: 8.0)
   final double? spacing;
 
-  /// Row의 주축 정렬 방식 (기본값: MainAxisAlignment.start)
+  // Row의 주축 정렬 방식 (기본값: MainAxisAlignment.start)
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// Row의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
+  // Row의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// 라벨 텍스트 스타일 (기본값: null, 선택 상태에 따라 자동 설정)
+  // 라벨 텍스트 스타일 (기본값: null, 선택 상태에 따라 자동 설정)
   final TextStyle? labelStyle;
 
-  /// 라벨 폰트 크기 (기본값: 16.0)
+  // 라벨 폰트 크기 (기본값: 16.0)
   final double? fontSize;
 
   const CustomFilterRadio({
@@ -172,9 +172,9 @@ class CustomFilterRadio extends StatelessWidget {
     this.fontSize,
   });
 
-  /// 배경색의 밝기에 따라 적절한 텍스트 색상을 반환
-  ///
-  /// 밝은 배경에는 어두운 텍스트, 어두운 배경에는 밝은 텍스트를 반환합니다.
+  // 배경색의 밝기에 따라 적절한 텍스트 색상을 반환
+  //
+  // 밝은 배경에는 어두운 텍스트, 어두운 배경에는 밝은 텍스트를 반환합니다.
   Color _getContrastTextColor(Color backgroundColor) {
     // 색상의 밝기 계산 (0.0 ~ 1.0)
     // 공식: 0.299 * R + 0.587 * G + 0.114 * B
@@ -248,7 +248,7 @@ class CustomFilterRadio extends StatelessWidget {
   //-- Function
   //----------------------------------
 
-  /// 탭 콜백
+  // 탭 콜백
   void _onTap() {
     onStepSelected(option.step);
   }

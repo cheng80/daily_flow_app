@@ -3,16 +3,16 @@ import '../../custom/custom.dart';
 import '../../app_custom/custom_calendar_picker.dart';
 import '../../theme/app_colors.dart';
 
-/// 테스트용 날짜 선택 다이얼로그 테스트 화면
-///
-/// **목적:** `CustomCalendarPicker.showDatePicker()` 다이얼로그를 테스트합니다.
-///
-/// 테스트 항목:
-/// - 다이얼로그 형식 날짜 선택 (CustomCalendar 사용)
-/// - 날짜 선택 결과 표시
-/// - 다이얼로그 크기 및 레이아웃 확인
+// 테스트용 날짜 선택 다이얼로그 테스트 화면
+//
+// **목적:** `CustomCalendarPicker.showDatePicker()` 다이얼로그를 테스트합니다.
+//
+// 테스트 항목:
+// - 다이얼로그 형식 날짜 선택 (CustomCalendar 사용)
+// - 날짜 선택 결과 표시
+// - 다이얼로그 크기 및 레이아웃 확인
 class HomeTestCalendarPickerDialogTest extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const HomeTestCalendarPickerDialogTest({
@@ -27,10 +27,10 @@ class HomeTestCalendarPickerDialogTest extends StatefulWidget {
 
 class _HomeTestCalendarPickerDialogTestState
     extends State<HomeTestCalendarPickerDialogTest> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 선택된 날짜 (다이얼로그 형식)
+  // 선택된 날짜 (다이얼로그 형식)
   DateTime? _selectedDate;
 
   @override
@@ -83,7 +83,7 @@ class _HomeTestCalendarPickerDialogTestState
     );
   }
 
-  /// 설명 섹션
+  // 설명 섹션
   Widget _buildDescriptionSection(AppColorScheme p) {
     return CustomColumn(
       spacing: 12,
@@ -109,7 +109,7 @@ class _HomeTestCalendarPickerDialogTestState
     );
   }
 
-  /// 테스트 버튼 및 결과 섹션
+  // 테스트 버튼 및 결과 섹션
   Widget _buildTestSection(AppColorScheme p) {
     return CustomColumn(
       spacing: 16,
@@ -192,7 +192,7 @@ class _HomeTestCalendarPickerDialogTestState
     );
   }
 
-  /// 요일 반환 (한국어)
+  // 요일 반환 (한국어)
   String _getDayOfWeek(DateTime date) {
     const days = ['월', '화', '수', '목', '금', '토', '일'];
     return days[date.weekday - 1];

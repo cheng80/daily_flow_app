@@ -24,60 +24,60 @@ Color? _getThemeTextSecondaryColorDark(BuildContext context) {
   }
 }
 
-/// Image.asset, Image.file, 또는 Image.memory 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// // Asset 이미지 사용
-/// CustomImage("assets/images/logo.png")
-/// CustomImage("assets/images/logo.png", width: 100, height: 100, fit: BoxFit.cover)
-///
-/// // File 이미지 사용
-/// CustomImage.file(File("/path/to/image.png"))
-/// CustomImage.file(File("/path/to/image.png"), width: 100, height: 100)
-///
-/// // Memory 이미지 사용
-/// CustomImage.memory(Uint8List.fromList([...]))
-/// CustomImage.memory(imageBytes, width: 100, height: 100)
-/// ```
+// Image.asset, Image.file, 또는 Image.memory 위젯
+//
+// 사용 예시:
+// ```dart
+// // Asset 이미지 사용
+// CustomImage("assets/images/logo.png")
+// CustomImage("assets/images/logo.png", width: 100, height: 100, fit: BoxFit.cover)
+//
+// // File 이미지 사용
+// CustomImage.file(File("/path/to/image.png"))
+// CustomImage.file(File("/path/to/image.png"), width: 100, height: 100)
+//
+// // Memory 이미지 사용
+// CustomImage.memory(Uint8List.fromList([...]))
+// CustomImage.memory(imageBytes, width: 100, height: 100)
+// ```
 class CustomImage extends StatelessWidget {
-  /// 이미지 경로 (asset 이미지 사용 시)
+  // 이미지 경로 (asset 이미지 사용 시)
   final String? path;
 
-  /// 이미지 파일 (file 이미지 사용 시)
+  // 이미지 파일 (file 이미지 사용 시)
   final File? file;
 
-  /// 이미지 바이트 데이터 (memory 이미지 사용 시)
+  // 이미지 바이트 데이터 (memory 이미지 사용 시)
   final Uint8List? bytes;
 
-  /// 이미지 너비
+  // 이미지 너비
   final double? width;
 
-  /// 이미지 높이
+  // 이미지 높이
   final double? height;
 
-  /// 이미지 크기 조정 방식 (기본값: BoxFit.contain)
+  // 이미지 크기 조정 방식 (기본값: BoxFit.contain)
   final BoxFit? fit;
 
-  /// 이미지가 로드되지 않을 때 표시할 위젯
+  // 이미지가 로드되지 않을 때 표시할 위젯
   final Widget? errorWidget;
 
-  /// 이미지가 로드 중일 때 표시할 위젯
+  // 이미지가 로드 중일 때 표시할 위젯
   final Widget? loadingWidget;
 
-  /// 이미지 색상 필터
+  // 이미지 색상 필터
   final Color? color;
 
-  /// 이미지 색상 블렌드 모드
+  // 이미지 색상 블렌드 모드
   final BlendMode? colorBlendMode;
 
-  /// 이미지 반복 방식
+  // 이미지 반복 방식
   final ImageRepeat? repeat;
 
-  /// 이미지 정렬 방식
+  // 이미지 정렬 방식
   final AlignmentGeometry? alignment;
 
-  /// Asset 이미지를 위한 생성자
+  // Asset 이미지를 위한 생성자
   const CustomImage(
     this.path, {
     super.key,
@@ -94,7 +94,7 @@ class CustomImage extends StatelessWidget {
        bytes = null,
        assert(path != null, 'path는 필수입니다.');
 
-  /// File 이미지를 위한 생성자
+  // File 이미지를 위한 생성자
   const CustomImage.file(
     this.file, {
     super.key,
@@ -111,7 +111,7 @@ class CustomImage extends StatelessWidget {
        bytes = null,
        assert(file != null, 'file은 필수입니다.');
 
-  /// Memory 이미지를 위한 생성자
+  // Memory 이미지를 위한 생성자
   const CustomImage.memory(
     this.bytes, {
     super.key,
@@ -130,7 +130,11 @@ class CustomImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget errorBuilder(BuildContext context, Object error, StackTrace? stackTrace) {
+    Widget errorBuilder(
+      BuildContext context,
+      Object error,
+      StackTrace? stackTrace,
+    ) {
       return errorWidget ??
           Container(
             width: width,
@@ -138,7 +142,8 @@ class CustomImage extends StatelessWidget {
             color: _getThemeTextSecondaryColor(context) ?? Colors.grey[300],
             child: Icon(
               Icons.broken_image,
-              color: _getThemeTextSecondaryColorDark(context) ?? Colors.grey[600],
+              color:
+                  _getThemeTextSecondaryColorDark(context) ?? Colors.grey[600],
               size: (width != null && height != null)
                   ? (width! < height! ? width! * 0.5 : height! * 0.5)
                   : 48,
@@ -146,7 +151,12 @@ class CustomImage extends StatelessWidget {
           );
     }
 
-    Widget frameBuilder(BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
+    Widget frameBuilder(
+      BuildContext context,
+      Widget child,
+      int? frame,
+      bool wasSynchronouslyLoaded,
+    ) {
       if (wasSynchronouslyLoaded) {
         return child;
       }

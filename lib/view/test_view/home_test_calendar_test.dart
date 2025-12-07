@@ -4,20 +4,20 @@ import '../../app_custom/custom_calendar.dart';
 import '../../theme/app_colors.dart';
 import '../../vm/database_handler.dart';
 
-/// 테스트용 크기 조절 가능한 달력 위젯 테스트 화면
-///
-/// **목적:** `CustomCalendar` 위젯의 동작을 테스트하고 검증합니다.
-///
-/// 테스트 항목:
-/// - 크기 조절 기능 (rowHeight, cellMargin, cellPadding 등)
-/// - 오늘로 가기 버튼 동작
-/// - 월 이동 버튼 동작
-/// - 날짜 선택 기능
-/// - 이벤트 표시 (배지 및 언더바)
-/// - 테마 색상 적용
-/// - 주말 색상 구분
+// 테스트용 크기 조절 가능한 달력 위젯 테스트 화면
+//
+// **목적:** `CustomCalendar` 위젯의 동작을 테스트하고 검증합니다.
+//
+// 테스트 항목:
+// - 크기 조절 기능 (rowHeight, cellMargin, cellPadding 등)
+// - 오늘로 가기 버튼 동작
+// - 월 이동 버튼 동작
+// - 날짜 선택 기능
+// - 이벤트 표시 (배지 및 언더바)
+// - 테마 색상 적용
+// - 주말 색상 구분
 class HomeTestCalendarTest extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const HomeTestCalendarTest({super.key, required this.onToggleTheme});
@@ -27,47 +27,47 @@ class HomeTestCalendarTest extends StatefulWidget {
 }
 
 class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 선택된 날짜
+  // 선택된 날짜
   late DateTime _selectedDay;
 
-  /// 포커스된 날짜 (현재 보이는 달의 날짜)
+  // 포커스된 날짜 (현재 보이는 달의 날짜)
   late DateTime _focusedDay;
 
-  /// 달력 높이 (픽셀) - 입력값
+  // 달력 높이 (픽셀) - 입력값
   double _calendarHeight = 400.0;
 
-  /// 셀 비율 (가로:세로) - 기본값 1.0 (정사각형)
+  // 셀 비율 (가로:세로) - 기본값 1.0 (정사각형)
   double _cellAspectRatio = 1.0;
 
-  /// 달력 너비 (픽셀) - 자동 계산됨
-  /// 세로 길이와 셀 비율을 기준으로 자동 계산
+  // 달력 너비 (픽셀) - 자동 계산됨
+  // 세로 길이와 셀 비율을 기준으로 자동 계산
   double? _calendarWidth;
 
-  /// 행 높이 (각 날짜 셀의 높이)
+  // 행 높이 (각 날짜 셀의 높이)
   double _rowHeight = 52.0;
 
-  /// 셀 마진 (각 날짜 셀 주변의 여백)
+  // 셀 마진 (각 날짜 셀 주변의 여백)
   EdgeInsets _cellMargin = const EdgeInsets.all(2.0);
 
-  /// 셀 패딩 (각 날짜 셀 내부의 여백)
+  // 셀 패딩 (각 날짜 셀 내부의 여백)
   final EdgeInsets _cellPadding = EdgeInsets.zero;
 
-  /// 요일 헤더 높이
+  // 요일 헤더 높이
   double _daysOfWeekHeight = 40.0;
 
-  /// 헤더 높이 (월/연도 표시 영역)
+  // 헤더 높이 (월/연도 표시 영역)
   double _headerHeight = 50.0;
 
-  /// DatabaseHandler 인스턴스
+  // DatabaseHandler 인스턴스
   final DatabaseHandler _dbHandler = DatabaseHandler();
 
-  /// 날짜별 이벤트 캐시 (동기 접근을 위한 캐싱)
+  // 날짜별 이벤트 캐시 (동기 접근을 위한 캐싱)
   final Map<String, List<dynamic>> _eventCache = {};
 
-  /// 위젯 초기화
+  // 위젯 초기화
   @override
   void initState() {
     super.initState();
@@ -80,8 +80,8 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
     _updateCalendarDimensions();
   }
 
-  /// 세로 길이와 셀 비율을 기준으로 가로 길이와 내부 요소들을 자동 계산
-  /// 셀 비율 = 달력 비율 (가로:세로)
+  // 세로 길이와 셀 비율을 기준으로 가로 길이와 내부 요소들을 자동 계산
+  // 셀 비율 = 달력 비율 (가로:세로)
   void _updateCalendarDimensions() {
     // 셀 비율에 맞춰 달력 전체 비율 계산: 가로 = 세로 * 셀 비율
     _calendarWidth = _calendarHeight * _cellAspectRatio;
@@ -105,11 +105,11 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
     _rowHeight = rowH;
   }
 
-  /// 달력 이벤트 로드 (캐싱)
-  ///
-  /// **참고:** 이 메서드는 테스트 페이지에서 DB를 조회하여 이벤트를 로드합니다.
-  /// 실제 사용 시에는 각 페이지에서 필요에 따라 데이터를 조회하고
-  /// `eventLoader` 콜백을 통해 달력에 전달하면 됩니다.
+  // 달력 이벤트 로드 (캐싱)
+  //
+  // **참고:** 이 메서드는 테스트 페이지에서 DB를 조회하여 이벤트를 로드합니다.
+  // 실제 사용 시에는 각 페이지에서 필요에 따라 데이터를 조회하고
+  // `eventLoader` 콜백을 통해 달력에 전달하면 됩니다.
   Future<void> _loadCalendarEvents() async {
     try {
       // 현재 포커스된 달의 모든 날짜에 대한 이벤트 로드
@@ -174,13 +174,13 @@ class _HomeTestCalendarTestState extends State<HomeTestCalendarTest> {
     }
   }
 
-  /// 날짜별 이벤트 로더 (캐시 사용)
+  // 날짜별 이벤트 로더 (캐시 사용)
   List<dynamic> _eventLoader(DateTime day) {
     final dateStr = CustomCommonUtil.formatDate(day, 'yyyy-MM-dd');
     return _eventCache[dateStr] ?? [];
   }
 
-  /// 위젯 빌드
+  // 위젯 빌드
   @override
   Widget build(BuildContext context) {
     final p = context.palette;

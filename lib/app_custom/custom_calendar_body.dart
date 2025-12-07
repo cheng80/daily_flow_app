@@ -2,66 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../theme/app_colors.dart';
 
-/// 달력 본체 위젯
-///
-/// TableCalendar를 기반으로 한 달력 본체입니다.
-/// 헤더 없이 달력 그리드만 표시합니다.
-///
-/// 사용 예시:
-/// ```dart
-/// CustomCalendarBody(
-///   selectedDay: DateTime.now(),
-///   focusedDay: DateTime.now(),
-///   onDaySelected: (selectedDay, focusedDay) {
-///     setState(() {
-///       _selectedDay = selectedDay;
-///       _focusedDay = focusedDay;
-///     });
-///   },
-///   onPageChanged: (focusedDay) {
-///     setState(() {
-///       _focusedDay = focusedDay;
-///     });
-///   },
-///   eventLoader: (day) {
-///     return databaseHandler.queryDataByDate(formatDate(day));
-///   },
-///   calendarHeight: 400.0,
-///   cellAspectRatio: 1.0,
-/// )
-/// ```
+// 달력 본체 위젯
+//
+// TableCalendar를 기반으로 한 달력 본체입니다.
+// 헤더 없이 달력 그리드만 표시합니다.
+//
+// 사용 예시:
+// ```dart
+// CustomCalendarBody(
+//   selectedDay: DateTime.now(),
+//   focusedDay: DateTime.now(),
+//   onDaySelected: (selectedDay, focusedDay) {
+//     setState(() {
+//       _selectedDay = selectedDay;
+//       _focusedDay = focusedDay;
+//     });
+//   },
+//   onPageChanged: (focusedDay) {
+//     setState(() {
+//       _focusedDay = focusedDay;
+//     });
+//   },
+//   eventLoader: (day) {
+//     return databaseHandler.queryDataByDate(formatDate(day));
+//   },
+//   calendarHeight: 400.0,
+//   cellAspectRatio: 1.0,
+// )
+// ```
 class CustomCalendarBody extends StatelessWidget {
-  /// 선택된 날짜
+  // 선택된 날짜
   final DateTime selectedDay;
 
-  /// 현재 보이는 달의 포커스된 날짜
+  // 현재 보이는 달의 포커스된 날짜
   final DateTime focusedDay;
 
-  /// 날짜 선택 시 호출되는 콜백 함수
+  // 날짜 선택 시 호출되는 콜백 함수
   final void Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
 
-  /// 페이지 변경 시 호출되는 콜백 함수 (월 이동 시)
+  // 페이지 변경 시 호출되는 콜백 함수 (월 이동 시)
   final void Function(DateTime focusedDay)? onPageChanged;
 
-  /// 날짜별 이벤트(Todo) 리스트를 반환하는 함수
+  // 날짜별 이벤트(Todo) 리스트를 반환하는 함수
   final List<dynamic> Function(DateTime day) eventLoader;
 
-  /// 달력 위젯의 높이 (픽셀)
+  // 달력 위젯의 높이 (픽셀)
   final double? calendarHeight;
 
-  /// 행 높이 (각 날짜 셀의 높이)
+  // 행 높이 (각 날짜 셀의 높이)
   final double? rowHeight;
 
-  /// 셀 마진 (각 날짜 셀 주변의 여백)
+  // 셀 마진 (각 날짜 셀 주변의 여백)
   final EdgeInsets? cellMargin;
 
-  /// 셀 패딩 (각 날짜 셀 내부의 여백)
+  // 셀 패딩 (각 날짜 셀 내부의 여백)
   final EdgeInsets? cellPadding;
 
-  /// 요일 헤더 높이
+  // 요일 헤더 높이
   final double? daysOfWeekHeight;
 
-  /// 셀의 세로 기준 비율 (기본값: 1.0 = 정사각형)
+  // 셀의 세로 기준 비율 (기본값: 1.0 = 정사각형)
   final double cellAspectRatio;
 
   const CustomCalendarBody({
@@ -238,9 +238,7 @@ class CustomCalendarBody extends StatelessWidget {
             return null;
           }
 
-          final textColor = isSunday
-              ? Colors.red.shade600
-              : p.primary;
+          final textColor = isSunday ? Colors.red.shade600 : p.primary;
 
           return Container(
             margin: cellMargin ?? const EdgeInsets.all(2.0),
@@ -378,9 +376,7 @@ class CustomCalendarBody extends StatelessWidget {
                     width: 16,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: eventCount >= 10
-                          ? Colors.red.shade600
-                          : p.primary,
+                      color: eventCount >= 10 ? Colors.red.shade600 : p.primary,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -414,4 +410,3 @@ class CustomCalendarBody extends StatelessWidget {
     );
   }
 }
-

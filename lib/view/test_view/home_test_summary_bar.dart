@@ -3,17 +3,17 @@ import '../../custom/custom.dart';
 import '../../theme/app_colors.dart';
 import '../../app_custom/app_common_util.dart';
 
-/// 서머리바 위젯 테스트 화면
-///
-/// **목적:** `actionFourRangeBar` 함수의 동작을 테스트하고 검증합니다.
-///
-/// 테스트 항목:
-/// - 4개 구간(아침, 낮, 저녁, Anytime) 비율 표시
-/// - 다양한 비율 조합 테스트
-/// - 테마 색상 적용
-/// - 바 크기 조정
+// 서머리바 위젯 테스트 화면
+//
+// **목적:** `actionFourRangeBar` 함수의 동작을 테스트하고 검증합니다.
+//
+// 테스트 항목:
+// - 4개 구간(아침, 낮, 저녁, Anytime) 비율 표시
+// - 다양한 비율 조합 테스트
+// - 테마 색상 적용
+// - 바 크기 조정
 class HomeTestSummaryBar extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const HomeTestSummaryBar({super.key, required this.onToggleTheme});
@@ -23,43 +23,43 @@ class HomeTestSummaryBar extends StatefulWidget {
 }
 
 class _HomeTestSummaryBarState extends State<HomeTestSummaryBar> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 아침 비율 (0.0 ~ 1.0)
+  // 아침 비율 (0.0 ~ 1.0)
   double _morningRatio = 0.2;
 
-  /// 낮 비율 (0.0 ~ 1.0)
+  // 낮 비율 (0.0 ~ 1.0)
   double _noonRatio = 0.3;
 
-  /// 저녁 비율 (0.0 ~ 1.0)
+  // 저녁 비율 (0.0 ~ 1.0)
   double _eveningRatio = 0.2;
 
-  /// 야간 비율 (0.0 ~ 1.0)
+  // 야간 비율 (0.0 ~ 1.0)
   final double _nightRatio = 0.1;
 
-  /// Anytime 비율 (0.0 ~ 1.0)
+  // Anytime 비율 (0.0 ~ 1.0)
   double _anytimeRatio = 0.2;
 
-  /// 바 너비 (픽셀)
+  // 바 너비 (픽셀)
   double _barWidth = 300.0;
 
-  /// 바 높이 (픽셀)
+  // 바 높이 (픽셀)
   double _barHeight = 40.0;
 
-  /// 위젯 초기화
-  ///
-  /// 페이지가 새로 생성될 때 한 번 호출됩니다.
-  /// 테마 상태를 라이트 모드(false)로 초기화합니다.
+  // 위젯 초기화
+  //
+  // 페이지가 새로 생성될 때 한 번 호출됩니다.
+  // 테마 상태를 라이트 모드(false)로 초기화합니다.
   @override
   void initState() {
     super.initState();
     _themeBool = false;
   }
 
-  /// 위젯 빌드
-  ///
-  /// 서머리바 위젯 테스트용 UI를 구성합니다.
+  // 위젯 빌드
+  //
+  // 서머리바 위젯 테스트용 UI를 구성합니다.
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근

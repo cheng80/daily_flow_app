@@ -5,17 +5,17 @@ import '../model/todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../app_custom/app_common_util.dart';
 
-/// Todo 상세 정보 다이얼로그
-///
-/// 개별 Todo 항목의 상세 정보를 표시하는 다이얼로그입니다.
-/// Edit 버튼을 통해 수정 화면으로 이동하거나 Close 버튼으로 닫을 수 있습니다.
+// Todo 상세 정보 다이얼로그
+//
+// 개별 Todo 항목의 상세 정보를 표시하는 다이얼로그입니다.
+// Edit 버튼을 통해 수정 화면으로 이동하거나 Close 버튼으로 닫을 수 있습니다.
 class TodoDetailDialog {
-  /// Todo 상세 다이얼로그 표시
-  ///
-  /// [context] BuildContext
-  /// [todo] 표시할 Todo 객체
-  ///
-  /// 반환값: Edit 버튼 클릭 시 true, Close 버튼 클릭 시 false
+  // Todo 상세 다이얼로그 표시
+  //
+  // [context] BuildContext
+  // [todo] 표시할 Todo 객체
+  //
+  // 반환값: Edit 버튼 클릭 시 true, Close 버튼 클릭 시 false
   static Future<bool?> show({
     required BuildContext context,
     required Todo todo,

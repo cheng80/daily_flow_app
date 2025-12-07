@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'custom_network_util.dart';
 
-/// NetworkUtil 사용 예제 페이지
+// NetworkUtil 사용 예제 페이지
 class NetworkUtilExamplePage extends StatefulWidget {
   const NetworkUtilExamplePage({super.key});
 
@@ -77,7 +77,7 @@ class _NetworkUtilExamplePageState extends State<NetworkUtilExamplePage> {
     );
   }
 
-  /// GET 요청 예제
+  // GET 요청 예제
   void _getExample() async {
     setState(() {
       _result = '=== GET 요청 예제 ===\n\n';
@@ -102,7 +102,7 @@ class _NetworkUtilExamplePageState extends State<NetworkUtilExamplePage> {
     });
   }
 
-  /// POST 요청 예제
+  // POST 요청 예제
   void _postExample() async {
     setState(() {
       _result = '=== POST 요청 예제 ===\n\n';
@@ -130,7 +130,7 @@ class _NetworkUtilExamplePageState extends State<NetworkUtilExamplePage> {
     });
   }
 
-  /// PUT 요청 예제
+  // PUT 요청 예제
   void _putExample() async {
     setState(() {
       _result = '=== PUT 요청 예제 ===\n\n';
@@ -157,7 +157,7 @@ class _NetworkUtilExamplePageState extends State<NetworkUtilExamplePage> {
     });
   }
 
-  /// DELETE 요청 예제
+  // DELETE 요청 예제
   void _deleteExample() async {
     setState(() {
       _result = '=== DELETE 요청 예제 ===\n\n';
@@ -181,7 +181,7 @@ class _NetworkUtilExamplePageState extends State<NetworkUtilExamplePage> {
     });
   }
 
-  /// 쿼리 파라미터 예제
+  // 쿼리 파라미터 예제
   void _queryParamsExample() async {
     setState(() {
       _result = '=== 쿼리 파라미터 예제 ===\n\n';
@@ -212,7 +212,7 @@ class _NetworkUtilExamplePageState extends State<NetworkUtilExamplePage> {
     });
   }
 
-  /// 에러 처리 예제
+  // 에러 처리 예제
   void _errorHandlingExample() async {
     setState(() {
       _result = '=== 에러 처리 예제 ===\n\n';

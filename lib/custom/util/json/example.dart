@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'custom_json_util.dart';
 
-/// JsonUtil 사용 예제 페이지
+// JsonUtil 사용 예제 페이지
 class JsonUtilExamplePage extends StatefulWidget {
   const JsonUtilExamplePage({super.key});
 
@@ -68,7 +68,7 @@ class _JsonUtilExamplePageState extends State<JsonUtilExamplePage> {
     );
   }
 
-  /// 기본 JSON 변환 예제
+  // 기본 JSON 변환 예제
   void _basicExample() {
     setState(() {
       _result = '=== 기본 JSON 변환 ===\n\n';
@@ -89,7 +89,7 @@ class _JsonUtilExamplePageState extends State<JsonUtilExamplePage> {
     });
   }
 
-  /// 객체 ↔ JSON 변환 예제
+  // 객체 ↔ JSON 변환 예제
   void _objectExample() {
     setState(() {
       _result = '=== 객체 ↔ JSON 변환 ===\n\n';
@@ -115,7 +115,7 @@ class _JsonUtilExamplePageState extends State<JsonUtilExamplePage> {
     });
   }
 
-  /// JSON 검증 예제
+  // JSON 검증 예제
   void _validationExample() {
     setState(() {
       _result = '=== JSON 검증 ===\n\n';
@@ -131,7 +131,7 @@ class _JsonUtilExamplePageState extends State<JsonUtilExamplePage> {
     });
   }
 
-  /// JSON 포맷팅 예제
+  // JSON 포맷팅 예제
   void _formattingExample() {
     setState(() {
       _result = '=== JSON 포맷팅 ===\n\n';
@@ -147,7 +147,7 @@ class _JsonUtilExamplePageState extends State<JsonUtilExamplePage> {
     });
   }
 
-  /// JSON 병합 예제
+  // JSON 병합 예제
   void _mergeExample() {
     setState(() {
       _result = '=== JSON 병합 ===\n\n';
@@ -163,7 +163,7 @@ class _JsonUtilExamplePageState extends State<JsonUtilExamplePage> {
     });
   }
 
-  /// 경로로 값 가져오기/설정 예제
+  // 경로로 값 가져오기/설정 예제
   void _pathExample() {
     setState(() {
       _result = '=== 경로로 값 가져오기/설정 ===\n\n';

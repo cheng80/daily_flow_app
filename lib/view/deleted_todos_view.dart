@@ -9,11 +9,11 @@ import '../model/deleted_todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../custom/util/log/custom_log_util.dart';
 
-/// 삭제된 Todo 화면
-///
-/// 삭제 보관함에 있는 일정들을 표시하고, 복구 또는 완전 삭제할 수 있습니다.
+// 삭제된 Todo 화면
+//
+// 삭제 보관함에 있는 일정들을 표시하고, 복구 또는 완전 삭제할 수 있습니다.
 class DeletedTodosView extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const DeletedTodosView({super.key, required this.onToggleTheme});
@@ -23,19 +23,19 @@ class DeletedTodosView extends StatefulWidget {
 }
 
 class _DeletedTodosViewState extends State<DeletedTodosView> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   // late bool _themeBool;
 
-  /// 데이터베이스 핸들러
+  // 데이터베이스 핸들러
   late DatabaseHandler _handler;
 
-  /// 선택된 날짜 필터 (null = 전체, 0 = 오늘, 1 = 7일, 2 = 30일)
+  // 선택된 날짜 필터 (null = 전체, 0 = 오늘, 1 = 7일, 2 = 30일)
   int? _selectedDateFilter;
 
-  /// 정렬 방식 (true: 중요도순, false: 시간순)
+  // 정렬 방식 (true: 중요도순, false: 시간순)
   bool _sortByTime = false;
 
-  /// 위젯 초기화
+  // 위젯 초기화
   @override
   void initState() {
     super.initState();
@@ -45,7 +45,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     _sortByTime = false; // 기본값: 시간순
   }
 
-  /// 위젯 빌드
+  // 위젯 빌드
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -226,9 +226,9 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
   //-- Function
   //----------------------------------
 
-  /// 날짜 필터 옵션 리스트 반환
-  ///
-  /// 전체/오늘/7일/30일 4개의 옵션 정보를 반환합니다.
+  // 날짜 필터 옵션 리스트 반환
+  //
+  // 전체/오늘/7일/30일 4개의 옵션 정보를 반환합니다.
   List<FilterRadioOption> _getDateFilterOptions() {
     return [
       FilterRadioOption(
@@ -258,9 +258,9 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     ];
   }
 
-  /// 삭제된 Todo 데이터 로드
-  ///
-  /// 선택된 날짜 필터에 따라 삭제된 Todo 리스트를 조회합니다.
+  // 삭제된 Todo 데이터 로드
+  //
+  // 선택된 날짜 필터에 따라 삭제된 Todo 리스트를 조회합니다.
   Future<List<DeletedTodo>> _loadDeletedTodos() async {
     if (_selectedDateFilter == null) {
       // 전체
@@ -285,7 +285,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     return [];
   }
 
-  /// 삭제된 Todo 카드 빌드
+  // 삭제된 Todo 카드 빌드
   Widget _buildDeletedTodoCard(DeletedTodo deletedTodo, AppColorScheme p) {
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
@@ -414,7 +414,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     );
   }
 
-  /// 액션 패널 생성
+  // 액션 패널 생성
   ActionPane _getActionPane(
     Color bgColor,
     IconData icon,
@@ -437,11 +437,11 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     );
   }
 
-  /// 삭제된 Todo 정렬 함수
-  ///
-  /// 정렬 방식:
-  /// - 중요도순: priority 내림차순, 같으면 time 오름차순
-  /// - 시간순: time이 null이면 뒤로, 같으면 priority 내림차순
+  // 삭제된 Todo 정렬 함수
+  //
+  // 정렬 방식:
+  // - 중요도순: priority 내림차순, 같으면 time 오름차순
+  // - 시간순: time이 null이면 뒤로, 같으면 priority 내림차순
   List<DeletedTodo> _sortDeletedTodos(List<DeletedTodo> todos) {
     final sorted = List<DeletedTodo>.from(todos);
 
@@ -479,7 +479,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     return sorted;
   }
 
-  /// 삭제 일시 포맷팅
+  // 삭제 일시 포맷팅
   String _formatDeletedAt(String deletedAt) {
     try {
       // 'YYYY-MM-DD HH:MM:SS' 형식을 'YYYY년 MM월 DD일 HH:MM' 형식으로 변환
@@ -497,7 +497,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     }
   }
 
-  /// Todo 복구
+  // Todo 복구
   Future<void> _restoreTodo(DeletedTodo deletedTodo) async {
     try {
       await _handler.restoreData(deletedTodo, context: context);
@@ -519,7 +519,7 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     }
   }
 
-  /// Todo 완전 삭제
+  // Todo 완전 삭제
   Future<void> _permanentlyDeleteTodo(DeletedTodo deletedTodo) async {
     try {
       await _handler.realDeleteData(deletedTodo, context: context);

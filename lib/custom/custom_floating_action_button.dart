@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 
-/// FloatingActionButton 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomFloatingActionButton(onPressed: () {}, icon: Icons.add)
-/// CustomFloatingActionButton.extended(onPressed: () {}, label: "추가", icon: Icons.add)
-/// ```
+// FloatingActionButton 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomFloatingActionButton(onPressed: () {}, icon: Icons.add)
+// CustomFloatingActionButton.extended(onPressed: () {}, label: "추가", icon: Icons.add)
+// ```
 class CustomFloatingActionButton extends StatelessWidget {
-  /// 버튼 클릭 시 실행될 콜백 (필수)
+  // 버튼 클릭 시 실행될 콜백 (필수)
   final VoidCallback? onPressed;
 
-  /// 버튼에 표시할 아이콘 (일반/작은 크기일 때 필수)
+  // 버튼에 표시할 아이콘 (일반/작은 크기일 때 필수)
   final IconData? icon;
 
-  /// 버튼에 표시할 라벨 (확장형일 때 필수)
+  // 버튼에 표시할 라벨 (확장형일 때 필수)
   final String? label;
 
-  /// 버튼 배경색
+  // 버튼 배경색
   final Color? backgroundColor;
 
-  /// 버튼 전경색/아이콘 색상
+  // 버튼 전경색/아이콘 색상
   final Color? foregroundColor;
 
-  /// 툴팁 메시지
+  // 툴팁 메시지
   final String? tooltip;
 
-  /// 버튼 타입
+  // 버튼 타입
   final FloatingActionButtonType type;
 
-  /// 버튼 위치 (기본값: FloatingActionButtonLocation.endFloat)
+  // 버튼 위치 (기본값: FloatingActionButtonLocation.endFloat)
   final FloatingActionButtonLocation? location;
 
-  /// 원형 FloatingActionButton 생성자
+  // 원형 FloatingActionButton 생성자
   const CustomFloatingActionButton({
     super.key,
     required this.onPressed,
@@ -45,7 +45,7 @@ class CustomFloatingActionButton extends StatelessWidget {
        label = null,
        assert(icon != null, 'icon은 필수입니다.');
 
-  /// 작은 크기의 FloatingActionButton 생성자
+  // 작은 크기의 FloatingActionButton 생성자
   const CustomFloatingActionButton.small({
     super.key,
     required this.onPressed,
@@ -58,7 +58,7 @@ class CustomFloatingActionButton extends StatelessWidget {
        label = null,
        assert(icon != null, 'icon은 필수입니다.');
 
-  /// 확장형 FloatingActionButton 생성자
+  // 확장형 FloatingActionButton 생성자
   const CustomFloatingActionButton.extended({
     super.key,
     required this.onPressed,
@@ -123,14 +123,14 @@ class CustomFloatingActionButton extends StatelessWidget {
   }
 }
 
-/// FloatingActionButton 타입 enum
+// FloatingActionButton 타입 enum
 enum FloatingActionButtonType {
-  /// 일반 크기의 FloatingActionButton
+  // 일반 크기의 FloatingActionButton
   regular,
 
-  /// 작은 크기의 FloatingActionButton
+  // 작은 크기의 FloatingActionButton
   small,
 
-  /// 확장형 FloatingActionButton (라벨 포함)
+  // 확장형 FloatingActionButton (라벨 포함)
   extended,
 }

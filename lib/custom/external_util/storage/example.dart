@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'custom_storage_util.dart';
 
-/// StorageUtil 사용 예제
-///
-/// 이 파일은 CustomStorageUtil의 사용 예제를 보여줍니다.
-/// 실제 앱에서는 main() 함수에서 init()을 호출해야 합니다.
+// StorageUtil 사용 예제
+//
+// 이 파일은 CustomStorageUtil의 사용 예제를 보여줍니다.
+// 실제 앱에서는 main() 함수에서 init()을 호출해야 합니다.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -45,7 +45,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     _loadData();
   }
 
-  /// 저장된 데이터 불러오기
+  // 저장된 데이터 불러오기
   Future<void> _loadData() async {
     final username = await CustomStorageUtil.getString('username');
     final age = await CustomStorageUtil.getInt('age');
@@ -60,7 +60,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     });
   }
 
-  /// 기본 타입 저장 예제
+  // 기본 타입 저장 예제
   Future<void> _saveBasicTypes() async {
     await CustomStorageUtil.setString('username', '홍길동');
     await CustomStorageUtil.setInt('age', 25);
@@ -75,7 +75,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     await _loadData();
   }
 
-  /// 객체 저장 예제
+  // 객체 저장 예제
   Future<void> _saveObject() async {
     final user = User(name: '홍길동', age: 25, email: 'hong@example.com');
     await CustomStorageUtil.setObject('user', user);
@@ -91,7 +91,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
   }
 
-  /// 리스트 저장 예제
+  // 리스트 저장 예제
   Future<void> _saveList() async {
     final items = [
       Item(name: '사과', price: 1000),
@@ -112,25 +112,25 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     }
   }
 
-  /// 키 삭제 예제
+  // 키 삭제 예제
   Future<void> _removeKey() async {
     await CustomStorageUtil.remove('username');
     await _loadData();
   }
 
-  /// 모든 데이터 삭제 예제
+  // 모든 데이터 삭제 예제
   Future<void> _clearAll() async {
     await CustomStorageUtil.clear();
     await _loadData();
   }
 
-  /// 키 존재 여부 확인 예제
+  // 키 존재 여부 확인 예제
   Future<void> _checkKey() async {
     final exists = await CustomStorageUtil.containsKey('username');
     print('username 키 존재 여부: $exists');
   }
 
-  /// 모든 키 가져오기 예제
+  // 모든 키 가져오기 예제
   Future<void> _getAllKeys() async {
     final keys = await CustomStorageUtil.getAllKeys();
     print('모든 키: $keys');
@@ -222,7 +222,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
   }
 }
 
-/// 예제용 User 클래스
+// 예제용 User 클래스
 class User {
   final String name;
   final int age;
@@ -239,7 +239,7 @@ class User {
   );
 }
 
-/// 예제용 Item 클래스
+// 예제용 Item 클래스
 class Item {
   final String name;
   final int price;

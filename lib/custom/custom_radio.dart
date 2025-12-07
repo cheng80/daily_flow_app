@@ -22,49 +22,49 @@ Color? _getThemeTextPrimaryColor(BuildContext context) {
   }
 }
 
-/// Radio 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomRadio<String>(value: "option1", groupValue: _selectedOption, onChanged: (value) {})
-/// CustomRadio<String>(value: "option1", groupValue: _selectedOption, label: "옵션 1", onChanged: (value) {})
-/// ```
+// Radio 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomRadio<String>(value: "option1", groupValue: _selectedOption, onChanged: (value) {})
+// CustomRadio<String>(value: "option1", groupValue: _selectedOption, label: "옵션 1", onChanged: (value) {})
+// ```
 class CustomRadio<T> extends StatelessWidget {
-  /// Radio의 값 (필수)
+  // Radio의 값 (필수)
   final T value;
 
-  /// 현재 선택된 그룹 값 (필수)
+  // 현재 선택된 그룹 값 (필수)
   final T? groupValue;
 
-  /// Radio 값 변경 시 호출되는 콜백 함수 (필수)
+  // Radio 값 변경 시 호출되는 콜백 함수 (필수)
   final ValueChanged<T?>? onChanged;
 
-  /// Radio 활성화 상태의 색상 (기본값: Colors.blue)
+  // Radio 활성화 상태의 색상 (기본값: Colors.blue)
   final Color? activeColor;
 
-  /// Radio 비활성화 상태의 색상
+  // Radio 비활성화 상태의 색상
   final Color? inactiveColor;
 
-  /// Radio 옆에 표시할 레이블 텍스트
+  // Radio 옆에 표시할 레이블 텍스트
   final String? label;
 
-  /// 레이블 텍스트 스타일
+  // 레이블 텍스트 스타일
   final TextStyle? labelStyle;
 
-  /// Radio와 레이블 사이의 간격 (기본값: 8)
+  // Radio와 레이블 사이의 간격 (기본값: 8)
   final double? spacing;
 
-  /// Radio 크기 조절 (기본값: null, Material 3 기본 크기 사용)
+  // Radio 크기 조절 (기본값: null, Material 3 기본 크기 사용)
   final MaterialTapTargetSize? materialTapTargetSize;
 
-  /// Radio의 시각적 밀도
+  // Radio의 시각적 밀도
   final VisualDensity? visualDensity;
 
-  /// 플랫폼에 맞는 스타일 자동 적용 여부 (기본값: true)
-  /// true인 경우 Radio.adaptive 사용, false인 경우 Radio 사용
+  // 플랫폼에 맞는 스타일 자동 적용 여부 (기본값: true)
+  // true인 경우 Radio.adaptive 사용, false인 경우 Radio 사용
   final bool adaptive;
 
-  /// 커스텀 RadioThemeData (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
+  // 커스텀 RadioThemeData (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
   final RadioThemeData? radioTheme;
 
   const CustomRadio({
@@ -86,28 +86,34 @@ class CustomRadio<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radioWidget = RadioTheme(
-      data: radioTheme ??
+      data:
+          radioTheme ??
           RadioThemeData(
-            fillColor: WidgetStateProperty.resolveWith<Color?>(
-              (Set<WidgetState> states) {
-                if (states.contains(WidgetState.disabled)) {
-                  return inactiveColor;
-                }
-                if (states.contains(WidgetState.selected)) {
-                  return activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
-                }
+            fillColor: WidgetStateProperty.resolveWith<Color?>((
+              Set<WidgetState> states,
+            ) {
+              if (states.contains(WidgetState.disabled)) {
                 return inactiveColor;
-              },
-            ),
-            overlayColor: WidgetStateProperty.resolveWith<Color?>(
-              (Set<WidgetState> states) {
-                if (states.contains(WidgetState.selected)) {
-                  final themeColor = activeColor ?? _getThemePrimaryColor(context) ?? Colors.blue;
-                  return themeColor.withValues(alpha: 0.12);
-                }
-                return null;
-              },
-            ),
+              }
+              if (states.contains(WidgetState.selected)) {
+                return activeColor ??
+                    _getThemePrimaryColor(context) ??
+                    Colors.blue;
+              }
+              return inactiveColor;
+            }),
+            overlayColor: WidgetStateProperty.resolveWith<Color?>((
+              Set<WidgetState> states,
+            ) {
+              if (states.contains(WidgetState.selected)) {
+                final themeColor =
+                    activeColor ??
+                    _getThemePrimaryColor(context) ??
+                    Colors.blue;
+                return themeColor.withValues(alpha: 0.12);
+              }
+              return null;
+            }),
           ),
       child: adaptive
           ? Radio<T>.adaptive(
@@ -137,7 +143,8 @@ class CustomRadio<T> extends StatelessWidget {
           SizedBox(width: spacing ?? 8),
           Text(
             label!,
-            style: labelStyle ??
+            style:
+                labelStyle ??
                 TextStyle(
                   fontSize: 16,
                   color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
@@ -150,4 +157,3 @@ class CustomRadio<T> extends StatelessWidget {
     return radioWidget;
   }
 }
-

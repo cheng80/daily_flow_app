@@ -31,56 +31,56 @@ Color? _getThemeTextSecondaryColor(BuildContext context) {
   }
 }
 
-/// 리스트 선택기 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomPickerView(items: ['옵션1', '옵션2'], selectedItem: '옵션1', onItemSelected: (item) {})
-/// ```
+// 리스트 선택기 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomPickerView(items: ['옵션1', '옵션2'], selectedItem: '옵션1', onItemSelected: (item) {})
+// ```
 class CustomPickerView<T> extends StatelessWidget {
-  /// 선택 가능한 항목 리스트 (필수)
+  // 선택 가능한 항목 리스트 (필수)
   final List<T> items;
 
-  /// 현재 선택된 항목
+  // 현재 선택된 항목
   final T? selectedItem;
 
-  /// 항목 선택 시 호출되는 콜백 함수 (필수)
+  // 항목 선택 시 호출되는 콜백 함수 (필수)
   final ValueChanged<T> onItemSelected;
 
-  /// 커스텀 아이템 빌더 함수 (null이면 기본 Text 위젯 사용)
+  // 커스텀 아이템 빌더 함수 (null이면 기본 Text 위젯 사용)
   final Widget Function(T item)? itemBuilder;
 
-  /// 선택기 높이 (기본값: 200)
+  // 선택기 높이 (기본값: 200)
   final double? height;
 
-  /// 아이템 높이 (기본값: 50)
+  // 아이템 높이 (기본값: 50)
   final double? itemHeight;
 
-  /// 배경색
+  // 배경색
   final Color? backgroundColor;
 
-  /// 선택된 아이템 스타일
+  // 선택된 아이템 스타일
   final TextStyle? selectedItemStyle;
 
-  /// 선택되지 않은 아이템 스타일
+  // 선택되지 않은 아이템 스타일
   final TextStyle? unselectedItemStyle;
 
-  /// 선택된 아이템 배경색
+  // 선택된 아이템 배경색
   final Color? selectedItemColor;
 
-  /// 선택되지 않은 아이템 배경색
+  // 선택되지 않은 아이템 배경색
   final Color? unselectedItemColor;
 
-  /// 스크롤 물리 효과
+  // 스크롤 물리 효과
   final ScrollPhysics? physics;
 
-  /// 다중 선택 모드 (기본값: false)
+  // 다중 선택 모드 (기본값: false)
   final bool multiSelect;
 
-  /// 다중 선택된 항목 리스트 (multiSelect가 true일 때 사용)
+  // 다중 선택된 항목 리스트 (multiSelect가 true일 때 사용)
   final List<T>? selectedItems;
 
-  /// 다중 선택 시 호출되는 콜백 함수
+  // 다중 선택 시 호출되는 콜백 함수
   final ValueChanged<List<T>>? onItemsSelected;
 
   const CustomPickerView({
@@ -101,9 +101,10 @@ class CustomPickerView<T> extends StatelessWidget {
     this.selectedItems,
     this.onItemsSelected,
   }) : assert(
-          !multiSelect || (multiSelect && selectedItems != null && onItemsSelected != null),
-          '다중 선택 모드에서는 selectedItems와 onItemsSelected가 필요합니다.',
-        );
+         !multiSelect ||
+             (multiSelect && selectedItems != null && onItemsSelected != null),
+         '다중 선택 모드에서는 selectedItems와 onItemsSelected가 필요합니다.',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -139,16 +140,20 @@ class CustomPickerView<T> extends StatelessWidget {
                       item.toString(),
                       style: isSelected
                           ? (selectedItemStyle ??
-                              TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: _getThemePrimaryColor(context) ?? Colors.blue,
-                              ))
+                                TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      _getThemePrimaryColor(context) ??
+                                      Colors.blue,
+                                ))
                           : (unselectedItemStyle ??
-                              TextStyle(
-                                fontSize: 16,
-                                color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
-                              )),
+                                TextStyle(
+                                  fontSize: 16,
+                                  color:
+                                      _getThemeTextPrimaryColor(context) ??
+                                      Colors.black87,
+                                )),
                     ),
             ),
           );
@@ -198,7 +203,8 @@ class CustomPickerView<T> extends StatelessWidget {
                   else
                     Icon(
                       Icons.radio_button_unchecked,
-                      color: _getThemeTextSecondaryColor(context) ?? Colors.grey,
+                      color:
+                          _getThemeTextSecondaryColor(context) ?? Colors.grey,
                       size: 20,
                     ),
                   const SizedBox(width: 12),
@@ -209,16 +215,22 @@ class CustomPickerView<T> extends StatelessWidget {
                             item.toString(),
                             style: isSelected
                                 ? (selectedItemStyle ??
-                                    TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: _getThemePrimaryColor(context) ?? Colors.blue,
-                                    ))
+                                      TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            _getThemePrimaryColor(context) ??
+                                            Colors.blue,
+                                      ))
                                 : (unselectedItemStyle ??
-                                    TextStyle(
-                                      fontSize: 16,
-                                      color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
-                                    )),
+                                      TextStyle(
+                                        fontSize: 16,
+                                        color:
+                                            _getThemeTextPrimaryColor(
+                                              context,
+                                            ) ??
+                                            Colors.black87,
+                                      )),
                           ),
                   ),
                 ],
@@ -230,4 +242,3 @@ class CustomPickerView<T> extends StatelessWidget {
     );
   }
 }
-

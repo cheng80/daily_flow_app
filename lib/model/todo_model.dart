@@ -1,92 +1,23 @@
 import '../custom/custom_common_util.dart';
 
-/// Todo 모델 클래스
-/// 
-/// 활성 일정을 나타내는 데이터 모델입니다.
-/// todo 테이블의 구조를 반영하며, SQLite 데이터베이스와 직접 매핑됩니다.
-/// 
-/// 테이블 구조:
-/// - id: INTEGER PRIMARY KEY AUTOINCREMENT
-/// - title: TEXT NOT NULL
-/// - memo: TEXT (NULL 허용)
-/// - date: TEXT NOT NULL (형식: 'YYYY-MM-DD')
-/// - time: TEXT (NULL 허용, 형식: 'HH:MM')
-/// - step: INTEGER NOT NULL DEFAULT 3 (0=아침, 1=낮, 2=저녁, 3=Anytime)
-/// - priority: INTEGER NOT NULL DEFAULT 3 (1~5단계)
-/// - is_done: INTEGER NOT NULL DEFAULT 0 (0=미완료, 1=완료)
-/// - has_alarm: INTEGER NOT NULL DEFAULT 0 (0=알람없음, 1=알람있음)
-/// - notification_id: INTEGER (NULL 허용)
-/// - created_at: TEXT NOT NULL (형식: 'YYYY-MM-DD HH:MM:SS')
-/// - updated_at: TEXT NOT NULL (형식: 'YYYY-MM-DD HH:MM:SS')
+/// 활성 일정 데이터 모델
+///
+/// step: 0=아침, 1=낮, 2=저녁, 3=야간, 4=종일
+/// priority: 1~5단계 (1=매우낮음, 5=매우높음)
 class Todo {
-  /// 일정 고유 ID (PK, AUTOINCREMENT)
-  /// null일 경우 새로 생성되는 일정을 의미합니다.
-  final int? id;
-  
-  /// 일정 제목 (필수)
-  /// NOT NULL 제약조건이 있습니다.
-  final String title;
-  
-  /// 메모(상세 내용) (선택사항)
-  /// NULL 허용입니다.
-  final String? memo;
-  
-  /// 일정 날짜 (필수)
-  /// 형식: 'YYYY-MM-DD' (예: '2024-01-15')
-  /// NOT NULL 제약조건이 있습니다.
-  final String date;
-  
-  /// 일정 시간 (선택사항)
-  /// 형식: 'HH:MM' (예: '14:30')
-  /// 알람을 사용하지 않는 일정의 경우 NULL 가능합니다.
-  final String? time;
-  
-  /// 시간대 분류 (필수, 기본값: 3)
-  /// 0: 아침, 1: 낮, 2: 저녁, 3: Anytime
-  /// 드롭다운 선택 또는 시간 자동 매핑 결과를 저장합니다.
-  final int step;
-  
-  /// 중요도 1~5단계 (필수, 기본값: 3)
-  /// 1: 매우 낮음, 2: 낮음, 3: 보통, 4: 높음, 5: 매우 높음
-  /// UI에서 색상 라벨과 매핑됩니다.
-  final int priority;
-  
-  /// 완료 여부 (필수, 기본값: false)
-  /// false(0): 미완료, true(1): 완료
-  final bool isDone;
-  
-  /// 알람 활성 여부 (필수, 기본값: false)
-  /// false(0): 알람 없음, true(1): 알람 있음
-  /// has_alarm이 true이고 time이 존재할 때만 알람 스케줄링 대상입니다.
-  final bool hasAlarm;
-  
-  /// flutter_local_notifications용 알림 ID (선택사항)
-  /// 1일정당 최대 1개의 알람만 지원합니다.
-  /// NULL 허용입니다.
-  final int? notificationId;
-  
-  /// 생성 시각 (필수)
-  /// 형식: 'YYYY-MM-DD HH:MM:SS' (예: '2024-01-15 14:30:00')
-  final String createdAt;
-  
-  /// 마지막 수정 시각 (필수)
-  /// 형식: 'YYYY-MM-DD HH:MM:SS' (예: '2024-01-15 14:30:00')
-  final String updatedAt;
-  
-  /// Todo 생성자
-  /// 
-  /// [id] 일정 고유 ID (새 일정 생성 시 null)
-  /// [title] 일정 제목 (필수)
-  /// [memo] 메모 내용 (선택사항)
-  /// [date] 일정 날짜 'YYYY-MM-DD' 형식 (필수)
-  /// [time] 일정 시간 'HH:MM' 형식 (선택사항)
-  /// [step] 시간대 분류 (0=아침, 1=낮, 2=저녁, 3=Anytime, 기본값: 3)
-  /// [priority] 중요도 1~5단계 (기본값: 3)
-  /// [isDone] 완료 여부 (기본값: false)
-  /// [hasAlarm] 알람 활성 여부 (기본값: false)
-  /// [notificationId] 알림 ID (선택사항)
-  /// [createdAt] 생성 시각 'YYYY-MM-DD HH:MM:SS' 형식 (필수)
-  /// [updatedAt] 수정 시각 'YYYY-MM-DD HH:MM:SS' 형식 (필수)
+  final int? id; // 일정 고유 ID
+  final String title; // 일정 제목
+  final String? memo; // 메모
+  final String date; // 'YYYY-MM-DD'
+  final String? time; // 'HH:MM'
+  final int step; // 0=아침, 1=낮, 2=저녁, 3=야간, 4=종일
+  final int priority; // 1~5
+  final bool isDone; // 완료 여부
+  final bool hasAlarm; // 알람 설정 여부
+  final int? notificationId; // 알람 알림 ID
+  final String createdAt; // 'YYYY-MM-DD HH:MM:SS'
+  final String updatedAt; // 'YYYY-MM-DD HH:MM:SS'
+
   Todo({
     this.id,
     required this.title,
@@ -101,13 +32,7 @@ class Todo {
     required this.createdAt,
     required this.updatedAt,
   });
-  
-  /// SQLite Map → Todo 객체 변환 팩토리 생성자
-  /// 
-  /// 데이터베이스에서 조회한 Map 데이터를 Todo 객체로 변환합니다.
-  /// 
-  /// [map] SQLite에서 조회한 Map 데이터
-  /// 반환값: Todo 객체
+
   factory Todo.fromMap(Map<String, dynamic> map) {
     return Todo(
       id: map['id'] as int?,
@@ -124,12 +49,8 @@ class Todo {
       updatedAt: map['updated_at'] as String,
     );
   }
-  
-  /// Todo 객체 → SQLite Map 변환 메서드
-  /// 
-  /// Todo 객체를 데이터베이스에 저장하기 위한 Map 형태로 변환합니다.
-  /// 
-  /// 반환값: SQLite에 저장 가능한 Map 데이터
+
+  // Todo 객체를 Map으로 변환
   Map<String, dynamic> toMap() {
     return {
       if (id != null) 'id': id,
@@ -146,28 +67,10 @@ class Todo {
       'updated_at': updatedAt,
     };
   }
-  
-  /// Todo 객체 복사 생성자
-  /// 
-  /// 기존 Todo 객체를 기반으로 일부 필드만 변경한 새로운 Todo 객체를 생성합니다.
-  /// 수정 작업 시 유용합니다.
-  /// 
-  /// [id] 일정 고유 ID
-  /// [title] 일정 제목
-  /// [memo] 메모 내용 (null을 명시적으로 설정하려면 clearMemo: true 사용)
-  /// [date] 일정 날짜
-  /// [time] 일정 시간 (null을 명시적으로 설정하려면 clearTime: true 사용)
-  /// [step] 시간대 분류
-  /// [priority] 중요도
-  /// [isDone] 완료 여부
-  /// [hasAlarm] 알람 활성 여부
-  /// [notificationId] 알림 ID (null을 명시적으로 설정하려면 clearNotificationId: true 사용)
-  /// [createdAt] 생성 시각
-  /// [updatedAt] 수정 시각
-  /// [clearMemo] memo를 null로 설정할지 여부
-  /// [clearTime] time을 null로 설정할지 여부
-  /// [clearNotificationId] notificationId를 null로 설정할지 여부
-  /// 반환값: 복사된 Todo 객체
+
+  /// 일부 필드만 변경한 새 Todo 객체 생성
+  ///
+  /// clearMemo, clearTime, clearNotificationId: true 시 해당 필드를 null로 설정
   Todo copyWith({
     int? id,
     String? title,
@@ -195,25 +98,15 @@ class Todo {
       priority: priority ?? this.priority,
       isDone: isDone ?? this.isDone,
       hasAlarm: hasAlarm ?? this.hasAlarm,
-      notificationId: clearNotificationId ? null : (notificationId ?? this.notificationId),
+      notificationId: clearNotificationId
+          ? null
+          : (notificationId ?? this.notificationId),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-  
-  /// 현재 시간을 기반으로 새 Todo 객체 생성 헬퍼 메서드
-  /// 
-  /// 새 일정 생성 시 created_at과 updated_at을 현재 시간으로 자동 설정합니다.
-  /// 
-  /// [title] 일정 제목 (필수)
-  /// [memo] 메모 내용 (선택사항)
-  /// [date] 일정 날짜 'YYYY-MM-DD' 형식 (필수)
-  /// [time] 일정 시간 'HH:MM' 형식 (선택사항)
-  /// [step] 시간대 분류 (기본값: 3)
-  /// [priority] 중요도 (기본값: 3)
-  /// [isDone] 완료 여부 (기본값: false)
-  /// [hasAlarm] 알람 활성 여부 (기본값: false)
-  /// 반환값: 현재 시간이 설정된 새 Todo 객체
+
+  /// created_at과 updated_at을 현재 시간으로 자동 설정하여 새 Todo 생성
   factory Todo.createNew({
     required String title,
     String? memo,
@@ -226,7 +119,7 @@ class Todo {
   }) {
     final now = DateTime.now();
     final dateTimeStr = CustomCommonUtil.formatDate(now, 'yyyy-MM-dd HH:mm:ss');
-    
+
     return Todo(
       title: title,
       memo: memo,
@@ -240,11 +133,9 @@ class Todo {
       updatedAt: dateTimeStr,
     );
   }
-  
-  /// 디버깅용 toString 메서드
+
   @override
   String toString() {
     return 'Todo(id: $id, title: $title, date: $date, time: $time, step: $step, priority: $priority, isDone: $isDone)';
   }
 }
-

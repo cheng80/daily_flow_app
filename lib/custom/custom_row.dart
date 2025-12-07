@@ -1,35 +1,35 @@
 import 'package:flutter/material.dart';
 
-/// Row 위젯
-///
-/// 사용 예시:
-/// ```dart
-/// CustomRow(children: [Widget1(), Widget2()])
-/// CustomRow(children: [...], spacing: 16, padding: EdgeInsets.all(16))
-/// ```
+// Row 위젯
+//
+// 사용 예시:
+// ```dart
+// CustomRow(children: [Widget1(), Widget2()])
+// CustomRow(children: [...], spacing: 16, padding: EdgeInsets.all(16))
+// ```
 class CustomRow extends StatelessWidget {
-  /// Row의 자식 위젯들 (필수)
+  // Row의 자식 위젯들 (필수)
   final List<Widget> children;
 
-  /// 자식 위젯들 사이의 간격 (기본값: 12)
+  // 자식 위젯들 사이의 간격 (기본값: 12)
   final double? spacing;
 
-  /// Row의 정렬 방식 (기본값: MainAxisAlignment.start)
+  // Row의 정렬 방식 (기본값: MainAxisAlignment.start)
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// Row의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
+  // Row의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// Row 전체에 적용할 패딩
+  // Row 전체에 적용할 패딩
   final EdgeInsets? padding;
 
-  /// Row의 너비
+  // Row의 너비
   final double? width;
 
-  /// Row의 높이
+  // Row의 높이
   final double? height;
 
-  /// 배경색
+  // 배경색
   final Color? backgroundColor;
 
   const CustomRow({
@@ -76,7 +76,7 @@ class CustomRow extends StatelessWidget {
     return row;
   }
 
-  /// children 리스트에 spacing을 추가하는 메서드
+  // children 리스트에 spacing을 추가하는 메서드
   List<Widget> _addSpacing(List<Widget> children, double spacing) {
     if (children.isEmpty) return children;
 

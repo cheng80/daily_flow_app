@@ -3,18 +3,18 @@ import '../../custom/custom.dart';
 import '../../app_custom/custom_calendar.dart';
 import '../../theme/app_colors.dart';
 
-/// 메인 화면용 캘린더 위젯 테스트 화면
-///
-/// **목적:** `CustomCalendar` 위젯의 동작을 테스트하고 검증합니다.
-///
-/// 테스트 항목:
-/// - 날짜 선택 기능
-/// - 이벤트 표시 (배지 및 언더바)
-/// - 달력 높이 조정
-/// - 테마 색상 적용
-/// - 주말 색상 구분
+// 메인 화면용 캘린더 위젯 테스트 화면
+//
+// **목적:** `CustomCalendar` 위젯의 동작을 테스트하고 검증합니다.
+//
+// 테스트 항목:
+// - 날짜 선택 기능
+// - 이벤트 표시 (배지 및 언더바)
+// - 달력 높이 조정
+// - 테마 색상 적용
+// - 주말 색상 구분
 class HomeTestCalendar extends StatefulWidget {
-  /// 테마 토글 콜백 함수
+  // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const HomeTestCalendar({super.key, required this.onToggleTheme});
@@ -24,32 +24,32 @@ class HomeTestCalendar extends StatefulWidget {
 }
 
 class _HomeTestCalendarState extends State<HomeTestCalendar> {
-  /// 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
+  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
-  /// 선택된 날짜
+  // 선택된 날짜
   late DateTime _selectedDay;
 
-  /// 포커스된 날짜 (현재 보이는 달의 날짜)
+  // 포커스된 날짜 (현재 보이는 달의 날짜)
   late DateTime _focusedDay;
 
-  /// 테스트용 이벤트 표시 여부
-  ///
-  /// true: 이벤트 배지와 진행도 바 표시
-  /// false: 이벤트 표시 안 함
+  // 테스트용 이벤트 표시 여부
+  //
+  // true: 이벤트 배지와 진행도 바 표시
+  // false: 이벤트 표시 안 함
   bool _showTestEvents = true;
 
-  /// 달력 높이 (픽셀)
-  ///
-  /// 테스트용으로 높이를 변경할 수 있습니다.
-  /// 0: 자동 (반응형), 그 외: 지정된 높이 (px)
-  /// 기본값: 0 (자동)
+  // 달력 높이 (픽셀)
+  //
+  // 테스트용으로 높이를 변경할 수 있습니다.
+  // 0: 자동 (반응형), 그 외: 지정된 높이 (px)
+  // 기본값: 0 (자동)
   double _calendarHeight = 0;
 
-  /// 위젯 초기화
-  ///
-  /// 페이지가 새로 생성될 때 한 번 호출됩니다.
-  /// 테마 상태를 라이트 모드(false)로 초기화하고, 날짜를 오늘로 설정합니다.
+  // 위젯 초기화
+  //
+  // 페이지가 새로 생성될 때 한 번 호출됩니다.
+  // 테마 상태를 라이트 모드(false)로 초기화하고, 날짜를 오늘로 설정합니다.
   @override
   void initState() {
     super.initState();
@@ -59,9 +59,9 @@ class _HomeTestCalendarState extends State<HomeTestCalendar> {
     _focusedDay = now;
   }
 
-  /// 위젯 빌드
-  ///
-  /// 캘린더 위젯 테스트용 UI를 구성합니다.
+  // 위젯 빌드
+  //
+  // 캘린더 위젯 테스트용 UI를 구성합니다.
   @override
   Widget build(BuildContext context) {
     final p = context.palette; // AppColorScheme 객체 접근

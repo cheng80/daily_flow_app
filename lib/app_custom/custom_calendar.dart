@@ -2,116 +2,116 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../theme/app_colors.dart';
 
-/// 테스트용 크기 조절 가능한 달력 위젯
-///
-/// TableCalendar 패키지를 기반으로 구현된 테스트용 커스텀 달력 위젯입니다.
-/// 기존 CustomCalendar의 이벤트 표시 방식을 따르면서 크기 조절이 가능합니다.
-///
-/// **설계 원칙:**
-/// - 이벤트 표시 방식(마커, 배지, 바 등)은 달력 내부에서 결정
-/// - 이벤트 데이터 조회는 외부 콜백(`eventLoader`)으로 처리
-/// - DB 조회나 일정 조회는 달력을 사용하는 페이지에서 담당
-/// - 이렇게 해야 피커나 다른 페이지에서도 재사용 가능
-///
-/// 주요 기능:
-/// - 크기 조절 가능 (rowHeight, cellMargin, cellPadding 등)
-/// - 상단 헤더에 오늘로 가기 버튼 (calendar_today 아이콘)
-/// - 날짜 선택 및 포커스 관리
-/// - 날짜별 일정 갯수 원형 배지 표시 (내부에서 처리)
-/// - 날짜별 진행도 미니 바 표시 (내부에서 처리)
-/// - 오늘 날짜 강조 표시 (파란색 테두리)
-/// - 선택된 날짜 강조 표시 (배경색 + 테두리)
-/// - 다른 달 날짜 회색 처리
-/// - 라이트/다크 모드 자동 지원
-///
-/// 사용 예시:
-/// ```dart
-/// CustomCalendar(
-///   selectedDay: DateTime.now(),
-///   focusedDay: DateTime.now(),
-///   onDaySelected: (selectedDay, focusedDay) {
-///     setState(() {
-///       _selectedDay = selectedDay;
-///       _focusedDay = focusedDay;
-///     });
-///   },
-///   onTodayPressed: () {
-///     setState(() {
-///       _selectedDay = DateTime.now();
-///       _focusedDay = DateTime.now();
-///     });
-///   },
-///   onPageChanged: (focusedDay) {
-///     setState(() {
-///       _focusedDay = focusedDay;
-///     });
-///   },
-///   eventLoader: (day) {
-///     // 외부에서 데이터 조회 (DB, API 등)
-///     // 달력은 이 리스트를 받아서 내부에서 표시 방식 결정
-///     return databaseHandler.queryDataByDate(formatDate(day));
-///   },
-///   calendarHeight: 400.0,
-///   cellAspectRatio: 1.0,
-/// )
-/// ```
+// 테스트용 크기 조절 가능한 달력 위젯
+//
+// TableCalendar 패키지를 기반으로 구현된 테스트용 커스텀 달력 위젯입니다.
+// 기존 CustomCalendar의 이벤트 표시 방식을 따르면서 크기 조절이 가능합니다.
+//
+// **설계 원칙:**
+// - 이벤트 표시 방식(마커, 배지, 바 등)은 달력 내부에서 결정
+// - 이벤트 데이터 조회는 외부 콜백(`eventLoader`)으로 처리
+// - DB 조회나 일정 조회는 달력을 사용하는 페이지에서 담당
+// - 이렇게 해야 피커나 다른 페이지에서도 재사용 가능
+//
+// 주요 기능:
+// - 크기 조절 가능 (rowHeight, cellMargin, cellPadding 등)
+// - 상단 헤더에 오늘로 가기 버튼 (calendar_today 아이콘)
+// - 날짜 선택 및 포커스 관리
+// - 날짜별 일정 갯수 원형 배지 표시 (내부에서 처리)
+// - 날짜별 진행도 미니 바 표시 (내부에서 처리)
+// - 오늘 날짜 강조 표시 (파란색 테두리)
+// - 선택된 날짜 강조 표시 (배경색 + 테두리)
+// - 다른 달 날짜 회색 처리
+// - 라이트/다크 모드 자동 지원
+//
+// 사용 예시:
+// ```dart
+// CustomCalendar(
+//   selectedDay: DateTime.now(),
+//   focusedDay: DateTime.now(),
+//   onDaySelected: (selectedDay, focusedDay) {
+//     setState(() {
+//       _selectedDay = selectedDay;
+//       _focusedDay = focusedDay;
+//     });
+//   },
+//   onTodayPressed: () {
+//     setState(() {
+//       _selectedDay = DateTime.now();
+//       _focusedDay = DateTime.now();
+//     });
+//   },
+//   onPageChanged: (focusedDay) {
+//     setState(() {
+//       _focusedDay = focusedDay;
+//     });
+//   },
+//   eventLoader: (day) {
+//     // 외부에서 데이터 조회 (DB, API 등)
+//     // 달력은 이 리스트를 받아서 내부에서 표시 방식 결정
+//     return databaseHandler.queryDataByDate(formatDate(day));
+//   },
+//   calendarHeight: 400.0,
+//   cellAspectRatio: 1.0,
+// )
+// ```
 class CustomCalendar extends StatelessWidget {
-  /// 선택된 날짜
+  // 선택된 날짜
   final DateTime selectedDay;
 
-  /// 현재 보이는 달의 포커스된 날짜
+  // 현재 보이는 달의 포커스된 날짜
   final DateTime focusedDay;
 
-  /// 날짜 선택 시 호출되는 콜백 함수
+  // 날짜 선택 시 호출되는 콜백 함수
   final void Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
 
-  /// 오늘로 가기 버튼 클릭 시 호출되는 콜백 함수
+  // 오늘로 가기 버튼 클릭 시 호출되는 콜백 함수
   final VoidCallback? onTodayPressed;
 
-  /// 페이지 변경 시 호출되는 콜백 함수 (월 이동 시)
+  // 페이지 변경 시 호출되는 콜백 함수 (월 이동 시)
   final void Function(DateTime focusedDay)? onPageChanged;
 
-  /// 날짜별 이벤트(Todo) 리스트를 반환하는 함수
-  ///
-  /// **중요:** 이 함수는 외부(달력을 사용하는 페이지)에서 데이터를 조회하여 반환합니다.
-  /// 달력 내부에서는 이 리스트를 받아서 표시 방식(마커, 배지, 바 등)만 결정합니다.
-  /// DB 조회나 API 호출은 이 콜백을 제공하는 쪽에서 처리해야 합니다.
-  ///
-  /// 예시:
-  /// ```dart
-  /// eventLoader: (day) {
-  ///   // DB에서 조회
-  ///   return databaseHandler.queryDataByDate(formatDate(day));
-  ///   // 또는 API에서 조회
-  ///   // return await apiService.getEventsForDate(day);
-  /// }
-  /// ```
+  // 날짜별 이벤트(Todo) 리스트를 반환하는 함수
+  //
+  // **중요:** 이 함수는 외부(달력을 사용하는 페이지)에서 데이터를 조회하여 반환합니다.
+  // 달력 내부에서는 이 리스트를 받아서 표시 방식(마커, 배지, 바 등)만 결정합니다.
+  // DB 조회나 API 호출은 이 콜백을 제공하는 쪽에서 처리해야 합니다.
+  //
+  // 예시:
+  // ```dart
+  // eventLoader: (day) {
+  //   // DB에서 조회
+  //   return databaseHandler.queryDataByDate(formatDate(day));
+  //   // 또는 API에서 조회
+  //   // return await apiService.getEventsForDate(day);
+  // }
+  // ```
   final List<dynamic> Function(DateTime day) eventLoader;
 
-  /// 달력 위젯의 높이 (픽셀)
-  ///
-  /// 높이만 지정하면 너비는 자동으로 높이와 동일하게 계산되어 정사각형이 됩니다.
+  // 달력 위젯의 높이 (픽셀)
+  //
+  // 높이만 지정하면 너비는 자동으로 높이와 동일하게 계산되어 정사각형이 됩니다.
   final double? calendarHeight;
 
-  /// 행 높이 (각 날짜 셀의 높이)
+  // 행 높이 (각 날짜 셀의 높이)
   final double? rowHeight;
 
-  /// 셀 마진 (각 날짜 셀 주변의 여백)
+  // 셀 마진 (각 날짜 셀 주변의 여백)
   final EdgeInsets? cellMargin;
 
-  /// 셀 패딩 (각 날짜 셀 내부의 여백)
+  // 셀 패딩 (각 날짜 셀 내부의 여백)
   final EdgeInsets? cellPadding;
 
-  /// 요일 헤더 높이
+  // 요일 헤더 높이
   final double? daysOfWeekHeight;
 
-  /// 헤더 높이 (월/연도 표시 영역)
+  // 헤더 높이 (월/연도 표시 영역)
   final double? headerHeight;
 
-  /// 셀의 세로 기준 비율 (기본값: 1.0 = 정사각형)
-  ///
-  /// 예: 1.0 = 정사각형, 1.2 = 세로가 가로보다 1.2배 긴 직사각형
-  /// 비율이 1.2면 달력의 세로 길이와 셀의 세로 길이가 1.2배가 됩니다.
+  // 셀의 세로 기준 비율 (기본값: 1.0 = 정사각형)
+  //
+  // 예: 1.0 = 정사각형, 1.2 = 세로가 가로보다 1.2배 긴 직사각형
+  // 비율이 1.2면 달력의 세로 길이와 셀의 세로 길이가 1.2배가 됩니다.
   final double cellAspectRatio;
 
   const CustomCalendar({
@@ -692,9 +692,9 @@ class CustomCalendar extends StatelessWidget {
   //-- Function
   //----------------------------------
 
-  /// 이전 월 이동 버튼 클릭 콜백
-  ///
-  /// [focusedDay] 현재 포커스된 날짜
+  // 이전 월 이동 버튼 클릭 콜백
+  //
+  // [focusedDay] 현재 포커스된 날짜
   void _onPreviousMonthPressed(DateTime focusedDay) {
     final previousMonth = DateTime(
       focusedDay.year,
@@ -704,9 +704,9 @@ class CustomCalendar extends StatelessWidget {
     onPageChanged?.call(previousMonth);
   }
 
-  /// 다음 월 이동 버튼 클릭 콜백
-  ///
-  /// [focusedDay] 현재 포커스된 날짜
+  // 다음 월 이동 버튼 클릭 콜백
+  //
+  // [focusedDay] 현재 포커스된 날짜
   void _onNextMonthPressed(DateTime focusedDay) {
     final nextMonth = DateTime(
       focusedDay.year,
