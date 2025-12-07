@@ -6,6 +6,7 @@ import 'test_view/home_test_summary_bar.dart';
 import 'test_view/home_test_step_mapper.dart';
 import 'test_view/home_test_filter_radio.dart';
 import 'test_view/home_test_calendar_test.dart';
+import 'test_view/home_test_calendar_range.dart';
 import 'main_view.dart';
 import 'create_todo_view.dart';
 import 'test_view/home_test_calendar_picker_dialog.dart';
@@ -238,6 +239,18 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             HomeTestCalendarTest(
+                              onToggleTheme: widget.onToggleTheme,
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "범위 선택 달력 테스트",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          CustomNavigationUtil.to(
+                            context,
+                            HomeTestCalendarRange(
                               onToggleTheme: widget.onToggleTheme,
                             ),
                           );

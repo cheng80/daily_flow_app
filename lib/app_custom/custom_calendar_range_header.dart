@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-// 달력 헤더 위젯
+// 범위 선택 달력 헤더 위젯
 //
 // 월/연도 표시, 이전/다음 월 이동 버튼, 오늘로 가기 버튼을 포함합니다.
+// CustomCalendarHeader와 동일한 구조이지만 범위 선택 달력용입니다.
 //
 // 사용 예시:
 // ```dart
-// CustomCalendarHeader(
+// CustomCalendarRangeHeader(
 //   focusedDay: DateTime.now(),
 //   onPreviousMonth: () {
 //     setState(() {
@@ -26,7 +27,7 @@ import '../theme/app_colors.dart';
 //   },
 // )
 // ```
-class CustomCalendarHeader extends StatelessWidget {
+class CustomCalendarRangeHeader extends StatelessWidget {
   // 현재 포커스된 날짜 (월 이동 시 변경됨)
   final DateTime focusedDay;
 
@@ -42,7 +43,7 @@ class CustomCalendarHeader extends StatelessWidget {
   // 헤더 높이 (기본값: 50.0)
   final double? height;
 
-  const CustomCalendarHeader({
+  const CustomCalendarRangeHeader({
     super.key,
     required this.focusedDay,
     this.onPreviousMonth,
@@ -126,3 +127,4 @@ class CustomCalendarHeader extends StatelessWidget {
     );
   }
 }
+
