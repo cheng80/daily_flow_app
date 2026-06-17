@@ -63,6 +63,9 @@ class CustomCheckbox extends StatelessWidget {
   // 커스텀 CheckboxThemeData (다른 스타일 속성들을 직접 지정하고 싶을 때 사용)
   final CheckboxThemeData? checkboxTheme;
 
+  // 레이블과 체크박스의 세로 정렬 방식 (기본값: CrossAxisAlignment.center)
+  final CrossAxisAlignment labelAlignment;
+
   const CustomCheckbox({
     super.key,
     required this.value,
@@ -76,6 +79,7 @@ class CustomCheckbox extends StatelessWidget {
     this.materialTapTargetSize,
     this.visualDensity,
     this.checkboxTheme,
+    this.labelAlignment = CrossAxisAlignment.center,
   });
 
   @override
@@ -125,17 +129,20 @@ class CustomCheckbox extends StatelessWidget {
     if (label != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: labelAlignment,
         children: [
           checkboxWidget,
           SizedBox(width: spacing ?? 8),
-          Text(
-            label!,
-            style:
-                labelStyle ??
-                TextStyle(
-                  fontSize: 16,
-                  color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
-                ),
+          Flexible(
+            child: Text(
+              label!,
+              style:
+                  labelStyle ??
+                  TextStyle(
+                    fontSize: 16,
+                    color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
+                  ),
+            ),
           ),
         ],
       );

@@ -37,3 +37,7 @@ export 'util/address/custom_address_util.dart';
 
 // 네비게이션 유틸리티 (Flutter Navigator 래핑)
 export 'util/navigation/custom_navigation_util.dart';
+
+// 로그 유틸리티는 lib/utils/app_logger.dart를 사용하도록 변경됨
+// custom 폴더 내부에서만 필요할 경우 직접 import 가능
+// export 'util/log/custom_log_util.dart';

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'service/notification_service.dart';
 import 'theme/app_colors.dart';
 import 'view/create_todo_view.dart';
 import 'view/home.dart';
 import 'view/splash_page.dart';
+import 'vm/vm_notifier.dart';
 import 'custom/util/log/custom_log_util.dart';
 
 void main() async {
@@ -13,26 +15,56 @@ void main() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
   await notificationService.requestPermission();
-  await notificationService.cleanupExpiredNotifications();
 
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   AppThemeMode _mode = AppThemeMode.light;
   final NotificationService _notificationService = NotificationService();
+  bool _isInitialCleanupDone = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 초기 알람 정리 (한 번만 실행)
+    if (!_isInitialCleanupDone) {
+      _isInitialCleanupDone = true;
+      _performInitialCleanup();
+    }
+  }
+
+  Future<void> _performInitialCleanup() async {
+    try {
+      // Provider를 통해 Todo 리스트 가져오기
+      final todoAsync = await ref.read(todoNotifierProvider(TodoType.normal).future);
+      final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      
+      // cleanupExpiredNotifications 호출
+      await _notificationService.cleanupExpiredNotifications(
+        todos: todoAsync,
+        updateTodo: (todo) => notifier.updateTodo(todo),
+      );
+    } catch (e) {
+      AppLogger.e('초기 알람 정리 중 오류 발생', tag: 'AppLifecycle', error: e);
+    }
   }
 
   @override
@@ -48,9 +80,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.resumed) {
       AppLogger.d('앱이 포그라운드로 돌아옴 - 과거 알람 정리 시작', tag: 'AppLifecycle');
-      _notificationService.cleanupExpiredNotifications().catchError((error) {
+      _performCleanupOnResume().catchError((error) {
         AppLogger.e('과거 알람 정리 중 오류 발생', tag: 'AppLifecycle', error: error);
       });
+    }
+  }
+
+  Future<void> _performCleanupOnResume() async {
+    try {
+      // Provider를 통해 Todo 리스트 가져오기
+      final todoAsync = await ref.read(todoNotifierProvider(TodoType.normal).future);
+      final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      
+      // cleanupExpiredNotifications 호출
+      await _notificationService.cleanupExpiredNotifications(
+        todos: todoAsync,
+        updateTodo: (todo) => notifier.updateTodo(todo),
+      );
+    } catch (e) {
+      AppLogger.e('포그라운드 복귀 시 알람 정리 중 오류 발생', tag: 'AppLifecycle', error: e);
     }
   }
 
@@ -89,7 +137,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         const Locale('ko', 'KR'),
         const Locale('ja', 'JP'),
       ],
-      initialRoute: '/splash',
+      initialRoute: '/home',
       onGenerateRoute: (settings) {
         // 페이드 트랜지션을 위한 PageRouteBuilder 생성 함수
         PageRoute<T> fadeRoute<T extends Object?>(
@@ -108,6 +156,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         }
 
         switch (settings.name) {
+          case '/home':
+            return fadeRoute(
+              Home(onToggleTheme: _toggleTheme),
+              routeSettings: settings,
+            );
           case '/splash':
             return fadeRoute(
               SplashPage(onToggleTheme: _toggleTheme),

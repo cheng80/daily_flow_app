@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../app_custom/custom_filter_radio.dart';
 import '../custom/custom.dart';
@@ -7,7 +8,7 @@ import '../app_custom/custom_calendar_range_header_v2.dart';
 import '../app_custom/custom_calendar_range_body_v2.dart';
 import '../app_custom/app_common_util.dart';
 import '../app_custom/step_mapper_util.dart';
-import '../vm/database_handler.dart';
+import '../vm/vm_notifier.dart';
 import '../model/todo_model.dart';
 import '../service/notification_service.dart';
 import '../custom/util/log/custom_log_util.dart';
@@ -26,18 +27,17 @@ enum FunctionType { update, delete }
 // MainView를 기반으로 범위 선택 기능을 단계적으로 추가합니다.
 // Phase 1: 싱글 모드 정상 동작 (MainView와 동일)
 // Phase 2: 범위 선택 기능 추가 예정
-class MainRangeViewV2 extends StatefulWidget {
+class MainRangeViewV2 extends ConsumerStatefulWidget {
   final VoidCallback onToggleTheme;
 
   const MainRangeViewV2({super.key, required this.onToggleTheme});
 
   @override
-  State<MainRangeViewV2> createState() => _MainRangeViewV2State();
+  ConsumerState<MainRangeViewV2> createState() => _MainRangeViewV2State();
 }
 
-class _MainRangeViewV2State extends State<MainRangeViewV2> {
+class _MainRangeViewV2State extends ConsumerState<MainRangeViewV2> {
   late bool _themeBool;
-  late DatabaseHandler _handler;
   late DateTime _selectedDay;
   late DateTime _focusedDay;
   // Step 1: 범위 선택 상태 변수 추가
@@ -67,7 +67,6 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
     _selectedDay = now;
     _focusedDay = now;
     _selectedStep = null;
-    _handler = DatabaseHandler();
     _todoCache = {};
     // Step 1: 범위 선택 상태 변수 초기화
     _selectedRange = null;
@@ -75,79 +74,52 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
     _rangeSelectionCount = 0;
     _minDate = null;
     _maxDate = null;
-    // Step 2: 날짜 제약 조건 로드
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 날짜 제약 조건 로드 (Provider watch)
     _loadDateConstraints();
-    // 초기 데이터 로드
+    // 초기 데이터 로드 (Provider watch)
     _loadCalendarEvents();
     // 초기 Summary Bar 비율 계산
-    _calculateSummaryRatios();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateSummaryRatios();
+    });
   }
 
-  // Step 2: 날짜 제약 조건 로드 (DB 최소/최대 날짜)
-  Future<void> _loadDateConstraints() async {
-    try {
-      final minDateStr = await _handler.queryMinDate();
-      final maxDateStr = await _handler.queryMaxDate();
+  // 날짜 제약 조건 로드 (Provider 사용)
+  void _loadDateConstraints() {
+    final constraintsAsync = ref.watch(dateConstraintsProvider);
+    constraintsAsync.whenData((constraints) {
+      if (mounted) {
+        setState(() {
+          _minDate = constraints.minDate;
+          _maxDate = constraints.maxDate;
 
-      setState(() {
-        if (minDateStr != null) {
-          _minDate = DateTime.parse(minDateStr);
-        }
-        if (maxDateStr != null) {
-          _maxDate = DateTime.parse(maxDateStr);
-        }
-
-        // focusedDay가 날짜 범위 내에 있는지 확인하고 조정
-        if (_minDate != null && _focusedDay.isBefore(_minDate!)) {
-          _focusedDay = _minDate!;
-        }
-        if (_maxDate != null && _focusedDay.isAfter(_maxDate!)) {
-          _focusedDay = _maxDate!;
-        }
-      });
-    } catch (e) {
-      AppLogger.e('날짜 제약 조건 로드 오류', tag: 'MainRangeViewV2', error: e);
-    }
-  }
-
-  // 달력 이벤트 데이터 로드 (현재 보이는 달의 데이터)
-  Future<void> _loadCalendarEvents() async {
-    // 현재 포커스된 달의 시작일과 종료일 계산
-    // 예시 :
-    // _focusedDay = 2024-03-15 인 경우:
-    // firstDay = DateTime(2024, 3, 1)   // → 2024-03-01
-    // lastDay = DateTime(2024, 4, 0)    // → 2024-03-31 (4월 0일 = 3월 마지막 날)
-
-    // // _focusedDay = 2024-02-10 인 경우:
-    // firstDay = DateTime(2024, 2, 1)   // → 2024-02-01
-    // lastDay = DateTime(2024, 3, 0)    // → 2024-02-29 (윤년) 또는 2024-02-28
-
-    final firstDay = DateTime(_focusedDay.year, _focusedDay.month, 1);
-    final lastDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
-
-    // 해당 달의 모든 날짜에 대해 데이터 조회
-    final newCache = <String, List<Todo>>{};
-    for (
-      var day = firstDay;
-      day.isBefore(lastDay.add(const Duration(days: 1)));
-      day = day.add(const Duration(days: 1))
-    ) {
-      final dateStr = CustomCommonUtil.formatDate(day, 'yyyy-MM-dd');
-      try {
-        final todos = await _handler.queryDataByDate(dateStr);
-        newCache[dateStr] = todos;
-      } catch (e) {
-        AppLogger.e(
-          "Error loading events for $dateStr",
-          tag: 'MainView',
-          error: e,
-        );
-        newCache[dateStr] = [];
+          // focusedDay가 날짜 범위 내에 있는지 확인하고 조정
+          if (_minDate != null && _focusedDay.isBefore(_minDate!)) {
+            _focusedDay = _minDate!;
+          }
+          if (_maxDate != null && _focusedDay.isAfter(_maxDate!)) {
+            _focusedDay = _maxDate!;
+          }
+        });
       }
-    }
+    });
+  }
 
-    setState(() {
-      _todoCache = newCache;
+  // 달력 이벤트 데이터 로드 (Provider 사용)
+  void _loadCalendarEvents() {
+    final yearMonth = '${_focusedDay.year.toString().padLeft(4, '0')}-${_focusedDay.month.toString().padLeft(2, '0')}';
+    final calendarAsync = ref.watch(calendarEventsProvider(yearMonth));
+    calendarAsync.whenData((cache) {
+      if (mounted) {
+        setState(() {
+          _todoCache = cache;
+        });
+      }
     });
   }
 
@@ -284,9 +256,9 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
             iconColor: p.textPrimary,
             onTap: _navigateToDeletedTodos,
           ),
-          // TODO: 삭제 예정 - 임시 Home 버튼
+          // Home 화면으로 이동
           DrawerItem(
-            label: "Home (임시)",
+            label: "Home",
             icon: Icons.home_outlined,
             iconColor: p.textPrimary,
             onTap: _navigateToHome,
@@ -528,7 +500,7 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
                   Container(
                     width: 1,
                     height: 30,
-                    color: p.textPrimary.withOpacity(0.3),
+                    color: p.textPrimary.withValues(alpha: 0.3),
                   ),
                   SizedBox(width: 8),
                   // 시간순/중요도 스위치
@@ -555,56 +527,16 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
           ),
 
           //----------------------------------
-          //-- FutureBuilder 삽입위치 ----------
+          //-- Consumer로 Provider 데이터 조회 ----------
           // Expanded로 감싸서 남은 공간을 모두 차지하도록 함 (오버플로우 방지)
           Expanded(
             child: CustomPadding.all(
               16,
-              child: FutureBuilder<List<Todo>>(
-                future: _isRangeMode
-                    ? (_selectedRange != null
-                          // 범위 모드: 범위가 확정된 경우에만 쿼리
-                          ? (_selectedStep == null
-                                ? _handler.queryDataByDateRange(
-                                    CustomCommonUtil.formatDate(
-                                      _selectedRange!.start,
-                                      'yyyy-MM-dd',
-                                    ),
-                                    CustomCommonUtil.formatDate(
-                                      _selectedRange!.end,
-                                      'yyyy-MM-dd',
-                                    ),
-                                  )
-                                : _handler.queryDataByDateRangeAndStep(
-                                    CustomCommonUtil.formatDate(
-                                      _selectedRange!.start,
-                                      'yyyy-MM-dd',
-                                    ),
-                                    CustomCommonUtil.formatDate(
-                                      _selectedRange!.end,
-                                      'yyyy-MM-dd',
-                                    ),
-                                    _selectedStep!,
-                                  ))
-                          // 범위 모드: 범위가 확정되지 않은 경우 빈 리스트 반환
-                          : Future.value(<Todo>[]))
-                    : (_selectedStep == null
-                          // 단일 모드: 필터 없음
-                          ? _handler.queryDataByDate(
-                              CustomCommonUtil.formatDate(
-                                _selectedDay,
-                                'yyyy-MM-dd',
-                              ),
-                            )
-                          // 단일 모드: 필터 적용
-                          : _handler.queryDataByDateAndStep(
-                              CustomCommonUtil.formatDate(
-                                _selectedDay,
-                                'yyyy-MM-dd',
-                              ),
-                              _selectedStep!,
-                            )),
-                builder: (context, snapshot) {
+              child: Consumer(
+                builder: (context, ref, child) {
+                  // Provider 선택 로직
+                  AsyncValue<List<Todo>> todosAsync;
+                  
                   if (_isRangeMode) {
                     if (_selectedRange != null) {
                       final startDate = CustomCommonUtil.formatDate(
@@ -615,93 +547,136 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
                         _selectedRange!.end,
                         'yyyy-MM-dd',
                       );
+                      
                       AppLogger.d(
                         "Query range: $startDate ~ $endDate, Selected step: $_selectedStep, Mode: 범위",
                         tag: 'MainRangeViewV2',
                       );
+                      
+                      if (_selectedStep == null) {
+                        todosAsync = ref.watch(
+                          todoByDateRangeProvider(
+                            (startDate: startDate, endDate: endDate),
+                          ),
+                        );
+                      } else {
+                        todosAsync = ref.watch(
+                          todoByDateRangeAndStepProvider(
+                            (startDate: startDate, endDate: endDate, step: _selectedStep!),
+                          ),
+                        );
+                      }
                     } else {
                       AppLogger.d(
                         "Range not selected, Mode: 범위",
                         tag: 'MainRangeViewV2',
                       );
+                      todosAsync = const AsyncValue.data(<Todo>[]);
                     }
                   } else {
                     final queryDate = CustomCommonUtil.formatDate(
                       _selectedDay,
                       'yyyy-MM-dd',
                     );
+                    
                     AppLogger.d(
                       "Query date: $queryDate, Selected step: $_selectedStep, Mode: 단일",
                       tag: 'MainRangeViewV2',
                     );
-                  }
-                  AppLogger.d(
-                    snapshot.hasData && snapshot.data!.isNotEmpty
-                        ? "Data length: ${snapshot.data!.length}"
-                        : "No data",
-                    tag: 'MainView',
-                  );
-                  if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    AppLogger.d(
-                      "First todo: ${snapshot.data!.first.title}, date: ${snapshot.data!.first.date}",
-                      tag: 'MainView',
-                    );
+                    
+                    if (_selectedStep == null) {
+                      todosAsync = ref.watch(todoByDateProvider(queryDate));
+                    } else {
+                      todosAsync = ref.watch(
+                        todoByDateAndStepProvider(
+                          (date: queryDate, step: _selectedStep!),
+                        ),
+                      );
+                    }
                   }
 
-                  // 정렬된 데이터 가져오기
-                  final sortedData =
-                      snapshot.hasData && snapshot.data!.isNotEmpty
-                      ? _sortTodos(snapshot.data!)
-                      : <Todo>[];
+                  return todosAsync.when(
+                    data: (todos) {
+                      AppLogger.d(
+                        todos.isNotEmpty
+                            ? "Data length: ${todos.length}"
+                            : "No data",
+                        tag: 'MainView',
+                      );
+                      if (todos.isNotEmpty) {
+                        AppLogger.d(
+                          "First todo: ${todos.first.title}, date: ${todos.first.date}",
+                          tag: 'MainView',
+                        );
+                      }
 
-                  return sortedData.isNotEmpty
-                      ? CustomListView(
-                          itemCount: sortedData.length,
-                          itemBuilder: (context, index) {
-                            return Slidable(
-                              startActionPane: _getActionPlane(
-                                p.dailyFlow.priorityMedium,
-                                Icons.edit,
-                                '수정',
-                                (context) async {
-                                  await _dataChangeFn(
-                                    FunctionType.update,
-                                    sortedData,
-                                    index,
-                                  );
-                                },
-                              ),
-                              endActionPane: _getActionPlane(
-                                p.dailyFlow.priorityVeryHigh,
-                                Icons.delete,
-                                '삭제',
-                                (context) async {
-                                  await _dataChangeFn(
-                                    FunctionType.delete,
-                                    sortedData,
-                                    index,
-                                  );
-                                },
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  _showTodoDetail(sortedData[index]);
-                                },
-                                child: _buildTodoCardFromList(
-                                  sortedData,
-                                  index,
-                                  p,
-                                ),
+                      // 정렬된 데이터 가져오기
+                      final sortedData = todos.isNotEmpty
+                          ? _sortTodos(todos)
+                          : <Todo>[];
+
+                      return sortedData.isNotEmpty
+                          ? CustomListView(
+                              itemCount: sortedData.length,
+                              itemBuilder: (context, index) {
+                                return Slidable(
+                                  startActionPane: _getActionPlane(
+                                    p.dailyFlow.priorityMedium,
+                                    Icons.edit,
+                                    '수정',
+                                    (context) async {
+                                      await _dataChangeFn(
+                                        FunctionType.update,
+                                        sortedData,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                  endActionPane: _getActionPlane(
+                                    p.dailyFlow.priorityVeryHigh,
+                                    Icons.delete,
+                                    '삭제',
+                                    (context) async {
+                                      await _dataChangeFn(
+                                        FunctionType.delete,
+                                        sortedData,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _showTodoDetail(sortedData[index]);
+                                    },
+                                    child: _buildTodoCardFromList(
+                                      sortedData,
+                                      index,
+                                      p,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          : Center(
+                              child: CustomText(
+                                "데이터가 없습니다.",
+                                style: TextStyle(color: p.textSecondary),
                               ),
                             );
-                          },
-                        )
-                      : Center(
-                          child: CustomText(
-                            "데이터가 없습니다.",
-                            style: TextStyle(color: p.textSecondary),
-                          ),
-                        );
+                    },
+                    loading: () => Center(
+                      child: CustomText(
+                        "로딩 중...",
+                        style: TextStyle(color: p.textSecondary),
+                      ),
+                    ),
+                    error: (error, stack) => Center(
+                      child: CustomText(
+                        "에러: $error",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
@@ -1221,41 +1196,75 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
 
   // 선택된 날짜의 일정을 Step별로 비율 계산하여 Summary Bar에 적용
   //
-  // 범위 모드일 때는 calculateRangeSummaryRatios를 사용하고,
-  // 싱글 모드일 때는 calculateAndUpdateSummaryRatios를 사용합니다.
+  // Provider에서 데이터를 가져와서 직접 계산합니다.
   Future<void> _calculateSummaryRatios() async {
+    List<Todo> todos;
+    
     if (_selectedRange != null) {
-      // 범위 모드: calculateRangeSummaryRatios 사용
-      final ratios = await calculateRangeSummaryRatios(
-        _handler,
-        CustomCommonUtil.formatDate(_selectedRange!.start, 'yyyy-MM-dd'),
-        CustomCommonUtil.formatDate(_selectedRange!.end, 'yyyy-MM-dd'),
+      // 범위 모드: 범위 데이터 조회
+      final startDate = CustomCommonUtil.formatDate(_selectedRange!.start, 'yyyy-MM-dd');
+      final endDate = CustomCommonUtil.formatDate(_selectedRange!.end, 'yyyy-MM-dd');
+      
+      final todosAsync = ref.read(
+        todoByDateRangeProvider((startDate: startDate, endDate: endDate)),
       );
-      if (!mounted) return;
-      setState(() {
-        _morningRatio = ratios.morningRatio;
-        _noonRatio = ratios.noonRatio;
-        _eveningRatio = ratios.eveningRatio;
-        _nightRatio = ratios.nightRatio;
-        _anytimeRatio = ratios.anytimeRatio;
-      });
+      
+      todos = await todosAsync.value ?? [];
     } else {
-      // 싱글 모드: 기존 로직 사용
-      await calculateAndUpdateSummaryRatios(
-        _handler,
-        _selectedDay,
-        onRatiosCalculated: (ratios) {
-          if (!mounted) return;
-          setState(() {
-            _morningRatio = ratios.morningRatio;
-            _noonRatio = ratios.noonRatio;
-            _eveningRatio = ratios.eveningRatio;
-            _nightRatio = ratios.nightRatio;
-            _anytimeRatio = ratios.anytimeRatio;
-          });
-        },
-      );
+      // 싱글 모드: 단일 날짜 데이터 조회
+      final dateStr = CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd');
+      final todosAsync = ref.read(todoByDateProvider(dateStr));
+      todos = await todosAsync.value ?? [];
     }
+
+    // Step별 개수 세기
+    int morningCount = 0;
+    int noonCount = 0;
+    int eveningCount = 0;
+    int nightCount = 0;
+    int anytimeCount = 0;
+
+    for (var todo in todos) {
+      switch (todo.step) {
+        case StepMapperUtil.stepMorning:
+          morningCount++;
+          break;
+        case StepMapperUtil.stepNoon:
+          noonCount++;
+          break;
+        case StepMapperUtil.stepEvening:
+          eveningCount++;
+          break;
+        case StepMapperUtil.stepNight:
+          nightCount++;
+          break;
+        case StepMapperUtil.stepAnytime:
+        default:
+          anytimeCount++;
+          break;
+      }
+    }
+
+    // 전체 개수 계산
+    final totalCount = todos.length;
+
+    // 비율 계산 (전체가 0이면 모두 0.0)
+    if (!mounted) return;
+    setState(() {
+      if (totalCount == 0) {
+        _morningRatio = 0.0;
+        _noonRatio = 0.0;
+        _eveningRatio = 0.0;
+        _nightRatio = 0.0;
+        _anytimeRatio = 0.0;
+      } else {
+        _morningRatio = morningCount / totalCount;
+        _noonRatio = noonCount / totalCount;
+        _eveningRatio = eveningCount / totalCount;
+        _nightRatio = nightCount / totalCount;
+        _anytimeRatio = anytimeCount / totalCount;
+      }
+    });
   }
 
   // 완료 상태에 따른 제목 텍스트 스타일 반환
@@ -1428,7 +1437,8 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
   // [value] 새로운 완료 상태 (null일 수 있음)
   Future<void> _toggleTodoDone(Todo todo, bool? value) async {
     if (todo.id != null) {
-      await _handler.toggleDone(todo.id!, value ?? false);
+      final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      await notifier.toggleDone(todo.id!, value ?? false);
       _reloadData();
     }
   }
@@ -1473,7 +1483,8 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
             );
           }
 
-          await _handler.deleteData(todo);
+          final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+          await notifier.deleteTodo(todo);
           _reloadData();
           if (context.mounted) {
             CustomSnackBar.show(
@@ -1541,9 +1552,9 @@ class _MainRangeViewV2State extends State<MainRangeViewV2> {
     );
   }
 
-  // TODO: 삭제 예정 - 임시 Home 화면으로 이동
+  // Home 화면으로 이동 (off 모드)
   Future<void> _navigateToHome() async {
-    await CustomNavigationUtil.to(
+    await CustomNavigationUtil.off(
       context,
       Home(onToggleTheme: widget.onToggleTheme),
       transitionType: PageTransitionType.fade,

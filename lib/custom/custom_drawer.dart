@@ -222,7 +222,7 @@ class CustomDrawer extends StatelessWidget {
               ...bottomChildren!,
 
             // 푸터
-            if (footer != null) footer!,
+            if (footer case final footer?) footer,
           ],
         ),
       ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_custom/custom_calendar_picker.dart';
 import '../app_custom/custom_time_picker.dart';
 import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/step_mapper_util.dart';
-import '../vm/database_handler.dart';
+import '../vm/vm_notifier.dart';
 import '../model/todo_model.dart';
 import '../service/notification_service.dart';
 import '../custom/util/log/custom_log_util.dart';
@@ -13,7 +14,7 @@ import '../custom/util/log/custom_log_util.dart';
 // 함수 타입 enum
 enum FunctionType { update, delete }
 
-class CreateTodoView extends StatefulWidget {
+class CreateTodoView extends ConsumerStatefulWidget {
   final VoidCallback onToggleTheme;
   final DateTime? initialDate;
 
@@ -24,11 +25,10 @@ class CreateTodoView extends StatefulWidget {
   });
 
   @override
-  State<CreateTodoView> createState() => _CreateTodoViewState();
+  ConsumerState<CreateTodoView> createState() => _CreateTodoViewState();
 }
 
-class _CreateTodoViewState extends State<CreateTodoView> {
-  late DatabaseHandler _handler;
+class _CreateTodoViewState extends ConsumerState<CreateTodoView> {
   late DateTime _selectedDay;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _memoController = TextEditingController();
@@ -40,9 +40,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   @override
   void initState() {
     super.initState();
-    // _themeBool = false;
     _selectedDay = widget.initialDate ?? DateTime.now();
-    _handler = DatabaseHandler();
   }
 
   @override
@@ -610,8 +608,9 @@ class _CreateTodoViewState extends State<CreateTodoView> {
         }
       }
 
-      // 데이터베이스에 저장
-      final id = await _handler.insertData(todo);
+      // 데이터베이스에 저장 (Provider 사용)
+      final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      final id = await notifier.insertTodo(todo);
       AppLogger.s("Todo 저장 완료: id=$id", tag: 'CreateTodo');
 
       // 알람 등록 (hasAlarm=true이고 time이 있을 때만)
@@ -622,9 +621,9 @@ class _CreateTodoViewState extends State<CreateTodoView> {
           tag: 'CreateTodo',
         );
         final notificationService = NotificationService();
-
-        // 저장된 Todo로 알람 등록
-        final savedTodo = await _handler.queryDataById(id);
+        
+        // Provider를 통해 저장된 Todo 조회
+        final savedTodo = await notifier.queryTodoById(id);
         if (savedTodo != null) {
           final notificationId = await notificationService.scheduleNotification(
             savedTodo,
@@ -634,7 +633,8 @@ class _CreateTodoViewState extends State<CreateTodoView> {
             final updatedTodo = savedTodo.copyWith(
               notificationId: notificationId,
             );
-            await _handler.updateData(updatedTodo);
+            // Provider를 통해 업데이트
+            await notifier.updateTodo(updatedTodo);
             AppLogger.s(
               "[일정 등록] 알람 등록 완료: notificationId=$notificationId",
               tag: 'CreateTodo',
@@ -651,7 +651,7 @@ class _CreateTodoViewState extends State<CreateTodoView> {
       }
 
       // 디버그: 저장 후 데이터 확인
-      final verifyTodo = await _handler.queryDataById(id);
+      final verifyTodo = await notifier.queryTodoById(id);
       if (verifyTodo != null) {
         AppLogger.d("=== 저장 후 DB 확인 ===", tag: 'CreateTodo');
         AppLogger.d(

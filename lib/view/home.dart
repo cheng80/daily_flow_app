@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../vm/database_handler.dart';
+import '../vm/vm_notifier.dart';
 import '../model/todo_model.dart';
-
-import 'test_view/home_test_calendar.dart';
-import 'test_view/home_test_summary_bar.dart';
-import 'test_view/home_test_step_mapper.dart';
-import 'test_view/home_test_filter_radio.dart';
-import 'test_view/home_test_calendar_test.dart';
-import 'test_view/home_test_calendar_picker_dialog.dart';
 
 import '../app_custom/step_mapper_util.dart';
 import '../app_custom/dummy_data_generator.dart';
@@ -27,20 +21,21 @@ import 'create_todo_view.dart';
 // - 새로 개발된 커스텀 위젯/함수를 빠르게 테스트
 // - 디자인 화면 작업 전 모듈 동작 확인
 // - 테마 색상 및 스타일 검증
+// - Riverpod Provider 테스트
 //
 // 실제 메인 화면은 `lib/view/main/main_view.dart`에서 별도로 구현됩니다.
 // 각 모듈 개발 완료 후, 완성된 커스텀 모듈과 함수를 사용하여 실제 화면을 구성합니다.
-class Home extends StatefulWidget {
+class Home extends ConsumerStatefulWidget {
   // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const Home({super.key, required this.onToggleTheme});
 
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends ConsumerState<Home> {
   // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
   late bool _themeBool;
 
@@ -159,7 +154,7 @@ class _HomeState extends State<Home> {
                         btnText: "범위 선택 메인 화면 V2",
                         minimumSize: const Size(double.infinity, 50),
                         onCallBack: () {
-                          CustomNavigationUtil.to(
+                          CustomNavigationUtil.off(
                             context,
                             MainRangeViewV2(
                               onToggleTheme: widget.onToggleTheme,
@@ -188,84 +183,6 @@ class _HomeState extends State<Home> {
                           CustomNavigationUtil.to(
                             context,
                             CreateTodoView(onToggleTheme: widget.onToggleTheme),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "캘린더 테스트",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestCalendar(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "서머리바 테스트",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestSummaryBar(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "StepMapper 테스트",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestStepMapper(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "Filter Radio 테스트",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestFilterRadio(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "테스트용 날짜 선택 다이얼로그",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestCalendarPickerDialogTest(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
-                            transitionType: PageTransitionType.fade,
-                          );
-                        },
-                      ),
-                      CustomButton(
-                        btnText: "테스트용 달력 (크기 조절 가능)",
-                        minimumSize: const Size(double.infinity, 50),
-                        onCallBack: () {
-                          CustomNavigationUtil.to(
-                            context,
-                            HomeTestCalendarTest(
-                              onToggleTheme: widget.onToggleTheme,
-                            ),
                             transitionType: PageTransitionType.fade,
                           );
                         },
@@ -355,7 +272,7 @@ class _HomeState extends State<Home> {
                         },
                       ),
                       CustomButton(
-                        btnText: "알람 등록 (1분 후)",
+                        btnText: "알람 등록 (3분 후)",
                         minimumSize: const Size(double.infinity, 50),
                         onCallBack: () async {
                           await _testScheduleNotification(context);
@@ -387,6 +304,209 @@ class _HomeState extends State<Home> {
                 ],
               ),
 
+              // Riverpod Provider 테스트
+              CustomExpansionTile(
+                title: CustomText(
+                  'Riverpod Provider 테스트',
+                  style: TextStyle(
+                    color: p.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                children: [
+                  CustomColumn(
+                    spacing: 10,
+                    children: [
+                      // 활성 Todo 리스트 조회
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final todoAsync = ref.watch(
+                            todoNotifierProvider(TodoType.normal),
+                          );
+                          return todoAsync.when(
+                            data: (todos) => CustomText(
+                              "활성 Todo 개수: ${todos.length}",
+                              style: TextStyle(color: p.textPrimary),
+                            ),
+                            loading: () => CustomText(
+                              "로딩 중...",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                            error: (error, stack) => CustomText(
+                              "에러: $error",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "활성 Todo 리스트 새로고침",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          ref.invalidate(todoNotifierProvider(TodoType.normal));
+                        },
+                      ),
+                      // 삭제된 Todo 리스트 조회
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final deletedAsync = ref.watch(deletedTodoNotifierProvider);
+                          return deletedAsync.when(
+                            data: (todos) => CustomText(
+                              "삭제된 Todo 개수: ${todos.length}",
+                              style: TextStyle(color: p.textPrimary),
+                            ),
+                            loading: () => CustomText(
+                              "로딩 중...",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                            error: (error, stack) => CustomText(
+                              "에러: $error",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "삭제된 Todo 리스트 새로고침",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          ref.invalidate(deletedTodoNotifierProvider);
+                        },
+                      ),
+                      // 날짜 제약 조건 조회
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final constraintsAsync = ref.watch(dateConstraintsProvider);
+                          return constraintsAsync.when(
+                            data: (constraints) => CustomText(
+                              "최소 날짜: ${constraints.minDate?.toString().split(' ')[0] ?? '없음'}\n"
+                              "최대 날짜: ${constraints.maxDate?.toString().split(' ')[0] ?? '없음'}",
+                              style: TextStyle(color: p.textPrimary),
+                            ),
+                            loading: () => CustomText(
+                              "로딩 중...",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                            error: (error, stack) => CustomText(
+                              "에러: $error",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "날짜 제약 조건 새로고침",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          ref.invalidate(dateConstraintsProvider);
+                        },
+                      ),
+                      // 특정 날짜 조회 테스트
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final now = DateTime.now();
+                          final todayStr =
+                              '${now.year.toString().padLeft(4, '0')}-'
+                              '${now.month.toString().padLeft(2, '0')}-'
+                              '${now.day.toString().padLeft(2, '0')}';
+                          final todoByDateAsync = ref.watch(
+                            todoByDateProvider(todayStr),
+                          );
+                          return todoByDateAsync.when(
+                            data: (todos) => CustomText(
+                              "오늘($todayStr) Todo 개수: ${todos.length}",
+                              style: TextStyle(color: p.textPrimary),
+                            ),
+                            loading: () => CustomText(
+                              "로딩 중...",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                            error: (error, stack) => CustomText(
+                              "에러: $error",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "오늘 날짜 Todo 새로고침",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          final now = DateTime.now();
+                          final todayStr =
+                              '${now.year.toString().padLeft(4, '0')}-'
+                              '${now.month.toString().padLeft(2, '0')}-'
+                              '${now.day.toString().padLeft(2, '0')}';
+                          ref.invalidate(todoByDateProvider(todayStr));
+                        },
+                      ),
+                      // 달력 이벤트 캐시 테스트
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final now = DateTime.now();
+                          final yearMonth = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
+                          final calendarAsync = ref.watch(
+                            calendarEventsProvider(yearMonth),
+                          );
+                          return calendarAsync.when(
+                            data: (cache) => CustomText(
+                              "현재 달(${now.year}-${now.month}) 캐시된 날짜 수: ${cache.length}",
+                              style: TextStyle(color: p.textPrimary),
+                            ),
+                            loading: () => CustomText(
+                              "로딩 중...",
+                              style: TextStyle(color: p.textSecondary),
+                            ),
+                            error: (error, stack) => CustomText(
+                              "에러: $error",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          );
+                        },
+                      ),
+                      CustomButton(
+                        btnText: "달력 이벤트 캐시 새로고침",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () {
+                          final now = DateTime.now();
+                          final yearMonth = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
+                          ref.invalidate(calendarEventsProvider(yearMonth));
+                        },
+                      ),
+                      // CRUD 작업 테스트
+                      CustomButton(
+                        btnText: "테스트 Todo 추가",
+                        minimumSize: const Size(double.infinity, 50),
+                        onCallBack: () async {
+                          final now = DateTime.now();
+                          final dateStr =
+                              '${now.year.toString().padLeft(4, '0')}-'
+                              '${now.month.toString().padLeft(2, '0')}-'
+                              '${now.day.toString().padLeft(2, '0')}';
+                          final testTodo = Todo.createNew(
+                            title: "Provider 테스트 일정",
+                            date: dateStr,
+                            step: 3,
+                            priority: 3,
+                          );
+                          final notifier = ref.read(
+                            todoNotifierProvider(TodoType.normal).notifier,
+                          );
+                          await notifier.insertTodo(testTodo);
+                          if (mounted) {
+                            CustomSnackBar.showSuccess(
+                              context,
+                              message: "테스트 Todo가 추가되었습니다.",
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 20),
             ],
           ),
@@ -397,11 +517,12 @@ class _HomeState extends State<Home> {
 
   // 모든 데이터 삭제 함수
   Future<void> _clearAllData(BuildContext context) async {
-    final dbHandler = DatabaseHandler();
-
     try {
-      await dbHandler.allClearData();
-      await dbHandler.allClearDeletedData();
+      final todoNotifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      final deletedTodoNotifier = ref.read(deletedTodoNotifierProvider.notifier);
+      
+      await todoNotifier.allClearData();
+      await deletedTodoNotifier.allClearDeletedData();
 
       if (context.mounted) {
         CustomSnackBar.show(
@@ -423,10 +544,10 @@ class _HomeState extends State<Home> {
 
   // Todo 데이터만 삭제 함수
   Future<void> _clearTodoData(BuildContext context) async {
-    final dbHandler = DatabaseHandler();
-
     try {
-      await dbHandler.allClearData();
+      final todoNotifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      
+      await todoNotifier.allClearData();
 
       if (context.mounted) {
         CustomSnackBar.show(
@@ -452,14 +573,14 @@ class _HomeState extends State<Home> {
 
     // 1분 후 시간 계산
     final now = DateTime.now();
-    final oneMinuteLater = now.add(const Duration(minutes: 1));
+    final oneMinuteLater = now.add(const Duration(minutes: 3));
     final dateStr = CustomCommonUtil.formatDate(oneMinuteLater, 'yyyy-MM-dd');
     final timeStr = CustomCommonUtil.formatDate(oneMinuteLater, 'HH:mm');
 
     // 테스트용 Todo 생성
     final testTodo = Todo.createNew(
       title: '알람 테스트',
-      memo: '1분 후 알람이 울립니다.',
+      memo: '3분 후 알람이 울립니다. (알람 시간: $timeStr)',
       date: dateStr,
       time: timeStr,
       step: StepMapperUtil.mapTimeToStep(timeStr),
@@ -492,9 +613,9 @@ class _HomeState extends State<Home> {
   Future<void> _testCancelNotification(BuildContext context) async {
     final notificationService = NotificationService();
 
-    // 가장 최근에 등록된 알람의 ID를 찾기 위해 DB 조회
-    final dbHandler = DatabaseHandler();
-    final todos = await dbHandler.queryData();
+    // 가장 최근에 등록된 알람의 ID를 찾기 위해 Provider 조회
+    final todosAsync = await ref.read(todoNotifierProvider(TodoType.normal).future);
+    final todos = todosAsync;
 
     // notificationId가 있는 Todo 찾기
     Todo? todoWithNotification;

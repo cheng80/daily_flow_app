@@ -130,7 +130,7 @@ class CustomPickerView<T> extends StatelessWidget {
             onTap: () => onItemSelected(item),
             child: Container(
               color: isSelected
-                  ? (selectedItemColor ?? Colors.blue.withOpacity(0.1))
+                  ? (selectedItemColor ?? Colors.blue.withValues(alpha: 0.1))
                   : (unselectedItemColor ?? Colors.transparent),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               alignment: Alignment.centerLeft,
@@ -188,7 +188,7 @@ class CustomPickerView<T> extends StatelessWidget {
             },
             child: Container(
               color: isSelected
-                  ? (selectedItemColor ?? Colors.blue.withOpacity(0.1))
+                  ? (selectedItemColor ?? Colors.blue.withValues(alpha: 0.1))
                   : (unselectedItemColor ?? Colors.transparent),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               alignment: Alignment.centerLeft,

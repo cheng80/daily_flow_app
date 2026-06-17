@@ -4,7 +4,6 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import '../model/todo_model.dart';
-import '../vm/database_handler.dart';
 import '../custom/util/log/custom_log_util.dart';
 
 // 로컬 알람 서비스 클래스
@@ -53,14 +52,19 @@ class NotificationService {
       );
 
       // 알람 초기화
+      // 참고: flutter_local_notifications는 기본적으로 포그라운드에서도 알림을 표시합니다.
+      // Android: 채널의 importance가 high이면 포그라운드에서도 알림이 표시됩니다.
+      // iOS: 포그라운드에서도 알림이 표시됩니다.
       final bool? initialized = await _notifications.initialize(
-        initSettings,
+        settings: initSettings,
         onDidReceiveNotificationResponse: _onNotificationTapped,
       );
 
       if (initialized == true) {
-        // Android 알람 채널 생성
+        // Android 알람 채널 생성 및 권한 요청
         await _createNotificationChannel();
+        // Android 13+ 권한 요청 (초기화 시 자동으로 요청)
+        await _requestAndroidNotificationPermission();
         _isInitialized = true;
         return true;
       }
@@ -87,6 +91,37 @@ class NotificationService {
           AndroidFlutterLocalNotificationsPlugin
         >()
         ?.createNotificationChannel(channel);
+    
+    AppLogger.d('Android 알람 채널 생성 완료', tag: 'Notification');
+  }
+
+  /// Android 13+ 알림 권한 요청
+  ///
+  /// Android 13 (API 33) 이상에서는 POST_NOTIFICATIONS 권한을 런타임에 요청해야 합니다.
+  Future<void> _requestAndroidNotificationPermission() async {
+    try {
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidImplementation != null) {
+        AppLogger.d('Android 알림 권한 요청 중...', tag: 'Permission');
+        
+        // Android 13+ 시스템 권한 다이얼로그 표시
+        final bool? granted = await androidImplementation.requestNotificationsPermission();
+        
+        if (granted == true) {
+          AppLogger.s('Android 알림 권한이 허용되었습니다.', tag: 'Permission');
+        } else {
+          AppLogger.w('Android 알림 권한이 거부되었습니다.', tag: 'Permission');
+          AppLogger.w('설정 > 앱 > DailyFlow > 알림에서 권한을 활성화하세요.', tag: 'Permission');
+        }
+      } else {
+        AppLogger.d('Android 13 미만 - 런타임 권한 요청 불필요', tag: 'Permission');
+      }
+    } catch (e) {
+      AppLogger.e('Android 알림 권한 요청 실패', tag: 'Permission', error: e);
+    }
   }
 
   /// 알람 권한 상태 확인
@@ -121,7 +156,7 @@ class NotificationService {
         AppLogger.w('설정에서 수동으로 권한을 허용해야 합니다.', tag: 'Permission');
 
         // 다이얼로그 표시 후 설정으로 이동
-        if (context != null) {
+        if (context != null && context.mounted) {
           final shouldOpenSettings = await _showPermissionDeniedDialog(
             context,
             isIOS: true,
@@ -168,7 +203,7 @@ class NotificationService {
       AppLogger.w('설정에서 수동으로 권한을 허용해야 합니다.', tag: 'Permission');
 
       // 다이얼로그 표시 후 설정으로 이동
-      if (context != null) {
+      if (context != null && context.mounted) {
         final shouldOpenSettings = await _showPermissionDeniedDialog(
           context,
           isIOS: false,
@@ -232,10 +267,10 @@ class NotificationService {
       );
 
       await _notifications.show(
-        999999, // 테스트용 고유 ID
-        '알람 테스트',
-        '알람이 정상적으로 작동합니다!',
-        notificationDetails,
+        id: 999999, // 테스트용 고유 ID
+        title: '알람 테스트',
+        body: '알람이 정상적으로 작동합니다!',
+        notificationDetails: notificationDetails,
       );
       AppLogger.s('즉시 알람 테스트 완료', tag: 'Notification');
     } catch (e) {
@@ -403,11 +438,11 @@ class NotificationService {
           tag: 'Notification',
         );
         await _notifications.zonedSchedule(
-          notificationId,
-          title,
-          body,
-          scheduledDate,
-          notificationDetails,
+          id: notificationId,
+          title: title,
+          body: body,
+          scheduledDate: scheduledDate,
+          notificationDetails: notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           matchDateTimeComponents: null, // 일회성 알람
         );
@@ -435,11 +470,11 @@ class NotificationService {
         AppLogger.d('exact 모드로 재시도...', tag: 'Notification');
         try {
           await _notifications.zonedSchedule(
-            notificationId,
-            title,
-            body,
-            scheduledDate,
-            notificationDetails,
+            id: notificationId,
+            title: title,
+            body: body,
+            scheduledDate: scheduledDate,
+            notificationDetails: notificationDetails,
             androidScheduleMode: AndroidScheduleMode.exact,
             matchDateTimeComponents: null, // 일회성 알람
           );
@@ -462,11 +497,11 @@ class NotificationService {
           AppLogger.d('inexactAllowWhileIdle 모드로 재시도...', tag: 'Notification');
           try {
             await _notifications.zonedSchedule(
-              notificationId,
-              title,
-              body,
-              scheduledDate,
-              notificationDetails,
+              id: notificationId,
+              title: title,
+              body: body,
+              scheduledDate: scheduledDate,
+              notificationDetails: notificationDetails,
               androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
               matchDateTimeComponents: null, // 일회성 알람
             );
@@ -520,7 +555,7 @@ class NotificationService {
     AppLogger.d('=== 알람 취소 시작 ===', tag: 'Notification');
     AppLogger.d('취소할 notificationId: $notificationId', tag: 'Notification');
     try {
-      await _notifications.cancel(notificationId);
+      await _notifications.cancel(id: notificationId);
       AppLogger.s(
         '알람 취소 완료: notificationId=$notificationId',
         tag: 'Notification',
@@ -611,6 +646,7 @@ class NotificationService {
     }
   }
 
+  /// 알림 탭 시 호출되는 핸들러
   void _onNotificationTapped(NotificationResponse response) {
     AppLogger.d(
       '알람 탭됨: id=${response.id}, payload=${response.payload}',
@@ -620,13 +656,15 @@ class NotificationService {
   }
 
   /// 과거 알람 정리 (앱 시작/포그라운드 복귀 시 자동 호출)
+  /// 
+  /// [todos] 정리할 Todo 리스트 (Provider에서 가져온 데이터)
+  /// [updateTodo] Todo 업데이트 콜백 함수 (Provider의 updateTodo 메서드)
   Future<void> cleanupExpiredNotifications({
-    DatabaseHandler? databaseHandler,
+    required List<Todo> todos,
+    required Future<void> Function(Todo) updateTodo,
   }) async {
     AppLogger.d('=== 과거 알람 정리 시작 ===', tag: 'Notification');
     try {
-      final handler = databaseHandler ?? DatabaseHandler();
-      final todos = await handler.queryData();
 
       AppLogger.d('전체 Todo 개수: ${todos.length}', tag: 'Notification');
 
@@ -678,7 +716,7 @@ class NotificationService {
               clearNotificationId: true,
               hasAlarm: false,
             );
-            await handler.updateData(updatedTodo);
+            await updateTodo(updatedTodo);
             cleanedCount++;
 
             AppLogger.s(
@@ -741,7 +779,7 @@ class NotificationService {
             clearNotificationId: true,
             hasAlarm: false,
           );
-          await handler.updateData(updatedTodo);
+          await updateTodo(updatedTodo);
           cleanedCount++;
 
           AppLogger.s(

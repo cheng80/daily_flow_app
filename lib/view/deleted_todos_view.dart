@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../app_custom/custom_filter_radio.dart';
 import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../vm/database_handler.dart';
+import '../vm/vm_notifier.dart';
 import '../model/deleted_todo_model.dart';
 import '../app_custom/step_mapper_util.dart';
 import '../custom/util/log/custom_log_util.dart';
@@ -12,23 +13,17 @@ import '../custom/util/log/custom_log_util.dart';
 // 삭제된 Todo 화면
 //
 // 삭제 보관함에 있는 일정들을 표시하고, 복구 또는 완전 삭제할 수 있습니다.
-class DeletedTodosView extends StatefulWidget {
+class DeletedTodosView extends ConsumerStatefulWidget {
   // 테마 토글 콜백 함수
   final VoidCallback onToggleTheme;
 
   const DeletedTodosView({super.key, required this.onToggleTheme});
 
   @override
-  State<DeletedTodosView> createState() => _DeletedTodosViewState();
+  ConsumerState<DeletedTodosView> createState() => _DeletedTodosViewState();
 }
 
-class _DeletedTodosViewState extends State<DeletedTodosView> {
-  // 테마 모드 상태 (false: 라이트 모드, true: 다크 모드)
-  // late bool _themeBool;
-
-  // 데이터베이스 핸들러
-  late DatabaseHandler _handler;
-
+class _DeletedTodosViewState extends ConsumerState<DeletedTodosView> {
   // 선택된 날짜 필터 (null = 전체, 0 = 오늘, 1 = 7일, 2 = 30일)
   int? _selectedDateFilter;
 
@@ -39,8 +34,6 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
   @override
   void initState() {
     super.initState();
-    // _themeBool = false;
-    _handler = DatabaseHandler();
     _selectedDateFilter = null; // 기본값: 전체
     _sortByTime = false; // 기본값: 시간순
   }
@@ -158,61 +151,88 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
           //-- 삭제된 Todo 리스트
           //----------------------------------
           Expanded(
-            child: FutureBuilder<List<DeletedTodo>>(
-              future: _loadDeletedTodos(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(color: p.primary),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: CustomText(
-                      "오류가 발생했습니다: ${snapshot.error}",
-                      style: TextStyle(color: p.textSecondary),
+            child: Consumer(
+              builder: (context, ref, child) {
+                // Provider 선택 로직
+                AsyncValue<List<DeletedTodo>> deletedTodosAsync;
+                
+                if (_selectedDateFilter == null) {
+                  // 전체
+                  deletedTodosAsync = ref.watch(deletedTodoNotifierProvider);
+                } else {
+                  final now = DateTime.now();
+                  DateTime startDate;
+                  DateTime endDate;
+                  
+                  if (_selectedDateFilter == 0) {
+                    // 오늘
+                    startDate = DateTime(now.year, now.month, now.day);
+                    endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
+                  } else if (_selectedDateFilter == 1) {
+                    // 7일
+                    startDate = now.subtract(const Duration(days: 7));
+                    endDate = now;
+                  } else {
+                    // 30일
+                    startDate = now.subtract(const Duration(days: 30));
+                    endDate = now;
+                  }
+                  
+                  deletedTodosAsync = ref.watch(
+                    deletedTodoByDateRangeProvider(
+                      (startDate: startDate, endDate: endDate),
                     ),
                   );
                 }
 
-                final deletedTodos = snapshot.data ?? [];
+                return deletedTodosAsync.when(
+                  data: (deletedTodos) {
+                    if (deletedTodos.isEmpty) {
+                      return Center(
+                        child: CustomText(
+                          "삭제된 일정이 없습니다.",
+                          style: TextStyle(color: p.textSecondary),
+                        ),
+                      );
+                    }
 
-                if (deletedTodos.isEmpty) {
-                  return Center(
-                    child: CustomText(
-                      "삭제된 일정이 없습니다.",
-                      style: TextStyle(color: p.textSecondary),
-                    ),
-                  );
-                }
+                    // 정렬된 데이터 사용
+                    final sortedData = _sortDeletedTodos(deletedTodos);
 
-                // 정렬된 데이터 사용
-                final sortedData = _sortDeletedTodos(deletedTodos);
-
-                return CustomListView(
-                  itemCount: sortedData.length,
-                  itemBuilder: (context, index) {
-                    return Slidable(
-                      startActionPane: _getActionPane(
-                        p.dailyFlow.priorityMedium,
-                        Icons.restore,
-                        '복구',
-                        (context) async {
-                          await _restoreTodo(sortedData[index]);
-                        },
-                      ),
-                      endActionPane: _getActionPane(
-                        p.dailyFlow.priorityVeryHigh,
-                        Icons.delete_forever,
-                        '완전 삭제',
-                        (context) async {
-                          await _permanentlyDeleteTodo(sortedData[index]);
-                        },
-                      ),
-                      child: _buildDeletedTodoCard(sortedData[index], p),
+                    return CustomListView(
+                      itemCount: sortedData.length,
+                      itemBuilder: (context, index) {
+                        return Slidable(
+                          startActionPane: _getActionPane(
+                            p.dailyFlow.priorityMedium,
+                            Icons.restore,
+                            '복구',
+                            (context) async {
+                              await _restoreTodo(sortedData[index]);
+                            },
+                          ),
+                          endActionPane: _getActionPane(
+                            p.dailyFlow.priorityVeryHigh,
+                            Icons.delete_forever,
+                            '완전 삭제',
+                            (context) async {
+                              await _permanentlyDeleteTodo(sortedData[index]);
+                            },
+                          ),
+                          child: _buildDeletedTodoCard(sortedData[index], p),
+                        );
+                      },
                     );
                   },
+                  loading: () => Center(
+                    child: CircularProgressIndicator(color: p.primary),
+                  ),
+                  error: (error, stack) => Center(
+                    child: CustomText(
+                      "오류가 발생했습니다: $error",
+                      style: TextStyle(color: p.textSecondary),
+                    ),
+                  ),
                 );
               },
             ),
@@ -258,32 +278,6 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
     ];
   }
 
-  // 삭제된 Todo 데이터 로드
-  //
-  // 선택된 날짜 필터에 따라 삭제된 Todo 리스트를 조회합니다.
-  Future<List<DeletedTodo>> _loadDeletedTodos() async {
-    if (_selectedDateFilter == null) {
-      // 전체
-      return await _handler.queryDeletedData();
-    } else if (_selectedDateFilter == 0) {
-      // 오늘
-      final now = DateTime.now();
-      final startDate = DateTime(now.year, now.month, now.day);
-      final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-      return await _handler.queryDeletedDataByDateRange(startDate, endDate);
-    } else if (_selectedDateFilter == 1) {
-      // 7일
-      final now = DateTime.now();
-      final startDate = now.subtract(const Duration(days: 7));
-      return await _handler.queryDeletedDataByDateRange(startDate, now);
-    } else if (_selectedDateFilter == 2) {
-      // 30일
-      final now = DateTime.now();
-      final startDate = now.subtract(const Duration(days: 30));
-      return await _handler.queryDeletedDataByDateRange(startDate, now);
-    }
-    return [];
-  }
 
   // 삭제된 Todo 카드 빌드
   Widget _buildDeletedTodoCard(DeletedTodo deletedTodo, AppColorScheme p) {
@@ -500,9 +494,15 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
   // Todo 복구
   Future<void> _restoreTodo(DeletedTodo deletedTodo) async {
     try {
-      await _handler.restoreData(deletedTodo, context: context);
+      final notifier = ref.read(deletedTodoNotifierProvider.notifier);
+      await notifier.restoreTodo(deletedTodo);
       if (context.mounted) {
-        setState(() {}); // 데이터 갱신
+        // Provider가 자동으로 갱신되므로 setState 불필요
+        CustomSnackBar.show(
+          context,
+          message: "일정이 복구되었습니다.",
+          duration: const Duration(seconds: 2),
+        );
       }
     } catch (e) {
       AppLogger.e("Todo 복구 오류", tag: 'DeletedTodos', error: e);
@@ -521,23 +521,40 @@ class _DeletedTodosViewState extends State<DeletedTodosView> {
 
   // Todo 완전 삭제
   Future<void> _permanentlyDeleteTodo(DeletedTodo deletedTodo) async {
-    try {
-      await _handler.realDeleteData(deletedTodo, context: context);
-      if (context.mounted) {
-        setState(() {}); // 데이터 갱신
-      }
-    } catch (e) {
-      AppLogger.e("Todo 완전 삭제 오류", tag: 'DeletedTodos', error: e);
-      if (context.mounted) {
-        await CustomDialog.show(
-          context,
-          title: "삭제 실패",
-          message: "일정 삭제에 실패하였습니다.",
-          type: DialogType.single,
-          confirmText: "확인",
-          barrierDismissible: false,
-        );
-      }
-    }
+    // 확인 다이얼로그 표시
+    await CustomDialog.show(
+      context,
+      title: "완전 삭제",
+      message: "일정을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      type: DialogType.dual,
+      confirmText: "삭제",
+      cancelText: "취소",
+      onConfirm: () async {
+        try {
+          final notifier = ref.read(deletedTodoNotifierProvider.notifier);
+          await notifier.permanentlyDeleteTodo(deletedTodo);
+          if (context.mounted) {
+            // Provider가 자동으로 갱신되므로 setState 불필요
+            CustomSnackBar.show(
+              context,
+              message: "일정이 완전히 삭제되었습니다.",
+              duration: const Duration(seconds: 2),
+            );
+          }
+        } catch (e) {
+          AppLogger.e("Todo 완전 삭제 오류", tag: 'DeletedTodos', error: e);
+          if (context.mounted) {
+            await CustomDialog.show(
+              context,
+              title: "삭제 실패",
+              message: "일정 삭제에 실패하였습니다.",
+              type: DialogType.single,
+              confirmText: "확인",
+              barrierDismissible: false,
+            );
+          }
+        }
+      },
+    );
   }
 }

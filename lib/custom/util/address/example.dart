@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'custom_address_util.dart';
 
 // CustomAddressUtil 사용 예제
@@ -38,12 +39,12 @@ void main() async {
 
   // 1. 기본 주소 파싱 (국가 포함)
   final address = CustomAddressUtil.parseAddress(jsonString);
-  print('전체 주소: $address');
+  debugPrint('전체 주소: $address');
   // 출력: 전체 주소: 대한민국 서울특별시 송파구 가락2동
 
   // 2. 간단한 주소 파싱 (국가 제외)
   final simpleAddress = CustomAddressUtil.parseSimpleAddress(jsonString);
-  print('간단한 주소: $simpleAddress');
+  debugPrint('간단한 주소: $simpleAddress');
   // 출력: 간단한 주소: 서울특별시 송파구 가락2동
 
   // 3. 커스텀 구분자 사용
@@ -51,7 +52,7 @@ void main() async {
     jsonString,
     separator: ", ",
   );
-  print('쉼표 구분 주소: $addressWithComma');
+  debugPrint('쉼표 구분 주소: $addressWithComma');
   // 출력: 쉼표 구분 주소: 대한민국, 서울특별시, 송파구, 가락2동
 
   // 4. 국가 제외하고 커스텀 구분자 사용
@@ -60,37 +61,37 @@ void main() async {
     separator: " > ",
     includeCountry: false,
   );
-  print('화살표 구분 주소: $addressWithoutCountry');
+  debugPrint('화살표 구분 주소: $addressWithoutCountry');
   // 출력: 화살표 구분 주소: 서울특별시 > 송파구 > 가락2동
 
   // 5. 상세 주소 정보 가져오기
   final addressInfo = CustomAddressUtil.getAddressInfo(jsonString);
   if (addressInfo != null) {
-    print('\n=== 상세 주소 정보 ===');
-    print('국가: ${addressInfo['countryName']}');
-    print('시/도: ${addressInfo['province']}');
-    print('시: ${addressInfo['city']}');
-    print('구: ${addressInfo['district']}');
-    print('동: ${addressInfo['locality']}');
-    print('전체 주소: ${addressInfo['fullAddress']}');
+    debugPrint('\n=== 상세 주소 정보 ===');
+    debugPrint('국가: ${addressInfo['countryName']}');
+    debugPrint('시/도: ${addressInfo['province']}');
+    debugPrint('시: ${addressInfo['city']}');
+    debugPrint('구: ${addressInfo['district']}');
+    debugPrint('동: ${addressInfo['locality']}');
+    debugPrint('전체 주소: ${addressInfo['fullAddress']}');
   }
 
   // 6. Map 형태의 JSON에서 직접 파싱
   final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
   final addressFromMap = CustomAddressUtil.parseAddressFromMap(jsonMap);
-  print('\nMap에서 파싱한 주소: $addressFromMap');
+  debugPrint('\nMap에서 파싱한 주소: $addressFromMap');
 
   // 7. 위도, 경도로 주소 가져오기 (API 호출) - 예외 처리 포함
-  print('\n=== 위도, 경도로 주소 가져오기 ===');
+  debugPrint('\n=== 위도, 경도로 주소 가져오기 ===');
   try {
     final addressFromCoords = await CustomAddressUtil.getAddressFromCoordinates(
       37.497429,
       127.127782,
     );
-    print('위도/경도로 가져온 주소: $addressFromCoords');
+    debugPrint('위도/경도로 가져온 주소: $addressFromCoords');
     // 출력: 위도/경도로 가져온 주소: 대한민국 서울특별시 송파구 가락2동
   } on AddressException catch (e) {
-    print('주소 가져오기 실패: ${e.message} (코드: ${e.code})');
+    debugPrint('주소 가져오기 실패: ${e.message} (코드: ${e.code})');
   }
 
   // 8. 간단한 주소 가져오기 (국가 제외) - 예외 처리 포함
@@ -100,10 +101,10 @@ void main() async {
           37.497429,
           127.127782,
         );
-    print('간단한 주소: $simpleAddressFromCoords');
+    debugPrint('간단한 주소: $simpleAddressFromCoords');
     // 출력: 간단한 주소: 서울특별시 송파구 가락2동
   } on AddressException catch (e) {
-    print('간단한 주소 가져오기 실패: ${e.message}');
+    debugPrint('간단한 주소 가져오기 실패: ${e.message}');
   }
 
   // 9. 상세 주소 정보 가져오기 - 예외 처리 포함
@@ -114,24 +115,24 @@ void main() async {
           127.127782,
         );
     if (addressInfoFromCoords != null) {
-      print('\n상세 주소 정보:');
-      print('국가: ${addressInfoFromCoords['countryName']}');
-      print('시/도: ${addressInfoFromCoords['province']}');
-      print('시: ${addressInfoFromCoords['city']}');
-      print('구: ${addressInfoFromCoords['district']}');
-      print('동: ${addressInfoFromCoords['locality']}');
-      print('전체 주소: ${addressInfoFromCoords['fullAddress']}');
+      debugPrint('\n상세 주소 정보:');
+      debugPrint('국가: ${addressInfoFromCoords['countryName']}');
+      debugPrint('시/도: ${addressInfoFromCoords['province']}');
+      debugPrint('시: ${addressInfoFromCoords['city']}');
+      debugPrint('구: ${addressInfoFromCoords['district']}');
+      debugPrint('동: ${addressInfoFromCoords['locality']}');
+      debugPrint('전체 주소: ${addressInfoFromCoords['fullAddress']}');
     }
   } on AddressException catch (e) {
-    print('상세 주소 정보 가져오기 실패: ${e.message} (코드: ${e.code})');
+    debugPrint('상세 주소 정보 가져오기 실패: ${e.message} (코드: ${e.code})');
   }
 
   // 10. 잘못된 좌표로 예외 처리 테스트
-  print('\n=== 예외 처리 테스트 ===');
+  debugPrint('\n=== 예외 처리 테스트 ===');
   try {
     await CustomAddressUtil.getAddressFromCoordinates(999, 999);
   } on AddressException catch (e) {
-    print('예외 발생: ${e.message} (코드: ${e.code})');
+    debugPrint('예외 발생: ${e.message} (코드: ${e.code})');
     // 출력: 예외 발생: 유효하지 않은 좌표입니다. 위도: 999.0, 경도: 999.0 (코드: INVALID_COORDINATE)
   }
 }

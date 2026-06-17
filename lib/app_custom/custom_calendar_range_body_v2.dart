@@ -337,7 +337,7 @@ class CustomCalendarRangeBodyV2 extends StatelessWidget {
                 shape: BoxShape.rectangle,
               )
             : BoxDecoration(
-                color: p.primary.withOpacity(0.15),
+                color: p.primary.withValues(alpha: 0.15),
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(8.0),
                 border: Border.all(color: p.primary, width: 2.0),
@@ -354,7 +354,7 @@ class CustomCalendarRangeBodyV2 extends StatelessWidget {
               ),
         outsideDaysVisible: true,
         outsideTextStyle: TextStyle(
-          color: p.textSecondary.withOpacity(0.5),
+          color: p.textSecondary.withValues(alpha: 0.5),
           fontSize: 14,
         ),
         outsideDecoration: enableRangeSelection
@@ -406,7 +406,7 @@ class CustomCalendarRangeBodyV2 extends StatelessWidget {
         // 범위 내 날짜 스타일 (시작일과 종료일 제외)
         // 시작일과 종료일 색상의 중간 톤으로 표시
         withinRangeDecoration: BoxDecoration(
-          color: Color.lerp(p.primary, p.accent, 0.5)?.withOpacity(0.2) ?? p.primary.withOpacity(0.2),
+          color: Color.lerp(p.primary, p.accent, 0.5)?.withValues(alpha: 0.2) ?? p.primary.withValues(alpha: 0.2),
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -467,7 +467,7 @@ class CustomCalendarRangeBodyV2 extends StatelessWidget {
             return Container(
               margin: cellMargin ?? const EdgeInsets.all(2.0),
               decoration: BoxDecoration(
-                color: p.primary.withOpacity(0.15),
+                color: p.primary.withValues(alpha: 0.15),
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(8.0),
                 border: Border.all(color: p.primary, width: 2.0),
@@ -522,7 +522,7 @@ class CustomCalendarRangeBodyV2 extends StatelessWidget {
                 return Container(
                   margin: cellMargin ?? const EdgeInsets.all(2.0),
                   decoration: BoxDecoration(
-                    color: p.primary.withOpacity(0.15),
+                    color: p.primary.withValues(alpha: 0.15),
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(color: p.primary, width: 2.0),

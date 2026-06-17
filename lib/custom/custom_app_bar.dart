@@ -15,7 +15,8 @@ Color? _getThemePrimaryColor(BuildContext context) {
 
 Color? _getThemeForegroundColor(BuildContext context) {
   try {
-    return context.palette.textPrimary;
+    // 테마의 textOnPrimary (Primary 배경에 사용할 흰색 텍스트) 사용
+    return context.palette.textOnPrimary;
   } catch (e) {
     // PaletteContext가 없는 경우 Material Theme 기본값 사용
     return Colors.white; // AppBar는 보통 흰색 텍스트
@@ -167,6 +168,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       // leading이 없으면 automaticallyImplyLeading 값에 따라 자동으로 뒤로가기/Drawer 아이콘 표시
       // Flutter가 자동으로 drawer가 있으면 Icons.menu를 표시합니다.
       shouldImplyLeading = automaticallyImplyLeading;
+      
+      // PopScope의 canPop이 false인 경우 뒤로가기 버튼이 작동하지 않으므로
+      // 직접 Navigator.pop()을 호출하도록 커스텀 leading 생성
+      if (shouldImplyLeading && Navigator.canPop(context)) {
+        finalLeading = IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        );
+        shouldImplyLeading = false; // 커스텀 leading을 사용하므로 false로 설정
+      }
     } else {
       // leading이 있으면 automaticallyImplyLeading을 false로 설정하여
       // 사용자가 지정한 leading을 표시

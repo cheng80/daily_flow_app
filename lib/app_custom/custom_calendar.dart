@@ -392,7 +392,7 @@ class CustomCalendar extends StatelessWidget {
 
         // 선택된 날짜 스타일 (배경색 + 테두리)
         selectedDecoration: BoxDecoration(
-          color: p.primary.withOpacity(0.15),
+          color: p.primary.withValues(alpha: 0.15),
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: p.primary, width: 2.0),
@@ -406,7 +406,7 @@ class CustomCalendar extends StatelessWidget {
         // 다른 달 날짜 표시 여부 및 스타일
         outsideDaysVisible: true,
         outsideTextStyle: TextStyle(
-          color: p.textSecondary.withOpacity(0.5),
+          color: p.textSecondary.withValues(alpha: 0.5),
           fontSize: 14,
         ),
         outsideDecoration: BoxDecoration(
@@ -497,7 +497,7 @@ class CustomCalendar extends StatelessWidget {
             return Container(
               margin: cellMargin ?? const EdgeInsets.all(2.0),
               decoration: BoxDecoration(
-                color: p.primary.withOpacity(0.15),
+                color: p.primary.withValues(alpha: 0.15),
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(8.0),
                 border: Border.all(color: p.primary, width: 2.0),
@@ -559,7 +559,7 @@ class CustomCalendar extends StatelessWidget {
           return Container(
             margin: cellMargin ?? const EdgeInsets.all(2.0),
             decoration: BoxDecoration(
-              color: p.primary.withOpacity(0.15),
+              color: p.primary.withValues(alpha: 0.15),
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(8.0),
               border: Border.all(color: p.primary, width: 2.0),

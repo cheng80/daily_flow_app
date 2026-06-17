@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'custom_storage_util.dart';
 
 // StorageUtil 사용 예제
@@ -87,7 +88,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     );
 
     if (savedUser != null) {
-      print('저장된 사용자: ${savedUser.name}, ${savedUser.age}세');
+      debugPrint('저장된 사용자: ${savedUser.name}, ${savedUser.age}세');
     }
   }
 
@@ -108,7 +109,7 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
     );
 
     if (savedItems != null) {
-      print('저장된 아이템 개수: ${savedItems.length}');
+      debugPrint('저장된 아이템 개수: ${savedItems.length}');
     }
   }
 
@@ -127,13 +128,13 @@ class _StorageExamplePageState extends State<StorageExamplePage> {
   // 키 존재 여부 확인 예제
   Future<void> _checkKey() async {
     final exists = await CustomStorageUtil.containsKey('username');
-    print('username 키 존재 여부: $exists');
+    debugPrint('username 키 존재 여부: $exists');
   }
 
   // 모든 키 가져오기 예제
   Future<void> _getAllKeys() async {
     final keys = await CustomStorageUtil.getAllKeys();
-    print('모든 키: $keys');
+    debugPrint('모든 키: $keys');
   }
 
   @override

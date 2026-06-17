@@ -2,16 +2,17 @@
 //
 // 날짜 범위를 선택하여 기간 내 일정 통계를 확인할 수 있는 화면입니다.
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/app_common_util.dart';
 import '../app_custom/step_mapper_util.dart';
-import '../vm/database_handler.dart';
+import '../vm/vm_notifier.dart';
 import '../model/todo_model.dart';
 import '../custom/util/log/custom_log_util.dart';
 
-class StatisticsRangeView extends StatefulWidget {
+class StatisticsRangeView extends ConsumerStatefulWidget {
   final VoidCallback onToggleTheme;
   final DateTimeRange? initialRange; // 메인 화면에서 전달받은 날짜 범위
   final int? initialStep; // 메인 화면에서 전달받은 Step 필터 (null=전체)
@@ -24,11 +25,10 @@ class StatisticsRangeView extends StatefulWidget {
   });
 
   @override
-  State<StatisticsRangeView> createState() => _StatisticsRangeViewState();
+  ConsumerState<StatisticsRangeView> createState() => _StatisticsRangeViewState();
 }
 
-class _StatisticsRangeViewState extends State<StatisticsRangeView> {
-  late DatabaseHandler _handler;
+class _StatisticsRangeViewState extends ConsumerState<StatisticsRangeView> {
   DateTimeRange? _selectedRange;
   DateTime? _minDate;
   DateTime? _maxDate;
@@ -42,7 +42,6 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
   @override
   void initState() {
     super.initState();
-    _handler = DatabaseHandler();
     _selectedRange = widget.initialRange; // 메인 화면에서 전달받은 범위 설정
     _selectedStep = widget.initialStep; // 메인 화면에서 전달받은 Step 필터
     _minDate = null;
@@ -50,42 +49,32 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
     _rangeTodos = [];
     _rangeRatios = null;
     _rangeStatistics = null;
-    // 날짜 제약 조건 로드
-    _loadDateConstraints().then((_) {
-      // 초기 범위가 있으면 통계 계산
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 날짜 제약 조건 로드 (Provider watch)
+    _loadDateConstraints();
+    // 초기 범위가 있으면 통계 계산
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_selectedRange != null) {
         _calculateRangeStatistics();
       }
     });
   }
 
-  // 날짜 제약 조건 로드
-  Future<void> _loadDateConstraints() async {
-    try {
-      final minDateStr = await _handler.queryMinDate();
-      final maxDateStr = await _handler.queryMaxDate();
-
-      setState(() {
-        if (minDateStr != null) {
-          final parts = minDateStr.split('-');
-          _minDate = DateTime(
-            int.parse(parts[0]),
-            int.parse(parts[1]),
-            int.parse(parts[2]),
-          );
-        }
-        if (maxDateStr != null) {
-          final parts = maxDateStr.split('-');
-          _maxDate = DateTime(
-            int.parse(parts[0]),
-            int.parse(parts[1]),
-            int.parse(parts[2]),
-          );
-        }
-      });
-    } catch (e) {
-      AppLogger.e('날짜 제약 조건 로드 오류', tag: 'StatisticsRangeView', error: e);
-    }
+  // 날짜 제약 조건 로드 (Provider 사용)
+  void _loadDateConstraints() {
+    final constraintsAsync = ref.watch(dateConstraintsProvider);
+    constraintsAsync.whenData((constraints) {
+      if (mounted) {
+        setState(() {
+          _minDate = constraints.minDate;
+          _maxDate = constraints.maxDate;
+        });
+      }
+    });
   }
 
   // 날짜 범위 선택
@@ -146,14 +135,22 @@ class _StatisticsRangeViewState extends State<StatisticsRangeView> {
         tag: 'StatisticsRangeView',
       );
 
-      // 범위 내 Todo 조회 (필터 적용)
-      final todos = _selectedStep == null
-          ? await _handler.queryDataByDateRange(startDate, endDate)
-          : await _handler.queryDataByDateRangeAndStep(
-              startDate,
-              endDate,
-              _selectedStep!,
-            );
+      // 범위 내 Todo 조회 (Provider 사용)
+      List<Todo> todos;
+      if (_selectedStep == null) {
+        final todosAsync = ref.read(
+          todoByDateRangeProvider((startDate: startDate, endDate: endDate)),
+        );
+        todos = await todosAsync.value ?? [];
+      } else {
+        final todosAsync = ref.read(
+          todoByDateRangeAndStepProvider(
+            (startDate: startDate, endDate: endDate, step: _selectedStep!),
+          ),
+        );
+        todos = await todosAsync.value ?? [];
+      }
+      
       AppLogger.d(
         '범위 내 Todo 개수: ${todos.length} (필터: ${_selectedStep ?? "전체"})',
         tag: 'StatisticsRangeView',

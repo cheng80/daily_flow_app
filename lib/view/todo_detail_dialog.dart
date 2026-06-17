@@ -48,7 +48,7 @@ class TodoDetailDialog {
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: p.textSecondary.withOpacity(0.1),
+                          color: p.textSecondary.withValues(alpha: 0.1),
                         ),
                         child: CustomIconButton(
                           icon: Icons.close,

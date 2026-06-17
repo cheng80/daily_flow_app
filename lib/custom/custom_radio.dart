@@ -37,7 +37,7 @@ class CustomRadio<T> extends StatelessWidget {
   final T? groupValue;
 
   // Radio 값 변경 시 호출되는 콜백 함수 (필수)
-  final ValueChanged<T?>? onChanged;
+  final ValueChanged<T?> onChanged;
 
   // Radio 활성화 상태의 색상 (기본값: Colors.blue)
   final Color? activeColor;
@@ -115,23 +115,23 @@ class CustomRadio<T> extends StatelessWidget {
               return null;
             }),
           ),
-      child: adaptive
-          ? Radio<T>.adaptive(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-              activeColor: activeColor,
-              materialTapTargetSize: materialTapTargetSize,
-              visualDensity: visualDensity,
-            )
-          : Radio<T>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-              activeColor: activeColor,
-              materialTapTargetSize: materialTapTargetSize,
-              visualDensity: visualDensity,
-            ),
+      child: RadioGroup<T>(
+        groupValue: groupValue,
+        onChanged: onChanged,
+        child: adaptive
+            ? Radio<T>.adaptive(
+                value: value,
+                activeColor: activeColor,
+                materialTapTargetSize: materialTapTargetSize,
+                visualDensity: visualDensity,
+              )
+            : Radio<T>(
+                value: value,
+                activeColor: activeColor,
+                materialTapTargetSize: materialTapTargetSize,
+                visualDensity: visualDensity,
+              ),
+      ),
     );
 
     // 레이블이 있는 경우 Row로 감싸서 반환

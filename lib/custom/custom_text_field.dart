@@ -90,6 +90,12 @@ class CustomTextField extends StatelessWidget {
   // 콘텐츠 패딩
   final EdgeInsetsGeometry? contentPadding;
 
+  // 앞쪽 아이콘 (prefixIcon)
+  final Widget? prefixIcon;
+
+  // 뒤쪽 아이콘 (suffixIcon)
+  final Widget? suffixIcon;
+
   const CustomTextField({
     super.key,
     required this.controller,
@@ -119,6 +125,8 @@ class CustomTextField extends StatelessWidget {
     this.errorBorder,
     this.focusedErrorBorder,
     this.contentPadding,
+    this.prefixIcon,
+    this.suffixIcon,
   });
 
   @override
@@ -138,6 +146,8 @@ class CustomTextField extends StatelessWidget {
       errorBorder: errorBorder,
       focusedErrorBorder: focusedErrorBorder,
       contentPadding: contentPadding,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
     );
 
     // 사용자가 커스텀 decoration을 제공한 경우, 기본 decoration과 병합
@@ -158,6 +168,8 @@ class CustomTextField extends StatelessWidget {
             focusedErrorBorder:
                 decoration!.focusedErrorBorder ?? focusedErrorBorder,
             contentPadding: decoration!.contentPadding ?? contentPadding,
+            prefixIcon: decoration!.prefixIcon ?? prefixIcon,
+            suffixIcon: decoration!.suffixIcon ?? suffixIcon,
           )
         : defaultDecoration;
 

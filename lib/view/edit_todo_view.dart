@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_custom/custom_calendar_picker.dart';
 import '../app_custom/custom_time_picker.dart';
 import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
 import '../app_custom/step_mapper_util.dart';
-import '../vm/database_handler.dart';
+import '../vm/vm_notifier.dart';
 import '../model/todo_model.dart';
 import '../service/notification_service.dart';
 import '../custom/util/log/custom_log_util.dart';
 
 /// 일정 수정 화면
-class EditTodoView extends StatefulWidget {
+class EditTodoView extends ConsumerStatefulWidget {
   final VoidCallback onToggleTheme;
   final Todo todo;
 
@@ -22,11 +23,10 @@ class EditTodoView extends StatefulWidget {
   });
 
   @override
-  State<EditTodoView> createState() => _EditTodoViewState();
+  ConsumerState<EditTodoView> createState() => _EditTodoViewState();
 }
 
-class _EditTodoViewState extends State<EditTodoView> {
-  late DatabaseHandler _handler;
+class _EditTodoViewState extends ConsumerState<EditTodoView> {
   late DateTime _selectedDay;
   late TextEditingController _titleController;
   late TextEditingController _memoController;
@@ -38,7 +38,6 @@ class _EditTodoViewState extends State<EditTodoView> {
   @override
   void initState() {
     super.initState();
-    _handler = DatabaseHandler();
     final todo = widget.todo;
     _selectedDay = DateTime.parse(todo.date);
     _selectedTime = todo.time;
@@ -685,7 +684,7 @@ class _EditTodoViewState extends State<EditTodoView> {
         );
       }
 
-      // 데이터베이스에 업데이트
+      // 데이터베이스에 업데이트 (Provider 사용)
       // 알람이 활성화된 경우 notificationId 포함하여 업데이트
       final todoToUpdate = newNotificationId != null
           ? updatedTodo.copyWith(notificationId: newNotificationId)
@@ -694,9 +693,10 @@ class _EditTodoViewState extends State<EditTodoView> {
                 ? updatedTodo.copyWith(clearNotificationId: true)
                 : updatedTodo);
 
-      final result = await _handler.updateData(todoToUpdate);
+      final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      await notifier.updateTodo(todoToUpdate);
       AppLogger.s(
-        "Todo 수정 완료: id=${updatedTodo.id}, 수정된 레코드 수: $result",
+        "Todo 수정 완료: id=${updatedTodo.id}",
         tag: 'EditTodo',
       );
 
@@ -715,7 +715,7 @@ class _EditTodoViewState extends State<EditTodoView> {
 
       // 디버그: 업데이트 후 데이터 확인
       if (updatedTodo.id != null) {
-        final verifyTodo = await _handler.queryDataById(updatedTodo.id!);
+        final verifyTodo = await notifier.queryTodoById(updatedTodo.id!);
         if (verifyTodo != null) {
           AppLogger.d("=== 업데이트 후 DB 확인 ===", tag: 'EditTodo');
           AppLogger.d(
