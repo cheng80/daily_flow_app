@@ -10,13 +10,18 @@ import '../custom/custom_common_util.dart';
 
 /// SQLite 데이터베이스 관리 클래스 (todo, deleted_todo 테이블)
 class DatabaseHandler {
+  /// 테스트용 DB 이름 주입 (기본값: 'daily_flow.db')
+  final String _dbName;
+
+  DatabaseHandler({String? dbName}) : _dbName = dbName ?? 'daily_flow.db';
+
   /// DB 초기화 및 테이블 생성
   Future<Database> initializeDB() async {
     String path = await getDatabasesPath();
     print("Database Path : $path");
 
     return openDatabase(
-      join(path, 'daily_flow.db'),
+      join(path, _dbName),
       onCreate: (db, version) async {
         await db.execute("""
           CREATE TABLE IF NOT EXISTS todo (
@@ -25,7 +30,6 @@ class DatabaseHandler {
             memo            TEXT,
             date            TEXT    NOT NULL,
             time            TEXT,
-            step            INTEGER NOT NULL DEFAULT 3,
             priority        INTEGER NOT NULL DEFAULT 3,
             is_done         INTEGER NOT NULL DEFAULT 0,
             has_alarm       INTEGER NOT NULL DEFAULT 0,
@@ -43,7 +47,6 @@ class DatabaseHandler {
             memo         TEXT,
             date         TEXT    NOT NULL,
             time         TEXT,
-            step         INTEGER NOT NULL DEFAULT 3,
             priority     INTEGER NOT NULL DEFAULT 3,
             is_done      INTEGER NOT NULL DEFAULT 0,
             deleted_at   TEXT    NOT NULL
@@ -53,11 +56,6 @@ class DatabaseHandler {
         await db.execute("""
           CREATE INDEX IF NOT EXISTS idx_todo_date 
           ON todo(date);
-          """);
-
-        await db.execute("""
-          CREATE INDEX IF NOT EXISTS idx_todo_date_step 
-          ON todo(date, step);
           """);
 
         await db.execute("""
@@ -103,21 +101,6 @@ class DatabaseHandler {
     return queryResult.map((e) => Todo.fromMap(e)).toList();
   }
 
-  /// 특정 날짜와 Step의 todo 조회
-  Future<List<Todo>> queryDataByDateAndStep(String date, int step) async {
-    final Database db = await initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      """
-      SELECT * 
-      FROM todo 
-      WHERE date = ? 
-        AND step = ? 
-      ORDER BY time ASC, priority DESC
-      """,
-      [date, step],
-    );
-    return queryResult.map((e) => Todo.fromMap(e)).toList();
-  }
 
   /// 날짜 범위 내 모든 todo 조회
   /// 
@@ -138,22 +121,6 @@ class DatabaseHandler {
     return queryResult.map((e) => Todo.fromMap(e)).toList();
   }
 
-  /// 날짜 범위와 Step으로 Todo 조회
-  Future<List<Todo>> queryDataByDateRangeAndStep(
-      String startDate, String endDate, int step) async {
-    final Database db = await initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery(
-      """
-      SELECT * 
-      FROM todo 
-      WHERE date BETWEEN ? AND ? 
-        AND step = ? 
-      ORDER BY date ASC, time ASC, priority DESC
-      """,
-      [startDate, endDate, step],
-    );
-    return queryResult.map((e) => Todo.fromMap(e)).toList();
-  }
 
   /// 데이터가 존재하는 최소 날짜 조회
   /// 
@@ -215,6 +182,7 @@ class DatabaseHandler {
 
     final map = todo.toMap();
     map.remove('id'); // id는 AUTOINCREMENT이므로 제거
+    map.remove('step'); // step 컬럼이 제거되었으므로 제거
 
     result = await db.insert('todo', map);
     print("Insert return value : $result");
@@ -237,6 +205,7 @@ class DatabaseHandler {
     final updatedTodo = todo.copyWith(updatedAt: updatedAtStr);
     final map = updatedTodo.toMap();
     map.remove('id'); // id는 WHERE 절에서만 사용
+    map.remove('step'); // step 컬럼이 제거되었으므로 제거
 
     result = await db.update(
       'todo',
@@ -248,10 +217,31 @@ class DatabaseHandler {
   }
 
   /// Todo 완료 상태 토글 (updated_at 자동 갱신)
+  /// 완료 시 알람이 설정되어 있으면 알람도 함께 삭제
   Future<int> toggleDone(int id, bool isDone) async {
     final Database db = await initializeDB();
     final now = DateTime.now();
     final updatedAtStr = _formatDateTime(now);
+
+    // 완료 시 알람 삭제 처리
+    if (isDone) {
+      // Todo 조회하여 알람 정보 확인
+      final todo = await queryDataById(id);
+      if (todo != null && todo.hasAlarm && todo.notificationId != null) {
+        // 알람 삭제: has_alarm과 notification_id를 0/null로 설정
+        return await db.update(
+          'todo',
+          {
+            'is_done': 1,
+            'has_alarm': 0,
+            'notification_id': null,
+            'updated_at': updatedAtStr,
+          },
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+      }
+    }
 
     return await db.update(
       'todo',
@@ -317,7 +307,6 @@ class DatabaseHandler {
         memo: todo.memo,
         date: todo.date,
         time: todo.time,
-        step: todo.step,
         priority: todo.priority,
         isDone: todo.isDone,
         deletedAt: deletedAtStr,
@@ -325,6 +314,7 @@ class DatabaseHandler {
 
       final map = deletedTodo.toMap();
       map.remove('id'); // id는 AUTOINCREMENT
+      map.remove('step'); // step 컬럼이 제거되었으므로 제거
 
       int result = await db.insert('deleted_todo', map);
       print("Moved to deleted_todo, Insert return value : $result");
@@ -376,7 +366,6 @@ class DatabaseHandler {
         memo: deletedTodo.memo,
         date: deletedTodo.date,
         time: deletedTodo.time,
-        step: deletedTodo.step,
         priority: deletedTodo.priority,
         isDone: deletedTodo.isDone,
         hasAlarm: false, // 복구 시 알람은 비활성화
@@ -387,6 +376,7 @@ class DatabaseHandler {
 
       final map = todo.toMap();
       map.remove('id');
+      map.remove('step'); // step 컬럼이 제거되었으므로 제거
 
       int result = await db.insert('todo', map);
       print("Restored to todo, Insert return value : $result");

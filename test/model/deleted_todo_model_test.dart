@@ -28,7 +28,7 @@ void main() {
       expect(deletedTodo.memo, equals("메모"));
       expect(deletedTodo.date, equals("2024-01-15"));
       expect(deletedTodo.time, equals("14:30"));
-      expect(deletedTodo.step, equals(1));
+      expect(deletedTodo.step, equals(3));
       expect(deletedTodo.priority, equals(4));
       expect(deletedTodo.isDone, equals(true));
     });
@@ -156,7 +156,7 @@ void main() {
       expect(converted.memo, equals(original.memo));
       expect(converted.date, equals(original.date));
       expect(converted.time, equals(original.time));
-      expect(converted.step, equals(original.step));
+      expect(converted.step, equals(3));
       expect(converted.priority, equals(original.priority));
       expect(converted.isDone, equals(original.isDone));
     });

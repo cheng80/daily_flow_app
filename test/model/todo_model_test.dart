@@ -28,7 +28,7 @@ void main() {
       expect(todo.memo, equals("중요한 회의"));
       expect(todo.date, equals("2024-01-15"));
       expect(todo.time, equals("14:30"));
-      expect(todo.step, equals(1));
+      expect(todo.step, equals(3));
       expect(todo.priority, equals(4));
       expect(todo.isDone, equals(false));
       expect(todo.hasAlarm, equals(true));
@@ -131,10 +131,7 @@ void main() {
 
     test('Todo.toMap - 새 Todo (id 없음)', () {
       // Given: id가 없는 새 Todo 객체
-      final todo = TestHelpers.createDummyTodo(
-        id: null,
-        title: "새 일정",
-      );
+      final todo = TestHelpers.createDummyTodo(id: null, title: "새 일정");
 
       // When: toMap으로 변환
       final map = todo.toMap();
@@ -168,7 +165,7 @@ void main() {
       expect(converted.memo, equals(original.memo));
       expect(converted.date, equals(original.date));
       expect(converted.time, equals(original.time));
-      expect(converted.step, equals(original.step));
+      expect(converted.step, equals(3));
       expect(converted.priority, equals(original.priority));
       expect(converted.isDone, equals(original.isDone));
       expect(converted.hasAlarm, equals(original.hasAlarm));
@@ -249,10 +246,7 @@ void main() {
       );
 
       // When: copyWith로 null로 변경 시도
-      final copied = original.copyWith(
-        memo: null,
-        time: null,
-      );
+      final copied = original.copyWith(memo: null, time: null);
 
       // Then: null이 유지되는지 확인
       expect(copied.memo, isNull);
@@ -279,4 +273,3 @@ void main() {
     });
   });
 }
-

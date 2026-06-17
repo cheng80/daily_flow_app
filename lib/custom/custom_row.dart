@@ -20,6 +20,9 @@ class CustomRow extends StatelessWidget {
   // Row의 교차축 정렬 방식 (기본값: CrossAxisAlignment.center)
   final CrossAxisAlignment? crossAxisAlignment;
 
+  // Row의 주축 크기 (기본값: MainAxisSize.max)
+  final MainAxisSize? mainAxisSize;
+
   // Row 전체에 적용할 패딩
   final EdgeInsets? padding;
 
@@ -38,6 +41,7 @@ class CustomRow extends StatelessWidget {
     this.spacing,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
+    this.mainAxisSize,
     this.padding,
     this.width,
     this.height,
@@ -55,6 +59,7 @@ class CustomRow extends StatelessWidget {
     Widget row = Row(
       mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
       crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+      mainAxisSize: mainAxisSize ?? MainAxisSize.max,
       children: spacedChildren,
     );
 

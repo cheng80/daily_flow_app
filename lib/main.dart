@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'service/notification_service.dart';
 import 'theme/app_colors.dart';
 import 'view/create_todo_view.dart';
 import 'view/home.dart';
-import 'view/splash_page.dart';
+import 'view/main_range_view_v2.dart';
 import 'vm/vm_notifier.dart';
+import 'vm/theme_notifier.dart';
 import 'custom/util/log/custom_log_util.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // 네이티브 스플래시 유지
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  // 초기화 작업
   final notificationService = NotificationService();
   await notificationService.initialize();
   await notificationService.requestPermission();
 
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
+  // 네이티브 스플래시 제거 (초기화 완료)
+  FlutterNativeSplash.remove();
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -31,7 +35,6 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  AppThemeMode _mode = AppThemeMode.light;
   final NotificationService _notificationService = NotificationService();
   bool _isInitialCleanupDone = false;
 
@@ -54,9 +57,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   Future<void> _performInitialCleanup() async {
     try {
       // Provider를 통해 Todo 리스트 가져오기
-      final todoAsync = await ref.read(todoNotifierProvider(TodoType.normal).future);
+      final todoAsync = await ref.read(
+        todoNotifierProvider(TodoType.normal).future,
+      );
       final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
-      
+
       // cleanupExpiredNotifications 호출
       await _notificationService.cleanupExpiredNotifications(
         todos: todoAsync,
@@ -89,9 +94,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   Future<void> _performCleanupOnResume() async {
     try {
       // Provider를 통해 Todo 리스트 가져오기
-      final todoAsync = await ref.read(todoNotifierProvider(TodoType.normal).future);
+      final todoAsync = await ref.read(
+        todoNotifierProvider(TodoType.normal).future,
+      );
       final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
-      
+
       // cleanupExpiredNotifications 호출
       await _notificationService.cleanupExpiredNotifications(
         todos: todoAsync,
@@ -102,20 +109,13 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     }
   }
 
-  void _toggleTheme() {
-    setState(() {
-      _mode = _mode == AppThemeMode.light
-          ? AppThemeMode.dark
-          : AppThemeMode.light;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isDark = _mode == AppThemeMode.dark;
+    // themeNotifierProvider에서 테마 모드 가져오기
+    final themeMode = ref.watch(themeNotifierProvider);
 
     return MaterialApp(
-      title: 'Main',
+      title: 'Daily Flow',
       theme: ThemeData(
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.light.background,
@@ -124,7 +124,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.dark.background,
       ),
-      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeMode,
 
       debugShowCheckedModeBanner: false,
       localizationsDelegates: [
@@ -137,7 +137,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         const Locale('ko', 'KR'),
         const Locale('ja', 'JP'),
       ],
-      initialRoute: '/home',
+      initialRoute: '/',
       onGenerateRoute: (settings) {
         // 페이드 트랜지션을 위한 PageRouteBuilder 생성 함수
         PageRoute<T> fadeRoute<T extends Object?>(
@@ -157,20 +157,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
         switch (settings.name) {
           case '/home':
-            return fadeRoute(
-              Home(onToggleTheme: _toggleTheme),
-              routeSettings: settings,
-            );
-          case '/splash':
-            return fadeRoute(
-              SplashPage(onToggleTheme: _toggleTheme),
-              routeSettings: settings,
-            );
+            return fadeRoute(const Home(), routeSettings: settings);
           case '/':
-            return fadeRoute(
-              Home(onToggleTheme: _toggleTheme),
-              routeSettings: settings,
-            );
+            return fadeRoute(const MainRangeViewV2(), routeSettings: settings);
           case '/create_todo_view':
             final args = settings.arguments;
             DateTime? initialDate;
@@ -180,17 +169,11 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
               initialDate = args;
             }
             return fadeRoute(
-              CreateTodoView(
-                onToggleTheme: _toggleTheme,
-                initialDate: initialDate,
-              ),
+              CreateTodoView(initialDate: initialDate),
               routeSettings: settings,
             );
           default:
-            return fadeRoute(
-              Home(onToggleTheme: _toggleTheme),
-              routeSettings: settings,
-            );
+            return fadeRoute(const MainRangeViewV2(), routeSettings: settings);
         }
       },
     );

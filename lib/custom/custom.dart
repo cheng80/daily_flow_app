@@ -3,12 +3,12 @@
 // 외부 패키지 의존성 없는 위젯과 핵심 유틸리티만 export합니다.
 // GetX처럼 하나의 import로 기본 기능을 사용할 수 있습니다.
 //
-// 주의: 이 파일은 storage/network를 export하지 않지만,
-// storage/network 폴더가 존재하면 pubspec.yaml에 의존성을 추가해야 합니다.
+// 주의: 이 파일은 storage/network/slidable 등 외부 패키지 의존성이 있는 위젯을 export하지 않지만,
+// 해당 폴더가 존재하면 pubspec.yaml에 의존성을 추가해야 합니다.
 // (export되지 않아도 파일이 존재하면 컴파일 시 의존성 체크를 합니다)
 //
-// StorageUtil이나 NetworkUtil이 필요한 경우 직접 import하거나 custom_full.dart를 사용하세요.
-// 사용하지 않는 경우 storage/network 폴더를 삭제하거나 pubspec.yaml에 의존성을 추가하세요.
+// 외부 패키지 의존성이 있는 위젯/유틸리티가 필요한 경우 직접 import하세요.
+// 사용하지 않는 경우 해당 폴더를 삭제하거나 pubspec.yaml에 의존성을 추가하세요.
 //
 // 사용 예시:
 // ```dart
@@ -26,9 +26,9 @@
 // 선택적 import:
 // - 위젯만 필요한 경우: `import 'package:custom_test_app/custom/widgets.dart';`
 // - 핵심 유틸리티만: `import 'package:custom_test_app/custom/utils_core.dart';`
-// - 전체 유틸리티 (외부 패키지 의존성 필요): `import 'package:custom_test_app/custom/custom_full.dart';`
 // - 스토리지 유틸리티만: `import 'package:custom_test_app/custom/external_util/storage/custom_storage_util.dart';`
 // - 네트워크 유틸리티만: `import 'package:custom_test_app/custom/external_util/network/custom_network_util.dart';`
+// - 슬라이더블 위젯만: `import 'package:custom_test_app/custom/external_util/slidable/custom_slidable.dart';`
 library;
 
 // 위젯 export

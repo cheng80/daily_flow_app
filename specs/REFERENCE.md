@@ -403,30 +403,6 @@ Container(color: p.priorityHigh) // 중요도 표시
 
 ---
 
-## 🔢 Step (시간대 분류)
-
-### Step 값
-
-- `0`: 오전
-- `1`: 오후
-- `2`: 저녁
-- `3`: 야간
-- `4`: 종일 (기본값)
-
-### 시간 → Step 자동 매핑 규칙 ✅ 구현 완료
-
-- **오전 (0)**: 06:00 ~ 11:59
-- **오후 (1)**: 12:00 ~ 17:59
-- **저녁 (2)**: 18:00 ~ 23:59
-- **야간 (3)**: 00:00 ~ 05:59
-- **종일 (4)**: 시간 없음 (null) 또는 유효하지 않은 시간
-
-**구현:** `lib/util/step_mapper_util.dart`의 `StepMapperUtil` 클래스 사용
-- `mapTimeToStep(String? time)`: 시간 문자열을 Step 값으로 변환
-- `stepToKorean(int step)`: Step 값을 한국어 문자열로 변환
-- `stepToTimeRange(int step)`: Step 값에 해당하는 시간 범위 문자열 반환
-
----
 
 ## ⭐ Priority (중요도)
 
@@ -616,8 +592,7 @@ if (result == true) {
 
 1. **날짜 형식**: 반드시 `YYYY-MM-DD` 형식을 사용하세요
 2. **시간 형식**: 반드시 `HH:MM` 형식을 사용하세요
-3. **Step 값**: 0~4 범위를 벗어나지 않도록 주의하세요 (0=오전, 1=오후, 2=저녁, 3=야간, 4=종일)
-4. **Priority 값**: 1~5 범위를 벗어나지 않도록 주의하세요
+3. **Priority 값**: 1~5 범위를 벗어나지 않도록 주의하세요
 5. **Context 사용**: CustomSnackBar/Dialog 사용 시 context.mounted 확인 필요
 6. **로깅**: `print()` 대신 `AppLogger` 사용 필수
 7. **네비게이션**: `Navigator.push()` 대신 `CustomNavigationUtil.to` 사용 필수

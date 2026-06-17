@@ -279,49 +279,7 @@ void main() {
     });
   });
 
-  group('TodoByDateAndStepNotifier Tests', () {
-    late ProviderContainer container;
-    late DatabaseHandler dbHandler;
-
-    setUp(() async {
-      container = ProviderContainer();
-      dbHandler = DatabaseHandler();
-      // 테스트 전 데이터베이스 초기화
-      final db = await dbHandler.initializeDB();
-      await dbHandler.allClearData();
-      await dbHandler.allClearDeletedData();
-      await db.close();
-    });
-
-    tearDown(() {
-      container.dispose();
-    });
-
-    test('build - 특정 날짜와 Step의 Todo 조회', () async {
-      // Given: 테스트 데이터 삽입
-      final todo1 = TestHelpers.createDummyTodo(
-        title: "2024-01-15 오전",
-        date: "2024-01-15",
-        step: 0, // 오전
-      );
-      final todo2 = TestHelpers.createDummyTodo(
-        title: "2024-01-15 오후",
-        date: "2024-01-15",
-        step: 1, // 오후
-      );
-      await dbHandler.insertData(todo1);
-      await dbHandler.insertData(todo2);
-
-      // When: 특정 날짜와 Step Provider 조회
-      final provider = todoByDateAndStepProvider((date: "2024-01-15", step: 0));
-      final result = await container.read(provider.future);
-
-      // Then: 해당 날짜와 Step의 Todo만 조회되었는지 확인
-      expect(result.length, equals(1));
-      expect(result.first.title, equals("2024-01-15 오전"));
-      expect(result.first.step, equals(0));
-    });
-  });
+  // TodoByDateAndStepNotifier 테스트: 제거됨 (Provider/메서드가 소스에서 삭제됨)
 
   group('TodoByDateRangeNotifier Tests', () {
     late ProviderContainer container;

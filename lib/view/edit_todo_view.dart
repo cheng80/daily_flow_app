@@ -5,20 +5,21 @@ import '../app_custom/custom_time_picker.dart';
 import '../app_custom/app_common_util.dart';
 import '../custom/custom.dart';
 import '../theme/app_colors.dart';
-import '../app_custom/step_mapper_util.dart';
 import '../vm/vm_notifier.dart';
 import '../model/todo_model.dart';
 import '../service/notification_service.dart';
 import '../custom/util/log/custom_log_util.dart';
 
+//----------------------------------
+//-- EditTodoView
+//----------------------------------
+
 /// 일정 수정 화면
 class EditTodoView extends ConsumerStatefulWidget {
-  final VoidCallback onToggleTheme;
   final Todo todo;
 
   const EditTodoView({
     super.key,
-    required this.onToggleTheme,
     required this.todo,
   });
 
@@ -30,10 +31,14 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
   late DateTime _selectedDay;
   late TextEditingController _titleController;
   late TextEditingController _memoController;
-  String? _selectedTime; // 'HH:MM'
+  String? _selectedTime;
   bool _hasAlarm = false;
-  int _selectedStep = StepMapperUtil.stepAnytime;
   int _selectedPriority = 3;
+  bool _isDone = false;
+
+  //----------------------------------
+  //-- Lifecycle
+  //----------------------------------
 
   @override
   void initState() {
@@ -42,10 +47,8 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
     _selectedDay = DateTime.parse(todo.date);
     _selectedTime = todo.time;
     _hasAlarm = todo.hasAlarm;
-    _selectedStep = todo.step;
     _selectedPriority = todo.priority;
-
-    // 컨트롤러 초기화
+    _isDone = todo.isDone;
     _titleController = TextEditingController(text: todo.title);
     _memoController = TextEditingController(text: todo.memo ?? '');
   }
@@ -57,433 +60,41 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
     super.dispose();
   }
 
-  // 위젯 빌드
+  //----------------------------------
+  //-- Build
+  //----------------------------------
+
   @override
   Widget build(BuildContext context) {
-    final p = context.palette; // AppColorScheme 객체 접근
+    final p = context.palette;
 
     return Scaffold(
       backgroundColor: p.background,
-      // 드로워 슬라이드 제스처 비활성화
       drawerEnableOpenDragGesture: false,
-      appBar: CustomAppBar(
-        foregroundColor: p.textOnPrimary,
-        toolbarHeight: 50,
-        title: CustomText(
-          "일정 수정",
-          style: TextStyle(color: p.textOnPrimary, fontSize: 24),
-        ),
-        // leading: IconButton(
-        //   icon: Icon(Icons.arrow_back, color: p.textOnPrimary),
-        //   onPressed: () {
-        //     CustomNavigationUtil.back(context);
-        //   },
-        // ),
-        actions: [
-          // Switch(
-          //   value: _themeBool,
-          //   onChanged: (value) {
-          //     setState(() {
-          //       _themeBool = value;
-          //     });
-          //     widget.onToggleTheme();
-          //   },
-          // ),
-        ],
-      ),
-
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          child: CustomPadding.all(
-            16,
-            child: CustomColumn(
-              spacing: 8,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                //----------------------------------
-                //-- 날짜 선택
-                //----------------------------------
-                CustomText(
-                  "날짜 선택",
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                CustomButton(
-                  btnText: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.calendar_today, color: p.primary, size: 24),
-                      const SizedBox(width: 8),
-                      CustomText(
-                        CustomCommonUtil.formatDate(
-                          _selectedDay,
-                          'yyyy년 MM월 dd일',
-                        ),
-                        fontSize: 16,
-                        color: p.textPrimary,
-                      ),
-                    ],
-                  ),
-                  buttonType: ButtonType.outlined,
-                  backgroundColor: p.primary,
-                  onCallBack: _showDatePicker,
-                  minimumSize: const Size(double.infinity, 48),
-                ),
-
-                //----------------------------------
-                //-- 시간 설정 & 알람 설정
-                //----------------------------------
-                CustomRow(
-                  spacing: 8,
+      appBar: _buildAppBar(p),
+      body: SafeArea(
+        top: false,
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Container(
+            color: p.background,
+            child: SingleChildScrollView(
+              child: CustomPadding.all(
+                20,
+                child: CustomColumn(
+                  spacing: 24,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      flex: 5,
-                      child: SizedBox(
-                        height: 120,
-                        child: CustomCard(
-                          padding: const EdgeInsets.all(12),
-                          child: CustomColumn(
-                            spacing: 8,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              CustomText(
-                                "시간 설정 (선택 사항)",
-                                style: TextStyle(
-                                  color: p.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              CustomButton(
-                                btnText: Row(
-                                  spacing: 8,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.access_time,
-                                      color: p.primary,
-                                      size: 24,
-                                    ),
-                                    Flexible(
-                                      child: CustomText(
-                                        _selectedTime != null
-                                            ? CustomCommonUtil.formatTime12Hour(
-                                                _selectedTime!,
-                                              )
-                                            : "시간 선택",
-                                        fontSize: 16,
-                                        color: p.textPrimary,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                buttonType: ButtonType.outlined,
-                                backgroundColor: p.primary,
-                                onCallBack: _showTimePicker,
-                                minimumSize: const Size(80, 45),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 4,
-                      child: SizedBox(
-                        height: 120,
-                        child: CustomCard(
-                          padding: const EdgeInsets.all(8),
-                          child: CustomColumn(
-                            spacing: 0,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              CustomText(
-                                "알람 설정",
-                                style: TextStyle(
-                                  color: p.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              CustomRow(
-                                spacing: 6,
-                                children: [
-                                  Icon(
-                                    Icons.alarm_add,
-                                    color: _hasAlarm && _selectedTime != null
-                                        ? p.primary
-                                        : p.textSecondary,
-                                    size: 24,
-                                  ),
-                                  Switch(
-                                    value: _hasAlarm,
-                                    onChanged: _selectedTime != null
-                                        ? (value) {
-                                            setState(() {
-                                              _hasAlarm = value;
-                                            });
-                                          }
-                                        : null, // 시간이 선택되지 않으면 비활성화
-                                  ),
-                                ],
-                              ),
-                              CustomText(
-                                "시간 설정 시 사용 가능",
-                                style: TextStyle(
-                                  color: p.textSecondary,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    if (_isDone) _buildDoneBadge(),
+                    _buildDateTimeSection(p),
+                    _buildInfoSection(p),
+                    _buildPrioritySection(p),
+                    const SizedBox(height: 8),
+                    _buildSaveButton(p),
+                    const SizedBox(height: 20),
                   ],
                 ),
-
-                //----------------------------------
-                //-- 시간대 선택 & 중요도 설정
-                //----------------------------------
-                CustomText(
-                  "시간대 선택 & 중요도 설정",
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                CustomRow(
-                  spacing: 12,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: CustomColumn(
-                        spacing: 4,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            "시간대 선택",
-                            style: TextStyle(
-                              color: p.textSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                          CustomDropdownButton<int>(
-                            value: _selectedStep,
-                            items: [
-                              StepMapperUtil.stepMorning,
-                              StepMapperUtil.stepNoon,
-                              StepMapperUtil.stepEvening,
-                              StepMapperUtil.stepNight,
-                              StepMapperUtil.stepAnytime,
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  // "종일"로 변경하면 무조건 시간 초기화
-                                  if (value == StepMapperUtil.stepAnytime) {
-                                    _selectedTime = null;
-                                    _hasAlarm = false;
-                                  } else {
-                                    // 현재 선택한 시간의 시간대 확인
-                                    int? currentTimeStep;
-                                    if (_selectedTime != null) {
-                                      currentTimeStep =
-                                          StepMapperUtil.mapTimeToStep(
-                                            _selectedTime!,
-                                          );
-                                    }
-
-                                    // 선택한 시간대가 현재 시간의 시간대와 다르면
-                                    // 시간 초기화 및 알람 비활성화
-                                    if (currentTimeStep != null &&
-                                        value != currentTimeStep) {
-                                      _selectedTime = null;
-                                      _hasAlarm = false;
-                                    }
-                                  }
-
-                                  _selectedStep = value;
-                                });
-                              }
-                            },
-                            selectedItemBuilder: (value) {
-                              if (value == null) {
-                                return CustomText(
-                                  "시간대 선택",
-                                  style: TextStyle(color: p.textSecondary),
-                                );
-                              }
-                              return CustomText(
-                                "${StepMapperUtil.stepToKorean(value)} (${StepMapperUtil.stepToTimeRange(value)})",
-                                style: TextStyle(
-                                  color: p.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              );
-                            },
-                            itemBuilder: (item) {
-                              return CustomText(
-                                "${StepMapperUtil.stepToKorean(item)} (${StepMapperUtil.stepToTimeRange(item)})",
-                                style: TextStyle(
-                                  color: p.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            },
-                            width: double.infinity,
-                            height: 48,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Flexible(
-                      flex: 2,
-                      child: CustomColumn(
-                        spacing: 4,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            "중요도 설정",
-                            style: TextStyle(
-                              color: p.textSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                          CustomDropdownButton<int>(
-                            value: _selectedPriority,
-                            items: [1, 2, 3, 4, 5],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  _selectedPriority = value;
-                                });
-                              }
-                            },
-                            selectedItemBuilder: (value) {
-                              if (value == null) {
-                                return CustomText(
-                                  "중요도 선택",
-                                  style: TextStyle(color: p.textSecondary),
-                                );
-                              }
-                              final priorityColor = getPriorityColor(value, p);
-                              return CustomRow(
-                                spacing: 6,
-                                children: [
-                                  CustomContainer(
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: 6,
-                                    backgroundColor: priorityColor,
-                                    child: const SizedBox.shrink(),
-                                  ),
-                                  Flexible(
-                                    child: CustomText(
-                                      getPriorityText(value),
-                                      style: TextStyle(
-                                        color: p.textPrimary,
-                                        fontSize: 16,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                            itemBuilder: (item) {
-                              final priorityColor = getPriorityColor(item, p);
-                              return CustomRow(
-                                spacing: 6,
-                                children: [
-                                  CustomContainer(
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: 6,
-                                    backgroundColor: priorityColor,
-                                    child: const SizedBox.shrink(),
-                                  ),
-                                  Flexible(
-                                    child: CustomText(
-                                      getPriorityText(item),
-                                      style: TextStyle(
-                                        color: p.textPrimary,
-                                        fontSize: 16,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                            width: double.infinity,
-                            height: 48,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                //----------------------------------
-                //-- 제목 입력
-                //----------------------------------
-                CustomText(
-                  "제목",
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                CustomTextField(
-                  controller: _titleController,
-                  hintText: "제목 입력 (최대 50자)",
-                  labelText: "제목",
-                  maxLength: 50,
-                ),
-
-                //----------------------------------
-                //-- 메모 입력
-                //----------------------------------
-                CustomText(
-                  "메모",
-                  style: TextStyle(
-                    color: p.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                CustomTextField(
-                  controller: _memoController,
-                  hintText: "메모 입력 (최대 200자)",
-                  labelText: "메모",
-                  maxLines: 5,
-                  maxLength: 200,
-                ),
-
-                //----------------------------------
-                //-- 저장 버튼
-                //----------------------------------
-                CustomButton(
-                  btnText: "수정 완료",
-                  buttonType: ButtonType.elevated,
-                  backgroundColor: p.primary,
-                  onCallBack: _updateTodo,
-                  minimumSize: const Size(double.infinity, 48),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -492,24 +103,485 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
   }
 
   //----------------------------------
-  //-- Function
+  //-- AppBar
   //----------------------------------
 
-  // 날짜 선택 다이얼로그 표시
+  CustomAppBar _buildAppBar(AppColorScheme p) {
+    return CustomAppBar(
+      foregroundColor: p.textOnPrimary,
+      toolbarHeight: 64,
+      title: CustomText(
+        "일정 수정",
+        style: TextStyle(
+          color: p.textOnPrimary,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: InkWell(
+            onTap: _handleToggleDone,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _isDone
+                    ? Colors.green.withOpacity(0.2)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: CustomRow(
+                spacing: 8,
+                children: [
+                  Icon(
+                    _isDone ? Icons.check_circle : Icons.circle_outlined,
+                    color: _isDone ? Colors.green : p.textOnPrimary,
+                    size: 20,
+                  ),
+                  CustomText(
+                    "완료",
+                    style: TextStyle(
+                      color: _isDone ? Colors.green : p.textOnPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 완료 상태 배지
+  Widget _buildDoneBadge() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green.withOpacity(0.3), width: 1.5),
+      ),
+      child: CustomRow(
+        spacing: 12,
+        children: [
+          Icon(Icons.check_circle_rounded, color: Colors.green, size: 24),
+          Expanded(
+            child: CustomText(
+              "이 일정은 완료되었습니다",
+              style: TextStyle(
+                color: Colors.green,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //----------------------------------
+  //-- 날짜 및 시간 섹션
+  //----------------------------------
+
+  Widget _buildDateTimeSection(AppColorScheme p) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: p.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: CustomColumn(
+        spacing: 16,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionTitle(p, Icons.event_rounded, p.primary, "날짜 및 시간"),
+          _buildDateSelector(p),
+          _buildTimeAndAlarmRow(p),
+          if (_isDone)
+            _buildWarningBanner("완료된 일정은 알람을 설정할 수 없습니다")
+          else if (_selectedTime == null && _hasAlarm)
+            _buildWarningBanner("시간을 먼저 선택해주세요"),
+        ],
+      ),
+    );
+  }
+
+  // 날짜 선택 버튼
+  Widget _buildDateSelector(AppColorScheme p) {
+    return InkWell(
+      onTap: _showDatePicker,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: p.background,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: p.divider, width: 1.5),
+        ),
+        child: CustomRow(
+          spacing: 12,
+          children: [
+            Icon(Icons.calendar_today_rounded, color: p.primary, size: 24),
+            Expanded(
+              child: CustomText(
+                CustomCommonUtil.formatDate(_selectedDay, 'yyyy년 MM월 dd일'),
+                style: TextStyle(
+                  color: p.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: p.textSecondary, size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 시간 + 알람 설정 행
+  Widget _buildTimeAndAlarmRow(AppColorScheme p) {
+    return CustomRow(
+      spacing: 12,
+      children: [
+        Expanded(child: _buildTimeSelector(p)),
+        _buildAlarmToggle(p),
+      ],
+    );
+  }
+
+  // 시간 선택
+  Widget _buildTimeSelector(AppColorScheme p) {
+    return InkWell(
+      onTap: _showTimePicker,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: p.background,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: p.divider, width: 1.5),
+        ),
+        child: CustomColumn(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomText(
+              "시간",
+              style: TextStyle(color: p.textSecondary, fontSize: 12),
+            ),
+            CustomRow(
+              spacing: 8,
+              children: [
+                Icon(Icons.access_time_rounded, color: p.accent, size: 20),
+                Expanded(
+                  child: CustomText(
+                    _selectedTime != null
+                        ? CustomCommonUtil.formatTime12Hour(_selectedTime!)
+                        : "선택 안 함",
+                    style: TextStyle(
+                      color: _selectedTime != null
+                          ? p.textPrimary
+                          : p.textSecondary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 알람 토글
+  Widget _buildAlarmToggle(AppColorScheme p) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: p.background,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: p.divider, width: 1.5),
+      ),
+      child: CustomColumn(
+        spacing: 8,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            "알람",
+            style: TextStyle(color: p.textSecondary, fontSize: 12),
+          ),
+          CustomRow(
+            spacing: 8,
+            children: [
+              Icon(
+                Icons.alarm_rounded,
+                color: _hasAlarm && _selectedTime != null && !_isDone
+                    ? Colors.orange
+                    : p.textSecondary,
+                size: 20,
+              ),
+              Switch(
+                value: _hasAlarm,
+                onChanged: _isDone
+                    ? null
+                    : (_selectedTime != null
+                        ? (value) => setState(() => _hasAlarm = value)
+                        : null),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  //----------------------------------
+  //-- 일정 정보 섹션
+  //----------------------------------
+
+  Widget _buildInfoSection(AppColorScheme p) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: p.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: CustomColumn(
+        spacing: 20,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionTitle(p, Icons.edit_note_rounded, p.accent, "일정 정보"),
+          _buildLabeledField(p, "제목", CustomTextField(
+            controller: _titleController,
+            hintText: "일정 제목을 입력하세요",
+            labelText: null,
+            maxLength: 50,
+          )),
+          _buildLabeledField(p, "메모", CustomTextField(
+            controller: _memoController,
+            hintText: "상세 메모를 입력하세요 (선택 사항)",
+            labelText: null,
+            maxLines: 5,
+            maxLength: 200,
+          )),
+        ],
+      ),
+    );
+  }
+
+  //----------------------------------
+  //-- 중요도 섹션
+  //----------------------------------
+
+  Widget _buildPrioritySection(AppColorScheme p) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: p.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: CustomColumn(
+        spacing: 16,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSectionTitle(
+            p,
+            Icons.flag_rounded,
+            getPriorityColor(_selectedPriority, p),
+            "중요도",
+          ),
+          _buildPriorityDropdown(p),
+        ],
+      ),
+    );
+  }
+
+  // 중요도 드롭다운
+  Widget _buildPriorityDropdown(AppColorScheme p) {
+    return CustomDropdownButton<int>(
+      value: _selectedPriority,
+      items: [1, 2, 3, 4, 5],
+      onChanged: (value) {
+        if (value != null) {
+          setState(() => _selectedPriority = value);
+        }
+      },
+      selectedItemBuilder: (value) {
+        if (value == null) {
+          return CustomText(
+            "중요도 선택",
+            style: TextStyle(color: p.textSecondary),
+          );
+        }
+        return _buildPriorityItem(p, value, FontWeight.w600);
+      },
+      itemBuilder: (item) => _buildPriorityItem(p, item, FontWeight.normal),
+      width: double.infinity,
+      height: 56,
+    );
+  }
+
+  //----------------------------------
+  //-- 저장 버튼
+  //----------------------------------
+
+  Widget _buildSaveButton(AppColorScheme p) {
+    return CustomButton(
+      btnText: CustomRow(
+        spacing: 8,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.save_rounded, size: 22, color: Colors.white),
+          CustomText(
+            "수정 완료",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+      buttonType: ButtonType.elevated,
+      backgroundColor: p.primary,
+      textColor: Colors.white,
+      onCallBack: _handleUpdate,
+      minimumSize: const Size(double.infinity, 56),
+    );
+  }
+
+  //----------------------------------
+  //-- 공통 UI 헬퍼
+  //----------------------------------
+
+  // 섹션 제목
+  Widget _buildSectionTitle(
+    AppColorScheme p,
+    IconData icon,
+    Color color,
+    String title,
+  ) {
+    return CustomRow(
+      spacing: 8,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        CustomText(
+          title,
+          style: TextStyle(
+            color: p.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 라벨 + 입력 필드
+  Widget _buildLabeledField(AppColorScheme p, String label, Widget field) {
+    return CustomColumn(
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+          label,
+          style: TextStyle(
+            color: p.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        field,
+      ],
+    );
+  }
+
+  // 중요도 아이템 (드롭다운 공통)
+  Widget _buildPriorityItem(AppColorScheme p, int value, FontWeight weight) {
+    final priorityColor = getPriorityColor(value, p);
+    return CustomRow(
+      spacing: 10,
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: priorityColor,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Flexible(
+          child: CustomText(
+            getPriorityText(value),
+            style: TextStyle(
+              color: p.textPrimary,
+              fontSize: 16,
+              fontWeight: weight,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 경고 배너
+  Widget _buildWarningBanner(String message) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: CustomRow(
+        spacing: 8,
+        children: [
+          Icon(Icons.info_outline_rounded, color: Colors.orange, size: 18),
+          Expanded(
+            child: CustomText(
+              message,
+              style: TextStyle(color: Colors.orange, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //----------------------------------
+  //-- Dialog & Picker
+  //----------------------------------
+
+  // 날짜 선택 다이얼로그
   Future<void> _showDatePicker() async {
     final selectedDate = await CustomCalendarPicker.showDatePicker(
       context: context,
       initialDate: _selectedDay,
     );
-
     if (selectedDate != null) {
-      setState(() {
-        _selectedDay = selectedDate;
-      });
+      setState(() => _selectedDay = selectedDate);
     }
   }
 
-  // 시간 선택 다이얼로그 표시
+  // 시간 선택 다이얼로그
   Future<void> _showTimePicker() async {
     final TimeOfDay? picked = await CustomTimePicker.showTimePicker(
       context: context,
@@ -519,24 +591,32 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
               minute: int.parse(_selectedTime!.split(':')[1]),
             )
           : TimeOfDay.now(),
-      use24HourFormat: false, // 12시간 형식 (오전/오후)으로 표시
+      use24HourFormat: false,
     );
-
     if (picked != null) {
-      setState(() {
-        _selectedTime = CustomCommonUtil.formatTime(
-          picked,
-        ); // TimeOfDay는 항상 24시간 형식으로 저장됨
-        // 시간이 선택되면 자동으로 Step 매핑
-        _selectedStep = StepMapperUtil.mapTimeToStep(_selectedTime);
-        // 알람은 활성화되지만 기본값은 false로 유지
-      });
+      setState(() => _selectedTime = CustomCommonUtil.formatTime(picked));
+    }
+  }
+
+  //----------------------------------
+  //-- Handler
+  //----------------------------------
+
+  // 완료 상태 토글
+  Future<void> _handleToggleDone() async {
+    if (widget.todo.id != null) {
+      setState(() => _isDone = !_isDone);
+      final notifier =
+          ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      await notifier.toggleDone(widget.todo.id!, _isDone);
+      if (_isDone && _hasAlarm) {
+        setState(() => _hasAlarm = false);
+      }
     }
   }
 
   // Todo 수정
-  Future<void> _updateTodo() async {
-    // 제목 필수 입력 검증
+  Future<void> _handleUpdate() async {
     if (!CustomTextField.textCheck(context, _titleController)) {
       CustomSnackBar.show(
         context,
@@ -547,64 +627,51 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
     }
 
     try {
-      // TODO: 테스트용 강제 실패 로직 (제거 예정)
-      // 실패 다이얼로그 테스트를 위해 주석 해제
-      // throw Exception("테스트용 강제 실패");
-
-      // "종일"이면 시간을 null로 강제 설정
-      String? finalTime = _selectedTime;
-      bool shouldClearTime = false;
-      if (_selectedStep == StepMapperUtil.stepAnytime) {
-        finalTime = null;
-        shouldClearTime = true; // 종일이면 시간을 명시적으로 null로 설정
-        _hasAlarm = false; // 종일이면 알람도 무조건 false
-      } else if (_selectedTime != null) {
-        // 시간이 선택된 경우 Step 자동 매핑
-        _selectedStep = StepMapperUtil.mapTimeToStep(_selectedTime);
+      // 완료된 항목은 알람 설정 불가
+      if (_isDone && _hasAlarm) {
+        CustomSnackBar.show(
+          context,
+          message: "완료된 일정은 알람을 설정할 수 없습니다.",
+          duration: const Duration(seconds: 2),
+        );
+        return;
       }
 
-      // 기존 Todo의 id와 createdAt을 유지하고 나머지 필드만 업데이트
       final updatedTodo = widget.todo.copyWith(
         title: _titleController.text.trim(),
         memo: _memoController.text.trim().isEmpty
             ? null
             : _memoController.text.trim(),
         date: CustomCommonUtil.formatDate(_selectedDay, 'yyyy-MM-dd'),
-        time: finalTime,
-        clearTime: shouldClearTime, // 종일일 때 시간을 명시적으로 null로 설정
-        step: _selectedStep,
+        time: _selectedTime,
         priority: _selectedPriority,
-        hasAlarm: _hasAlarm && finalTime != null,
+        isDone: _isDone,
+        hasAlarm: _isDone ? false : (_hasAlarm && _selectedTime != null),
         updatedAt: CustomCommonUtil.formatDate(
           DateTime.now(),
           'yyyy-MM-dd HH:mm:ss',
         ),
       );
 
-      // 디버그: 업데이트 전 데이터 확인
       AppLogger.d("=== Todo 업데이트 전 ===", tag: 'EditTodo');
       AppLogger.d(
-        "기존 Todo: id=${widget.todo.id}, step=${widget.todo.step}, time=${widget.todo.time}, hasAlarm=${widget.todo.hasAlarm}",
+        "기존 Todo: id=${widget.todo.id}, time=${widget.todo.time}, hasAlarm=${widget.todo.hasAlarm}",
         tag: 'EditTodo',
       );
       AppLogger.d("=== 업데이트할 데이터 ===", tag: 'EditTodo');
       AppLogger.d(
-        "updatedTodo: id=${updatedTodo.id}, step=${updatedTodo.step}, time=${updatedTodo.time}, hasAlarm=${updatedTodo.hasAlarm}",
-        tag: 'EditTodo',
-      );
-      AppLogger.d(
-        "_selectedStep: $_selectedStep, finalTime: $finalTime",
+        "updatedTodo: id=${updatedTodo.id}, time=${updatedTodo.time}, hasAlarm=${updatedTodo.hasAlarm}",
         tag: 'EditTodo',
       );
 
-      // 알람 업데이트 처리 (DB 업데이트 전에 시간 체크)
+      // 알람 업데이트 처리
       AppLogger.d(
         "[일정 수정] 알람 업데이트 시작: 제목=${updatedTodo.title}, 날짜=${updatedTodo.date}, 시간=${updatedTodo.time}, hasAlarm=${updatedTodo.hasAlarm}",
         tag: 'EditTodo',
       );
       final notificationService = NotificationService();
 
-      // 기존 알람이 있으면 취소
+      // 기존 알람 취소
       if (widget.todo.notificationId != null) {
         AppLogger.d(
           "[일정 수정] 기존 알람 취소: notificationId=${widget.todo.notificationId}, 제목=${widget.todo.title}",
@@ -619,21 +686,16 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
         );
       }
 
-      // 새 알람 등록 또는 알람 비활성화 처리
+      // 새 알람 등록 또는 비활성화
       int? newNotificationId;
       if (updatedTodo.hasAlarm && updatedTodo.time != null) {
-        // 알람 시간이 현재 시간보다 2분 이후인지 먼저 체크
-        final alarmDateTime = parseDateTime(
-          updatedTodo.date,
-          updatedTodo.time!,
-        );
+        // 알람 시간 검증
+        final alarmDateTime = parseDateTime(updatedTodo.date, updatedTodo.time!);
         if (alarmDateTime != null) {
-          final now = DateTime.now();
-          final duration = alarmDateTime.difference(now);
-
+          final duration = alarmDateTime.difference(DateTime.now());
           if (duration.inMinutes < 2) {
-            // 2분 미만이면 다이얼로그 표시하고 수정 중단
-            AppLogger.w("[일정 수정] 알람 시간이 2분 미만 - 수정 중단", tag: 'EditTodo');
+            AppLogger.w("[일정 수정] 알람 시간이 2분 미만 - 수정 중단",
+                tag: 'EditTodo');
             if (context.mounted) {
               await CustomDialog.show(
                 context,
@@ -644,21 +706,19 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
                 barrierDismissible: false,
               );
             }
-            return; // 수정 중단 (scheduleNotification 호출하지 않음)
+            return;
           }
         }
 
-        // 알람 활성화: 새 알람 등록 (DB 업데이트 전에 시도)
+        // 새 알람 등록
         AppLogger.d(
           "[일정 수정] 새 알람 등록 시작: 제목=${updatedTodo.title}, 날짜=${updatedTodo.date}, 시간=${updatedTodo.time}",
           tag: 'EditTodo',
         );
-        newNotificationId = await notificationService.scheduleNotification(
-          updatedTodo,
-        );
+        newNotificationId =
+            await notificationService.scheduleNotification(updatedTodo);
 
         if (newNotificationId == null) {
-          // 알람 등록 실패 시 다이얼로그 표시하고 수정 중단
           AppLogger.e("[일정 수정] 알람 등록 실패 - 수정 중단", tag: 'EditTodo');
           if (context.mounted) {
             await CustomDialog.show(
@@ -670,22 +730,20 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
               barrierDismissible: false,
             );
           }
-          return; // 수정 중단
+          return;
         }
         AppLogger.s(
           "[일정 수정] 알람 등록 성공: notificationId=$newNotificationId",
           tag: 'EditTodo',
         );
       } else {
-        // 알람 비활성화: notificationId는 나중에 제거
         AppLogger.i(
           "[일정 수정] 알람 비활성화: hasAlarm=${updatedTodo.hasAlarm}, time=${updatedTodo.time}",
           tag: 'EditTodo',
         );
       }
 
-      // 데이터베이스에 업데이트 (Provider 사용)
-      // 알람이 활성화된 경우 notificationId 포함하여 업데이트
+      // DB 업데이트
       final todoToUpdate = newNotificationId != null
           ? updatedTodo.copyWith(notificationId: newNotificationId)
           : (updatedTodo.notificationId != null ||
@@ -693,12 +751,10 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
                 ? updatedTodo.copyWith(clearNotificationId: true)
                 : updatedTodo);
 
-      final notifier = ref.read(todoNotifierProvider(TodoType.normal).notifier);
+      final notifier =
+          ref.read(todoNotifierProvider(TodoType.normal).notifier);
       await notifier.updateTodo(todoToUpdate);
-      AppLogger.s(
-        "Todo 수정 완료: id=${updatedTodo.id}",
-        tag: 'EditTodo',
-      );
+      AppLogger.s("Todo 수정 완료: id=${updatedTodo.id}", tag: 'EditTodo');
 
       if (newNotificationId != null) {
         AppLogger.s(
@@ -713,13 +769,13 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
         );
       }
 
-      // 디버그: 업데이트 후 데이터 확인
+      // 업데이트 후 DB 확인
       if (updatedTodo.id != null) {
         final verifyTodo = await notifier.queryTodoById(updatedTodo.id!);
         if (verifyTodo != null) {
           AppLogger.d("=== 업데이트 후 DB 확인 ===", tag: 'EditTodo');
           AppLogger.d(
-            "DB의 Todo: id=${verifyTodo.id}, step=${verifyTodo.step}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}, notificationId=${verifyTodo.notificationId}",
+            "DB의 Todo: id=${verifyTodo.id}, time=${verifyTodo.time}, hasAlarm=${verifyTodo.hasAlarm}, notificationId=${verifyTodo.notificationId}",
             tag: 'EditTodo',
           );
         }
@@ -733,16 +789,14 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
           message: "정상적으로 반영되었습니다.",
           type: DialogType.single,
           confirmText: "확인",
-          barrierDismissible: false, // 배경 터치로 닫기 방지
+          barrierDismissible: false,
         );
-        // 다이얼로그가 닫힌 후 화면도 닫기
         if (context.mounted) {
-          CustomNavigationUtil.back(context, result: true); // main_view로 복귀
+          CustomNavigationUtil.back(context, result: true);
         }
       }
     } catch (e) {
       AppLogger.e("Todo 수정 오류", tag: 'EditTodo', error: e);
-      // 수정 실패 다이얼로그
       if (context.mounted) {
         await CustomDialog.show(
           context,
@@ -750,10 +804,8 @@ class _EditTodoViewState extends ConsumerState<EditTodoView> {
           message: "수정에 실패하였습니다.",
           type: DialogType.single,
           confirmText: "확인",
-          barrierDismissible: false, // 배경 터치로 닫기 방지
-          onConfirm: () {
-            CustomNavigationUtil.back(context); // 다이얼로그만 닫기
-          },
+          barrierDismissible: false,
+          onConfirm: () => CustomNavigationUtil.back(context),
         );
       }
     }

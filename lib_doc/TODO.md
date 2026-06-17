@@ -631,7 +631,6 @@ lib/
     └── util/                      # 유틸리티 폴더
         ├── storage/               # 스토리지 유틸리티
         └── network/               # 네트워크 유틸리티
-    ├── custom_full.dart           # 전체 기능 export (의존성 필요)
     └── ... (기존 파일들 그대로)
 ```
 
@@ -698,7 +697,6 @@ lib/
     └── util/                      # 유틸리티 폴더
         ├── storage/               # 스토리지 유틸리티
         └── network/               # 네트워크 유틸리티
-    ├── custom_full.dart           # 전체 기능 export
     ├── widgets/
     │   ├── basic/                 # 기본 위젯 (Text, Button, Column, Row, Padding)
     │   ├── layout/                # 레이아웃 위젯 (Card, Container, Image, IconButton, ListView)
@@ -720,7 +718,7 @@ lib/
 
 - 파일 이동: 위젯 파일들을 카테고리별 폴더로 이동
 - Export 파일 수정: `widgets.dart`, `utils_core.dart`의 export 경로 변경
-- `custom_full.dart`에서 `external_util/storage/custom_storage_util.dart`, `external_util/network/custom_network_util.dart` 직접 export
+- 외부 패키지 의존성이 있는 위젯/유틸리티는 `external_util/` 폴더에서 개별적으로 import
 - 사용자 코드 변경: 없음 (export 파일을 통해 접근하므로)
 
 **상태**: 🔮 향후 리팩토링 예정 (방법 2 완료 후 진행)

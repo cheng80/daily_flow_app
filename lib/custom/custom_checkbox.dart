@@ -66,6 +66,15 @@ class CustomCheckbox extends StatelessWidget {
   // 레이블과 체크박스의 세로 정렬 방식 (기본값: CrossAxisAlignment.center)
   final CrossAxisAlignment labelAlignment;
 
+  // 체크 상태에서도 테두리를 유지할지 여부 (기본값: false)
+  final bool alwaysShowBorder;
+
+  // 테두리 색상 (alwaysShowBorder가 true일 때 사용)
+  final Color? borderColor;
+
+  // 테두리 두께 (alwaysShowBorder가 true일 때 사용, 기본값: 2)
+  final double borderWidth;
+
   const CustomCheckbox({
     super.key,
     required this.value,
@@ -80,10 +89,71 @@ class CustomCheckbox extends StatelessWidget {
     this.visualDensity,
     this.checkboxTheme,
     this.labelAlignment = CrossAxisAlignment.center,
+    this.alwaysShowBorder = false,
+    this.borderColor,
+    this.borderWidth = 2,
   });
 
   @override
   Widget build(BuildContext context) {
+    // alwaysShowBorder가 true이면 커스텀 렌더링 사용
+    if (alwaysShowBorder) {
+      final borderColorValue = borderColor ?? 
+          checkColor ?? 
+          _getThemeTextPrimaryColor(context) ?? 
+          Colors.black87;
+      
+      Widget checkboxWidget = GestureDetector(
+        onTap: onChanged != null && value != null
+            ? () => onChanged!(!value!)
+            : null,
+        child: Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: borderColorValue,
+              width: borderWidth,
+            ),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: value == true
+              ? Icon(
+                  Icons.check,
+                  color: checkColor ?? borderColorValue,
+                  size: 20,
+                )
+              : null,
+        ),
+      );
+
+      // 레이블이 있는 경우 Row로 감싸서 반환
+      if (label != null) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: labelAlignment,
+          children: [
+            checkboxWidget,
+            SizedBox(width: spacing ?? 8),
+            Flexible(
+              child: Text(
+                label!,
+                style:
+                    labelStyle ??
+                    TextStyle(
+                      fontSize: 16,
+                      color: _getThemeTextPrimaryColor(context) ?? Colors.black87,
+                    ),
+              ),
+            ),
+          ],
+        );
+      }
+
+      return checkboxWidget;
+    }
+
+    // 기본 동작 (기존 코드)
     final checkboxWidget = CheckboxTheme(
       data:
           checkboxTheme ??

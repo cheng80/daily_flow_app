@@ -40,7 +40,7 @@ class Todo {
       memo: map['memo'] as String?,
       date: map['date'] as String,
       time: map['time'] as String?,
-      step: map['step'] as int? ?? 3,
+      step: 3, // step 컬럼이 제거되었으므로 기본값 사용
       priority: map['priority'] as int? ?? 3,
       isDone: (map['is_done'] as int? ?? 0) == 1,
       hasAlarm: (map['has_alarm'] as int? ?? 0) == 1,

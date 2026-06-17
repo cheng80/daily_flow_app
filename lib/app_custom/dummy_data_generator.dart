@@ -5,7 +5,6 @@ import '../custom/custom.dart';
 import '../custom/util/log/custom_log_util.dart';
 import '../model/todo_model.dart';
 import '../vm/database_handler.dart';
-import 'step_mapper_util.dart';
 
 /// 더미 데이터 생성 유틸리티
 ///
@@ -13,27 +12,30 @@ import 'step_mapper_util.dart';
 class DummyDataGenerator {
   static final Random _random = Random();
 
-  /// 2025년 12월 더미 데이터 삽입
+  /// 현재 월 더미 데이터 삽입
   ///
-  /// 다양한 날짜, 시간대, 우선순위의 Todo 데이터를 생성하여 데이터베이스에 삽입합니다.
+  /// 다양한 날짜, 시간, 우선순위의 Todo 데이터를 생성하여 데이터베이스에 삽입합니다.
   /// 오늘 날짜 데이터도 포함됩니다.
   /// 중복 추가를 방지하기 위해 기존 데이터를 확인합니다.
   static Future<void> insertDummyData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
     final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
     final todayStr =
-        '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
+        '${currentYear.toString().padLeft(4, '0')}-'
+        '${currentMonth.toString().padLeft(2, '0')}-'
         '${now.day.toString().padLeft(2, '0')}';
 
-    // 중복 체크: 2025년 12월 데이터가 이미 있는지 확인
+    // 중복 체크: 현재 월 데이터가 이미 있는지 확인
+    final firstDayOfMonth = '${currentYear.toString().padLeft(4, '0')}-${currentMonth.toString().padLeft(2, '0')}-01';
     try {
-      final existingData = await dbHandler.queryDataByDate('2025-12-01');
+      final existingData = await dbHandler.queryDataByDate(firstDayOfMonth);
       if (existingData.isNotEmpty) {
         if (context.mounted) {
           CustomSnackBar.show(
             context,
-            message: '2025년 12월 데이터가 이미 존재합니다.\n먼저 모든 데이터를 삭제해주세요.',
+            message: '${currentYear}년 ${currentMonth}월 데이터가 이미 존재합니다.\n먼저 모든 데이터를 삭제해주세요.',
             duration: const Duration(seconds: 3),
           );
         }
@@ -43,355 +45,101 @@ class DummyDataGenerator {
       AppLogger.e("Error checking existing data", tag: 'DummyData', error: e);
     }
 
-    // 2025년 12월 더미 데이터 리스트
-    final List<Map<String, dynamic>> dummyData = [
-      // 12월 초반 (1일~10일)
-      {
-        'date': '2025-12-01',
-        'title': '12월 첫날 회의',
-        'time': '09:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '월간 계획 회의',
-      },
-      {
-        'date': '2025-12-01',
-        'title': '점심 약속',
-        'time': '12:30',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '친구와 점심',
-      },
-      {
-        'date': '2025-12-02',
-        'title': '오전 운동',
-        'time': '07:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 2,
-        'memo': '조깅하기',
-      },
-      {
-        'date': '2025-12-02',
-        'title': '프로젝트 작업',
-        'time': '14:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 5,
-        'memo': '중요한 작업',
-      },
-      {
-        'date': '2025-12-03',
-        'title': '저녁 식사',
-        'time': '19:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '가족 저녁',
-      },
-      {
-        'date': '2025-12-03',
-        'title': '영화 보기',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo': '주말 영화',
-      },
-      {
-        'date': '2025-12-04',
-        'title': '새벽 운동',
-        'time': '05:00',
-        'step': StepMapperUtil.stepNight,
-        'priority': 3,
-        'memo': '새벽 조깅',
-      },
-      {
-        'date': '2025-12-04',
-        'title': '오전 미팅',
-        'time': '10:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '팀 미팅',
-      },
-      {
-        'date': '2025-12-05',
-        'title': '점심 회의',
-        'time': '13:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 4,
-        'memo': '고객 미팅',
-      },
-      {
-        'date': '2025-12-05',
-        'title': '저녁 약속',
-        'time': '18:30',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '친구 만나기',
-      },
-      {
-        'date': '2025-12-06',
-        'title':
-            '이것은 매우 긴 제목입니다. 이 제목은 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 이 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다.',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo':
-            '이것은 매우 긴 메모입니다. 이 메모도 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다. 메모 텍스트가 충분히 길어서 말줄임표가 나타나는지 확인할 수 있도록 만들었습니다. 추가로 더 많은 텍스트를 넣어서 확실하게 말줄임표가 나타나도록 하겠습니다.',
-      },
-      {
-        'date': '2025-12-07',
-        'title': '오후 미팅',
-        'time': '14:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '오후 프로젝트 미팅',
-      },
-      {
-        'date': '2025-12-07',
-        'title': '저녁 식사',
-        'time': '19:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 2,
-        'memo': '가족 저녁 식사',
-      },
-      {
-        'date': '2025-12-07',
-        'title': '야간 공부',
-        'time': '02:00',
-        'step': StepMapperUtil.stepNight,
-        'priority': 4,
-        'memo': '새벽 집중 공부',
-      },
-
-      // 12월 중반 (11일~20일)
-      {
-        'date': '2025-12-11',
-        'title': '오전 프레젠테이션',
-        'time': '11:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 5,
-        'memo': '중요 프레젠테이션',
-      },
-      {
-        'date': '2025-12-11',
-        'title': '점심 식사',
-        'time': '12:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 2,
-        'memo': '동료와 점심',
-      },
-      {
-        'date': '2025-12-12',
-        'title': '오후 미팅',
-        'time': '15:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 4,
-        'memo': '프로젝트 미팅',
-      },
-      {
-        'date': '2025-12-12',
-        'title': '저녁 운동',
-        'time': '20:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '헬스장',
-      },
-      {
-        'date': '2025-12-13',
-        'title': '오전 독서',
-        'time': '08:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 2,
-        'memo': '아침 독서 시간',
-      },
-      {
-        'date': '2025-12-14',
-        'title': '새벽 공부',
-        'time': '03:30',
-        'step': StepMapperUtil.stepNight,
-        'priority': 4,
-        'memo': '새벽 집중 공부',
-      },
-      {
-        'date': '2025-12-14',
-        'title': '주말 여행',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 3,
-        'memo': '가족 여행',
-      },
-      {
-        'date': '2025-12-15',
-        'title': '점심 약속',
-        'time': '13:30',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '친구 만나기',
-      },
-      {
-        'date': '2025-12-16',
-        'title': '오전 회의',
-        'time': '09:30',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '주간 회의',
-      },
-      {
-        'date': '2025-12-17',
-        'title': '저녁 파티',
-        'time': '19:30',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 3,
-        'memo': '회사 파티',
-      },
-      {
-        'date': '2025-12-19',
-        'title': '새벽 명상',
-        'time': '04:00',
-        'step': StepMapperUtil.stepNight,
-        'priority': 2,
-        'memo': '새벽 명상 시간',
-      },
-      {
-        'date': '2025-12-18',
-        'title': '쇼핑',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo': '선물 구매',
-      },
-
-      // 12월 후반 (21일~31일)
-      {
-        'date': '2025-12-21',
-        'title': '크리스마스 준비',
-        'time': '10:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 4,
-        'memo': '장식 준비',
-      },
-      {
-        'date': '2025-12-22',
-        'title': '점심 약속',
-        'time': '12:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 3,
-        'memo': '가족 점심',
-      },
-      {
-        'date': '2025-12-23',
-        'title': '저녁 파티',
-        'time': '18:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 4,
-        'memo': '크리스마스 파티',
-      },
-      {
-        'date': '2025-12-24',
-        'title': '크리스마스 이브',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 5,
-        'memo': '특별한 날',
-      },
-      {
-        'date': '2025-12-25',
-        'title': '크리스마스',
-        'time': '09:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 5,
-        'memo': '가족 모임',
-      },
-      {
-        'date': '2025-12-27',
-        'title': '새벽 기도',
-        'time': '05:30',
-        'step': StepMapperUtil.stepNight,
-        'priority': 3,
-        'memo': '새벽 기도 시간',
-      },
-      {
-        'date': '2025-12-25',
-        'title': '크리스마스 저녁',
-        'time': '19:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 5,
-        'memo': '특별 저녁',
-      },
-      {
-        'date': '2025-12-26',
-        'title': '휴식',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 2,
-        'memo': '편안한 하루',
-      },
-      {
-        'date': '2025-12-28',
-        'title': '연말 정리',
-        'time': '14:00',
-        'step': StepMapperUtil.stepNoon,
-        'priority': 4,
-        'memo': '올해 정리',
-      },
-      {
-        'date': '2025-12-29',
-        'title': '새해 준비',
-        'time': '10:00',
-        'step': StepMapperUtil.stepMorning,
-        'priority': 3,
-        'memo': '새해 계획',
-      },
-      {
-        'date': '2025-12-31',
-        'title': '연말 파티',
-        'time': '21:00',
-        'step': StepMapperUtil.stepEvening,
-        'priority': 5,
-        'memo': '새해 맞이',
-      },
-      {
-        'date': '2025-12-31',
-        'title': '새해 카운트다운',
-        'time': null,
-        'step': StepMapperUtil.stepAnytime,
-        'priority': 5,
-        'memo': '특별한 순간',
-      },
+    // 현재 월 더미 데이터 리스트 (실용적인 일정들)
+    final List<Map<String, dynamic>> dummyData = [];
+    
+    // 현재 월의 일수 계산
+    final daysInMonth = DateTime(currentYear, currentMonth + 1, 0).day;
+    
+    // 일정 제목 템플릿
+    final titleTemplates = [
+      '회의',
+      '점심 약속',
+      '운동하기',
+      '프로젝트 작업',
+      '저녁 식사',
+      '영화 보기',
+      '미팅',
+      '독서',
+      '공부',
+      '쇼핑',
+      '여행',
+      '파티',
+      '휴식',
+      '정리',
+      '준비',
+      '병원 예약',
+      '은행 업무',
+      '세미나 참석',
+      '네트워킹',
+      '학습 시간',
     ];
-
-    // 오늘 날짜 데이터 추가 (2025년 12월이 아니거나 이미 포함되지 않은 경우)
-    final todayInList = dummyData.any((data) => data['date'] == todayStr);
-    if (!todayInList) {
-      // 오늘 날짜의 시간에 따라 적절한 Step 결정
-      final currentHour = now.hour;
-      int todayStep;
-      String? todayTime;
-
-      if (currentHour >= 6 && currentHour < 12) {
-        todayStep = StepMapperUtil.stepMorning;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        todayStep = StepMapperUtil.stepNoon;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else if (currentHour >= 18 && currentHour < 24) {
-        todayStep = StepMapperUtil.stepEvening;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else if (currentHour >= 0 && currentHour < 6) {
-        todayStep = StepMapperUtil.stepNight;
-        todayTime = '${currentHour.toString().padLeft(2, '0')}:00';
-      } else {
-        todayStep = StepMapperUtil.stepAnytime;
-        todayTime = null;
+    
+    // 시간 템플릿 (시간이 있는 일정)
+    final timeTemplates = [
+      '07:00', '08:00', '09:00', '10:00', '11:00', // 오전
+      '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', // 오후
+      '18:00', '19:00', '20:00', '21:00', '22:00', // 저녁
+      '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', // 야간
+    ];
+    
+    // 메모 템플릿
+    final memoTemplates = [
+      '중요한 일정입니다',
+      '준비물을 챙기세요',
+      '장소 확인 필요',
+      '지각하지 않도록 주의',
+      '관련 자료 미리 읽어보기',
+      '후속 작업 계획 수립',
+      '피드백 요청',
+      null, // 메모 없음
+      null,
+    ];
+    
+    final random = _random;
+    
+    // 각 날짜마다 1-3개의 일정 생성
+    for (int day = 1; day <= daysInMonth; day++) {
+      final dateStr = '${currentYear.toString().padLeft(4, '0')}-${currentMonth.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
+      final todosCount = random.nextInt(3) + 1; // 1-3개
+      
+      for (int i = 0; i < todosCount; i++) {
+        // 시간이 있는 일정 (70% 확률)
+        final hasTime = random.nextDouble() < 0.7;
+        final time = hasTime ? timeTemplates[random.nextInt(timeTemplates.length)] : null;
+        
+        // 제목 선택
+        final titleIndex = random.nextInt(titleTemplates.length);
+        final baseTitle = titleTemplates[titleIndex];
+        final title = '$baseTitle ${day}일';
+        
+        // 우선순위 (1-5, 대부분 2-4)
+        final priority = random.nextInt(3) + 2; // 2-4
+        
+        // 메모 (50% 확률)
+        final memoIndex = random.nextInt(memoTemplates.length);
+        final memo = memoTemplates[memoIndex];
+        
+        dummyData.add({
+          'date': dateStr,
+          'title': title,
+          'time': time,
+          'priority': priority,
+          'memo': memo,
+        });
       }
-
-      dummyData.insert(0, {
-        'date': todayStr,
-        'title': '오늘의 일정',
-        'time': todayTime,
-        'step': todayStep,
-        'priority': 4,
-        'memo': '오늘 날짜 데이터',
-      });
     }
+    
+    // 오늘 날짜에 특별 일정 추가 (긴 제목/메모 테스트용)
+    dummyData.add({
+      'date': todayStr,
+      'title': '이것은 매우 긴 제목입니다. 이 제목은 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다.',
+      'time': null,
+      'priority': 2,
+      'memo': '이것은 매우 긴 메모입니다. 이 메모도 한 줄로 표시되고 길어지면 말줄임표로 표시되어야 합니다.',
+    });
+
+    // 오늘 날짜가 이미 포함되어 있는지 확인 (위에서 이미 추가했으므로 스킵)
 
     try {
       int successCount = 0;
@@ -404,7 +152,6 @@ class DummyDataGenerator {
             memo: data['memo'] as String?,
             date: data['date'] as String,
             time: data['time'] as String?,
-            step: data['step'] as int,
             priority: data['priority'] as int,
             isDone: false,
             hasAlarm: false,
@@ -447,15 +194,15 @@ class DummyDataGenerator {
   /// 삭제된 Todo 더미 데이터 삽입
   ///
   /// deleted_todo 테이블에 3개월치 더미 데이터를 삽입합니다.
-  /// 현재로부터 3개월 전 ~ 현재까지의 범위에서 다양한 패턴의 삭제된 Todo 데이터를 생성합니다.
+  /// 오늘 기준 과거 3개월치(오늘 포함) 범위에서 다양한 패턴의 삭제된 Todo 데이터를 생성합니다.
   static Future<void> insertDeletedDummyData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
     final random = _random;
     final now = DateTime.now();
     final db = await dbHandler.initializeDB();
 
-    // 날짜 범위: 현재로부터 3개월 전 ~ 현재
-    final startDate = DateTime(now.year, now.month - 3, 1);
+    // 날짜 범위: 오늘 기준 과거 3개월치 (오늘 포함)
+    final startDate = now.subtract(const Duration(days: 90));
     final endDate = now;
 
     try {
@@ -465,52 +212,15 @@ class DummyDataGenerator {
 
       AppLogger.i('삭제된 Todo 더미 데이터 생성 시작: 3개월치', tag: 'DummyData');
 
-      // Step, 중요도, 시간 목록
-      final steps = [
-        StepMapperUtil.stepMorning,
-        StepMapperUtil.stepNoon,
-        StepMapperUtil.stepEvening,
-        StepMapperUtil.stepNight,
-        StepMapperUtil.stepAnytime,
-      ];
-
       final priorities = [1, 2, 3, 4, 5];
 
-      // 시간별 시간대 (Step에 맞춤)
-      final timeRanges = {
-        StepMapperUtil.stepMorning: [
-          '07:00',
-          '08:00',
-          '09:00',
-          '10:00',
-          '11:00',
-        ],
-        StepMapperUtil.stepNoon: [
-          '12:00',
-          '13:00',
-          '14:00',
-          '15:00',
-          '16:00',
-          '17:00',
-        ],
-        StepMapperUtil.stepEvening: [
-          '18:00',
-          '19:00',
-          '20:00',
-          '21:00',
-          '22:00',
-          '23:00',
-        ],
-        StepMapperUtil.stepNight: [
-          '00:00',
-          '01:00',
-          '02:00',
-          '03:00',
-          '04:00',
-          '05:00',
-        ],
-        StepMapperUtil.stepAnytime: [], // 종일은 시간 없음
-      };
+      // 시간 템플릿 (시간이 있는 일정용)
+      final timeTemplates = [
+        '07:00', '08:00', '09:00', '10:00', '11:00', // 오전
+        '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', // 오후
+        '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', // 저녁
+        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', // 야간
+      ];
 
       final memoTemplates = [
         '삭제된 일정 메모 1',
@@ -602,16 +312,10 @@ class DummyDataGenerator {
 
         for (int i = 0; i < deletedTodosCount; i++) {
           try {
-            // Step 선택 (균등 분포)
-            final step = steps[random.nextInt(steps.length)];
-
-            // 시간 선택
+            // 시간 선택 (70% 확률로 시간 있음)
             String? time;
-            if (step == StepMapperUtil.stepAnytime) {
-              time = null; // 종일은 시간 없음
-            } else {
-              final timeList = timeRanges[step]!;
-              time = timeList[random.nextInt(timeList.length)];
+            if (random.nextDouble() < 0.7) {
+              time = timeTemplates[random.nextInt(timeTemplates.length)];
             }
 
             // 중요도 선택 (균등 분포)
@@ -634,11 +338,13 @@ class DummyDataGenerator {
               'memo': memo,
               'date': dateStr,
               'time': time,
-              'step': step,
               'priority': priority,
               'is_done': isDone ? 1 : 0,
               'deleted_at': deletedAt,
             };
+
+            // step 컬럼이 제거되었으므로 제거
+            deletedTodo.remove('step');
 
             await db.insert('deleted_todo', deletedTodo);
             successCount++;
@@ -680,16 +386,16 @@ class DummyDataGenerator {
 
   /// 통계 테스트용 더미 데이터 삽입
   ///
-  /// 현재로부터 3개월 전 ~ 현재까지의 날짜 범위에 다양한 패턴의 Todo 데이터를 생성합니다.
+  /// 오늘 기준 과거 3개월치(오늘 포함) 날짜 범위에 다양한 패턴의 Todo 데이터를 생성합니다.
   /// - 골고루 퍼진 주, 몰린 주, 적은 주, 많은 주 등 다양한 분포 패턴
-  /// - 다양한 Step, 중요도, 완료율, 알람 설정률, 메모 작성률
+  /// - 다양한 중요도, 완료율, 알람 설정률, 메모 작성률
   static Future<void> insertStatisticsDummyData(BuildContext context) async {
     final dbHandler = DatabaseHandler();
     final random = _random;
     final now = DateTime.now();
 
-    // 날짜 범위: 현재로부터 3개월 전 ~ 현재
-    final startDate = DateTime(now.year, now.month - 3, 1);
+    // 날짜 범위: 오늘 기준 과거 3개월치 (오늘 포함)
+    final startDate = now.subtract(const Duration(days: 90));
     final endDate = now;
 
     // 중복 체크: 해당 범위에 데이터가 있는지 확인
@@ -742,52 +448,15 @@ class DummyDataGenerator {
 
       AppLogger.i('통계 테스트용 더미 데이터 생성 시작: $totalTodos개 예상', tag: 'DummyData');
 
-      // Step, 중요도, 시간 목록
-      final steps = [
-        StepMapperUtil.stepMorning,
-        StepMapperUtil.stepNoon,
-        StepMapperUtil.stepEvening,
-        StepMapperUtil.stepNight,
-        StepMapperUtil.stepAnytime,
-      ];
-
       final priorities = [1, 2, 3, 4, 5];
 
-      // 시간별 시간대 (Step에 맞춤)
-      final timeRanges = {
-        StepMapperUtil.stepMorning: [
-          '07:00',
-          '08:00',
-          '09:00',
-          '10:00',
-          '11:00',
-        ],
-        StepMapperUtil.stepNoon: [
-          '12:00',
-          '13:00',
-          '14:00',
-          '15:00',
-          '16:00',
-          '17:00',
-        ],
-        StepMapperUtil.stepEvening: [
-          '18:00',
-          '19:00',
-          '20:00',
-          '21:00',
-          '22:00',
-          '23:00',
-        ],
-        StepMapperUtil.stepNight: [
-          '00:00',
-          '01:00',
-          '02:00',
-          '03:00',
-          '04:00',
-          '05:00',
-        ],
-        StepMapperUtil.stepAnytime: [], // 종일은 시간 없음
-      };
+      // 시간 템플릿 (시간이 있는 일정용)
+      final timeTemplates = [
+        '07:00', '08:00', '09:00', '10:00', '11:00', // 오전
+        '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', // 오후
+        '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', // 저녁
+        '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', // 야간
+      ];
 
       final memoTemplates = [
         '중요한 회의 내용을 정리해야 합니다.',
@@ -922,36 +591,10 @@ class DummyDataGenerator {
 
         for (int i = 0; i < todosCount; i++) {
           try {
-            // Step 선택
-            int step;
-            // 12월 5일이고 마지막 3개인 경우 특정 Step 강제 지정
-            if (isDecember5 && i >= todosCount - 3) {
-              final additionalStepIndex = i - (todosCount - 3);
-              switch (additionalStepIndex) {
-                case 0: // 오후
-                  step = StepMapperUtil.stepNoon;
-                  break;
-                case 1: // 저녁
-                  step = StepMapperUtil.stepEvening;
-                  break;
-                case 2: // 야간
-                  step = StepMapperUtil.stepNight;
-                  break;
-                default:
-                  step = steps[random.nextInt(steps.length)];
-              }
-            } else {
-              // 일반적인 경우: Step 선택 (균등 분포)
-              step = steps[random.nextInt(steps.length)];
-            }
-
-            // 시간 선택
+            // 시간 선택 (70% 확률로 시간 있음)
             String? time;
-            if (step == StepMapperUtil.stepAnytime) {
-              time = null; // 종일은 시간 없음
-            } else {
-              final timeList = timeRanges[step]!;
-              time = timeList[random.nextInt(timeList.length)];
+            if (random.nextDouble() < 0.7) {
+              time = timeTemplates[random.nextInt(timeTemplates.length)];
             }
 
             // 중요도 선택 (균등 분포)
@@ -977,7 +620,6 @@ class DummyDataGenerator {
               memo: memo,
               date: dateStr,
               time: time,
-              step: step,
               priority: priority,
               isDone: isDone,
               hasAlarm: hasAlarm,

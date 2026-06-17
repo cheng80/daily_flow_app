@@ -191,7 +191,9 @@ class CustomFilterRadio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final isSelected = selectedStep == option.step;
+    // null 비교를 명시적으로 처리
+    final isSelected = (selectedStep == null && option.step == null) ||
+                       (selectedStep != null && selectedStep == option.step);
 
     // 선택된 경우: 상태별 색상, 선택되지 않은 경우: 기본 배경색
     final backgroundColor = isSelected
@@ -220,6 +222,8 @@ class CustomFilterRadio extends StatelessWidget {
             IgnorePointer(
               child: Radio<int?>(
                 value: option.step,
+                groupValue: selectedStep,
+                onChanged: (_) {}, // IgnorePointer로 감싸져 있어 호출되지 않음
                 activeColor: textColor,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,

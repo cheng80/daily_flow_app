@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../model/todo_model.dart';
 import '../model/deleted_todo_model.dart';
 import 'database_handler.dart';
+import '../service/notification_service.dart';
 
 /// Todo 타입 enum
 /// normal: 활성 일정
@@ -62,9 +63,15 @@ class TodoNotifier extends AsyncNotifier<List<Todo>> {
 
   /// Todo 완료 상태 토글
   Future<void> toggleDone(int id, bool isDone) async {
-    // 먼저 Todo를 조회해서 날짜 정보를 얻어야 함
+    // 먼저 Todo를 조회해서 날짜 정보와 알람 정보를 얻어야 함
     final todos = await _dbHandler.queryData();
     final todo = todos.firstWhere((t) => t.id == id);
+    
+    // 완료 시 알람이 설정되어 있으면 알람 삭제
+    if (isDone && todo.hasAlarm && todo.notificationId != null) {
+      final notificationService = NotificationService();
+      await notificationService.cancelNotification(todo.notificationId!);
+    }
     
     await _dbHandler.toggleDone(id, isDone);
     ref.invalidateSelf();
@@ -104,9 +111,7 @@ class TodoNotifier extends AsyncNotifier<List<Todo>> {
     ref.invalidate(dateConstraintsProvider);
     // 모든 Family Provider도 갱신 (전역 invalidate)
     ref.invalidate(todoByDateProvider);
-    ref.invalidate(todoByDateAndStepProvider);
     ref.invalidate(todoByDateRangeProvider);
-    ref.invalidate(todoByDateRangeAndStepProvider);
     ref.invalidate(calendarEventsProvider);
   }
 
@@ -212,26 +217,6 @@ final todoByDateProvider =
       TodoByDateNotifier.new,
     );
 
-/// 특정 날짜와 Step의 Todo 조회를 위한 Notifier (Family)
-class TodoByDateAndStepNotifier extends AsyncNotifier<List<Todo>> {
-  final DatabaseHandler _dbHandler = DatabaseHandler();
-  final String date; // 'YYYY-MM-DD' 형식
-  final int step; // 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일
-
-  TodoByDateAndStepNotifier(this.date, this.step);
-
-  @override
-  Future<List<Todo>> build() async {
-    return await _dbHandler.queryDataByDateAndStep(date, step);
-  }
-}
-
-/// 특정 날짜와 Step의 Todo 조회 Provider (Family)
-/// 파라미터: ({String date, int step})
-final todoByDateAndStepProvider =
-    AsyncNotifierProvider.family<TodoByDateAndStepNotifier, List<Todo>, ({String date, int step})>(
-      (params) => TodoByDateAndStepNotifier(params.date, params.step),
-    );
 
 /// 날짜 범위의 Todo 조회를 위한 Notifier (Family)
 class TodoByDateRangeNotifier extends AsyncNotifier<List<Todo>> {
@@ -254,27 +239,6 @@ final todoByDateRangeProvider =
       (params) => TodoByDateRangeNotifier(params.startDate, params.endDate),
     );
 
-/// 날짜 범위와 Step의 Todo 조회를 위한 Notifier (Family)
-class TodoByDateRangeAndStepNotifier extends AsyncNotifier<List<Todo>> {
-  final DatabaseHandler _dbHandler = DatabaseHandler();
-  final String startDate; // 'YYYY-MM-DD' 형식
-  final String endDate; // 'YYYY-MM-DD' 형식
-  final int step; // 0=오전, 1=오후, 2=저녁, 3=야간, 4=종일
-
-  TodoByDateRangeAndStepNotifier(this.startDate, this.endDate, this.step);
-
-  @override
-  Future<List<Todo>> build() async {
-    return await _dbHandler.queryDataByDateRangeAndStep(startDate, endDate, step);
-  }
-}
-
-/// 날짜 범위와 Step의 Todo 조회 Provider (Family)
-/// 파라미터: ({String startDate, String endDate, int step})
-final todoByDateRangeAndStepProvider =
-    AsyncNotifierProvider.family<TodoByDateRangeAndStepNotifier, List<Todo>, ({String startDate, String endDate, int step})>(
-      (params) => TodoByDateRangeAndStepNotifier(params.startDate, params.endDate, params.step),
-    );
 
 /// 달력 이벤트 캐시를 관리하는 Notifier (Family)
 /// 월별 Todo 캐시를 관리합니다.

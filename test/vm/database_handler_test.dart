@@ -14,7 +14,8 @@ void main() {
     late DatabaseHandler dbHandler;
 
     setUp(() async {
-      dbHandler = DatabaseHandler();
+      // 테스트 파일 간 DB 잠금 충돌 방지를 위해 고유 DB 이름 사용
+      dbHandler = DatabaseHandler(dbName: 'test_db_handler.db');
       // 테스트 전 데이터베이스 초기화
       final db = await dbHandler.initializeDB();
       await dbHandler.allClearData();
@@ -190,16 +191,7 @@ void main() {
         expect(results.every((todo) => todo.date == "2024-01-15"), isTrue);
       });
 
-      test('queryDataByDateAndStep - 특정 날짜와 Step 조회', () async {
-        // When: 특정 날짜와 Step으로 조회
-        final results = await dbHandler.queryDataByDateAndStep("2024-01-15", 0);
-
-        // Then: 해당 날짜와 Step의 Todo만 조회되었는지 확인
-        expect(results.length, equals(1));
-        expect(results.first.date, equals("2024-01-15"));
-        expect(results.first.step, equals(0));
-        expect(results.first.title, equals("2024-01-15 아침"));
-      });
+      // queryDataByDateAndStep 테스트: 제거됨 (메서드가 소스에서 삭제됨)
 
       test('queryData - 전체 조회 및 정렬', () async {
         // When: 전체 조회

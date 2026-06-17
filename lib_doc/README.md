@@ -92,8 +92,10 @@ import 'package:custom_test_app/custom/widgets.dart';
 // 선택적 import - 핵심 유틸리티만 필요한 경우
 import 'package:custom_test_app/custom/utils_core.dart';
 
-// 선택적 import - 전체 유틸리티 (외부 패키지 의존성 필요)
-import 'package:custom_test_app/custom/custom_full.dart';
+// 선택적 import - 외부 패키지 의존성이 있는 위젯/유틸리티
+import 'package:custom_test_app/custom/external_util/storage/custom_storage_util.dart';
+import 'package:custom_test_app/custom/external_util/network/custom_network_util.dart';
+import 'package:custom_test_app/custom/external_util/slidable/custom_slidable.dart';
 ```
 
 ### 테마 색상 지원

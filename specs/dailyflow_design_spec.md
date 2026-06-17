@@ -4,16 +4,37 @@
 
 ## 0. 개요
 
-DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 요약**, **하루 단위 상세 일정 확인 및 편집 기능**을 제공한다.
+DailyFlow 앱은 **애플 리마인더(Apple Reminders)를 기반으로 한 최소한의 핵심 기능만 제공하는 간단한 Todo 앱**이다.
 
-> 초기 기획에서 포함되었던 **Stepper 기반 플로우 화면은 현재 MVP 범위에서 제외되었으며**, 모든 상세 동작은 일반 리스트·카드 UI 기반으로 재구성한다. 모든 화면은 **9:16 세로 레이아웃** 기준으로 설계한다.
+### 디자인 철학
 
-총 4개의 주요 화면으로 구성된다:
+애플 리마인더의 핵심 기능만 추려서 구현:
+- **간단함**: 불필요한 기능 제거, 핵심 기능에 집중
+- **직관성**: 사용자가 바로 이해할 수 있는 UI
+- **일관성**: 애플 리마인더와 유사한 사용자 경험
 
-- 메인 화면(Main View) – 달력 + 일정 요약
-- 일정 등록 화면(Create Todo)
-- 일정 수정 화면(Edit Todo)
-- 하루 Flow 상세 화면(Day Flow Detail)
+### 핵심 기능
+
+1. **할 일 추가**: 제목, 메모, 날짜, 시간, 알람 설정
+2. **완료 체크**: 체크박스로 완료/미완료 토글
+3. **날짜별 보기**: 달력에서 날짜 선택하여 해당 날짜의 할 일 확인
+4. **중요도 표시**: 플래그(중요/일반) 또는 중요도 색상
+5. **삭제**: 할 일 삭제 및 삭제 보관함에서 복구 가능
+
+### 화면 구성
+
+총 3개의 주요 화면으로 구성된다:
+
+- 메인 화면(Main View) – 달력 + 할 일 리스트
+- 할 일 등록 화면(Create Todo)
+- 할 일 수정 화면(Edit Todo)
+
+> **제외된 기능:**
+> - Summary Bar (시간대 비율 표시)
+> - Filter Radio/Chips (시간대 필터)
+> - 통계 기능
+> - 범위 선택 기능
+> - 하루 Flow 상세 화면 (메인 화면에서 충분)
 
 ---
 
@@ -24,8 +45,6 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 ```
 [AppBar]
 [Monthly Calendar]
-[Time Summary Bar (4색 비율 표시)]
-[Filter Radio: 전체 | 오전 | 오후 | 저녁 | 종일]
 [Todo List (Checkbox + Slidable)]
 [Floating Action Button]
 ```
@@ -35,8 +54,7 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 - 제목: **DailyFlow**
 - 가운데 정렬
 - 우측 액션:
-  - ⭐ Today 버튼 → 오늘 날짜로 이동
-  - 📅 Calendar 버튼
+  - ⭐ Today 버튼 → 오늘 날짜로 이동 (선택 사항)
 
 ## 1.3 Monthly Calendar 영역 (TableCalendar 기반)
 
@@ -49,50 +67,16 @@ DailyFlow 앱은 **월간 달력 기반 일정 개요**, **날짜별 진행도 �
 ### 날짜 셀 요소
 
 - 좌상단: 날짜 숫자
-- 중앙 하단: 일정 갯수 원형 배지
-- 맨 하단: 진행도 미니 바(progress ratio)
+- 우측 하단: 일정 갯수 원형 배지
 - 선택 상태: 배경 강조 + 테두리
 - 오늘: 파란색 테두리 표시
 
 ### 날짜 탭 이벤트
 
 - 선택된 날짜 업데이트
-- 아래 Summary Bar + Todo List 갱신
+- Todo List 갱신
 
----
-
-## 1.4 Time Summary Bar (하루 시간대 비율 바)
-
-- 구성: 오전 / 오후 / 저녁 / 종일 4색 수평 바
-- 각 색상 구간의 너비는 **해당 Step의 Todo 수 비율**로 계산
-- UI 구성은 커스텀 위젯 `actionFourRangeBar` 함수를 통해 구현하며, 4개 색상 세그먼트를 비율 기반으로 배치한다.
-
-예:
-
-```
-[■■ 오전 20%][■■■■ 오후 40%][■ 저녁 10%][■■ 종일 30%]
-```
-
-- 직관적으로 어떤 시간대에 할 일이 몰렸는지 한눈에 파악 가능
-- 탭 시 해당 칩으로 자동 필터링됨
-
----
-
-## 1.5 Filter Chips
-
-- 기본 선택: **전체**
-- 선택 가능한 칩:
-  - 전체
-  - 오전
-  - 오후
-  - 저녁
-  - 종일
-- 칩 색상은 Summary Bar의 색상과 동일함
-- 칩 선택 시 Todo 리스트가 해당 Step 항목만 필터링되어 표시됨
-
----
-
-## 1.6 Todo List (체크박스 + Slidable)
+## 1.4 Todo List (체크박스 + Slidable)
 
 각 Todo 항목은 카드 형태로 나열되며 아래 구성으로 이루어짐:
 
@@ -109,13 +93,13 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 
 ---
 
-## 1.7 Floating Action Button (FAB)
+## 1.5 Floating Action Button (FAB)
 
 - 우측 하단 고정
 - 아이콘: +
 - 동작:
   - Todo 등록 화면으로 이동
-  - 현재 선택된 날짜 + 현재 선택된 Step 정보 전달
+  - 현재 선택된 날짜 정보 전달
 
 ---
 
@@ -128,10 +112,11 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 ```
 [AppBar: 일정 등록]
 [날짜 선택 영역 (수정 가능)]
-[시간 선택 영역 (Picker 또는 드롭다운)]
+[시간 선택 영역 (Picker)]
 [제목 입력]
 [메모 입력]
-[Step 선택 Dropdown]
+[중요도 선택]
+[알람 설정]
 [저장 버튼]
 ```
 
@@ -145,11 +130,8 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 
 ### 시간 선택
 
-- 선택 방식 두 가지 지원:
-  1. TimePicker(시·분 선택)
-  2. 드롭다운(오전/오후/저녁/종일)
-- 시간이 직접 선택되면 자동으로 4단계 카테고리에 매핑됨
-- 사용자가 굳이 Step을 고르지 않아도 시간 기반으로 자동 분류 가능
+- TimePicker(시·분 선택)
+- 선택 사항 (알람 설정 시 필요)
 
 ### 제목 입력
 
@@ -163,10 +145,20 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 - 멀티라인 TextField (높이 약 120px)
 - 최대 200자 제한
 
-### Step 선택
+### 중요도 선택 (선택 사항)
 
-- Dropdown: 오전 / 오후 / 저녁 / 종일
-- 기본값 종일
+- 옵션 1: 플래그 (중요/일반) - 애플 리마인더 스타일
+  - Switch 또는 별표 아이콘 버튼
+  - 중요: 별표 아이콘 표시
+  - 일반: 별표 없음
+- 옵션 2: 중요도 드롭다운 (1~5단계)
+  - 기본값: 일반 (중요도 없음 또는 3단계)
+
+### 알람 설정
+
+- Switch 위젯
+- 시간이 선택된 경우에만 활성화 가능
+- 알람 활성 시 해당 시간에 알림 표시
 
 ### 저장 버튼
 
@@ -189,9 +181,9 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 
 ---
 
-# 4. 하루 요약/상세 화면 – Day Detail View (달력 버튼으로 진입)
+# 4. Todo 상세보기 (팝업)
 
-> **별도 새 페이지로 이동한다.** 선택된 날짜(DateTime) 또는 필요 시 해당 날짜의 Todo 목록을 아규먼트로 전달. 상세 화면에서 수정/삭제 시 `Navigator.pop(result)` 로 부모 화면을 업데이트한다.
+> **메인 화면의 Todo 카드를 탭하면 팝업으로 표시된다.** 애플 리마인더와 유사하게 다이얼로그 형태로 구현한다.
 
 ## 4.1 개요
 
@@ -201,80 +193,15 @@ Slidable:  왼쪽 → 삭제 / 오른쪽 → 수정
 
 ---
 
-## 4.2 전체 레이아웃 구조
-
-```
-[AppBar: 선택된 날짜]
-[상단 요약 카드 (메인과 동일하나 정보 강조 버전)]
-[필터 라디오 (전체/오전/오후/저녁/종일)]
-[Todo 상세 리스트]
-```
-
----
-
-## 4.3 상단 요약 카드 (강조 버전)
-
-- 메인 화면과 유사하나 더 상세함
-  - 날짜
-  - 완료 / 전체
-  - 진행률 바
-  - 가장 중요한 일정 1\~2개를 자동 추천하여 상단에 표시 (optional, 향후 기능)
-
----
-
-## 4.4 Todo 상세 리스트 구성
-
-각 Todo 요소는 카드 형태로 구성되며 다음 정보를 포함한다:
-
-### 카드 구조
-
-```
-[중요도 라벨 색상 ●]
-[제목]
-[시간 표시 (선택된 경우)]
-[카테고리 배지 (오전/오후/저녁/종일)]
-[메모 미리보기 (1줄)]
-----------------------------------
-탭 → 상세 정보 팝업/화면
-Slidable → 좌: 삭제 / 우: 수정
-```
-
-### 중요도 라벨
-
-- 일정 등록 시 선택
-- **5단계 중요도** 지원:
-  - 1단계: 매우 낮음 – 회색 (#9E9E9E)
-  - 2단계: 낮음 – 파랑 (#1E88E5)
-  - 3단계: 보통 – 초록 (#43A047)
-  - 4단계: 높음 – 주황 (#FB8C00)
-  - 5단계: 매우 높음 – 빨강 (#E53935)
-- 카드 좌측 상단 ● 형태 라벨로 표시하며, 단계에 따라 색상이 달라짐
-
-### 시간 표시
-
-- 시간 선택한 경우만
-- 형식: HH\:MM
-- 카드 우측 상단 or 제목 아래 라인
-
-### 카테고리 배지
-
-- 오전 / 오후 / 저녁 / 종일
-- Summary Bar/필터 칩과 동일 색상 유지
-
----
-
-## 4.5 Todo 상세보기 (팝업 또는 별도 페이지)
-
-사용자가 Todo 카드를 탭하면 아래 구성 표시:
-
-### 상세 카드 구성
+## 4.2 상세보기 다이얼로그 구성
 
 ```
 [제목]
+[날짜]
 [시간 (있을 경우)]
-[카테고리]
-[중요도 라벨]
+[중요도 표시 (별표 또는 색상)]
 [메모 전체 내용]
+[알람 정보 (있을 경우)]
 ----------------------------------
 [수정 버튼]
 [삭제 버튼]
@@ -282,31 +209,33 @@ Slidable → 좌: 삭제 / 우: 수정
 
 ### 기능
 
-- 수정 버튼 → 일정 수정 화면 이동
-- 삭제 버튼 → 삭제 확인 후 제거
-- 별도 **새 페이지(Push Navigation)** 방식으로 이동하며, 아규먼트로 Todo 데이터를 전달하고 `Navigator.push().then()` 을 통해 수정/삭제 결과를 메인 화면에 반영
+- 수정 버튼 → 할 일 수정 화면으로 이동
+- 삭제 버튼 → 삭제 확인 다이얼로그 → 삭제
+- 팝업 외부 탭 → 팝업 닫기
+
+**파일 위치:** `lib/view/todo_detail_dialog.dart`
 
 ---
 
 # 5. 데이터 흐름 요약
 
 - 메인 화면:
-  - 날짜 선택 시 SQLite에서 Todo 불러오기 → Summary Bar / 칩 / 리스트 갱신
+  - 날짜 선택 시 SQLite에서 Todo 불러오기 → 리스트 갱신
 - 등록 화면:
   - 새로운 Todo INSERT 후 `Navigator.pop(result)` 로 메인/상세 화면 갱신
 - 수정 화면:
   - UPDATE 또는 삭제 플래그 설정 후 `Navigator.pop(result)`
-- 상세 화면(하루 요약):
-  - 같은 날짜의 Todo 목록을 공유
-  - 카드 탭 → 상세 보기 → 수정/삭제 결과 반환
+- 상세보기 팝업:
+  - Todo 카드 탭 → 상세 정보 팝업 표시
+  - 수정/삭제 → 메인 화면 갱신
 - 삭제 처리:
   - 활성 Todo 테이블에서 제거하기 전, 별도의 삭제 보관 테이블에 INSERT (소프트 삭제)
 
 ---
 
-# 6. 삭제 보관함 화면 – Deleted Todos / Trash (선택 기능)
+# 6. 삭제 보관함 화면 – Deleted Todos / Trash
 
-> 개발 시간이 남을 경우 확장 예정인 화면으로, 삭제된 일정들을 모아서 복구하거나 완전 삭제할 수 있는 관리용 화면.
+> 애플 리마인더와 동일하게 삭제된 할 일을 보관하고 복구할 수 있는 기능을 제공한다.
 
 ## 6.1 데이터베이스 구조 (추가 테이블)
 
@@ -320,7 +249,6 @@ Slidable → 좌: 삭제 / 우: 수정
 - memo
 - date
 - time (nullable)
-- step (오전/오후/저녁/종일 또는 enum/int)
 - priority (중요도, 1\~5단계)
 - is\_done (삭제 시점 완료 여부)
 - deleted\_at (삭제 일시)
@@ -347,7 +275,7 @@ Slidable → 좌: 삭제 / 우: 수정
 
 ```
 [AppBar: 삭제된 일정]
-[필터 칩: 전체 / 오늘 / 7일 / 30일]
+[필터: 전체 / 오늘 / 7일 / 30일]
 [삭제된 Todo 리스트]
 ```
 
@@ -355,17 +283,11 @@ Slidable → 좌: 삭제 / 우: 수정
 
 - 제목
 - 날짜 + 시간
-- 카테고리 배지 (오전/오후/저녁/종일)
-- 중요도 라벨 색상 (5단계 중 하나)
+- 중요도 표시 (별표 또는 색상)
 - 삭제 일시 (deleted\_at)
-- 액션 버튼:
-  - 복구 (Restore)
-  - 완전 삭제 (Delete Permanently)
-
-탭/슬라이더 UX 예시:
-
-- 슬라이더블 좌: 복구
-- 슬라이더블 우: 완전 삭제
+- Slidable 액션:
+  - 좌측: 복구 (Restore)
+  - 우측: 완전 삭제 (Delete Permanently)
 
 ---
 
@@ -460,10 +382,6 @@ DailyFlow 앱의 모든 UI 색상은 "역할 기반(Role-based) 컬러 시스템
 | ChipSelectedText          | 선택된 필터 칩 텍스트         | `chipSelectedText`          |
 | ChipUnselectedBg          | 비선택 필터 칩 배경           | `chipUnselectedBg`          |
 | ChipUnselectedText        | 비선택 필터 칩 텍스트         | `chipUnselectedText`        |
-| ProgressMorning           | 오전 Summary 바              | `progressMorning`           |
-| ProgressNoon              | 오후 Summary 바                | `progressNoon`              |
-| ProgressEvening           | 저녁 Summary 바              | `progressEvening`           |
-| ProgressAnytime           | 종일 Summary 바           | `progressAnytime`           |
 | **PriorityVeryLow**       | 중요도 1단계(매우 낮음)       | `priorityVeryLow`           |
 | **PriorityLow**           | 중요도 2단계(낮음)           | `priorityLow`               |
 | **PriorityMedium**        | 중요도 3단계(보통)           | `priorityMedium`            |
@@ -486,10 +404,6 @@ DailyFlow 앱의 모든 UI 색상은 "역할 기반(Role-based) 컬러 시스템
 | ChipSelectedText   | 선택된 필터 칩 텍스트           | `chipSelectedText`   |
 | ChipUnselectedBg   | 선택되지 않은 필터 칩 배경        | `chipUnselectedBg`   |
 | ChipUnselectedText | 선택되지 않은 필터 칩 텍스트       | `chipUnselectedText` |
-| ProgressMorning    | "오전" Summary 구간 색      | `progressMorning`    |
-| ProgressNoon       | "오후" Summary 구간 색       | `progressNoon`       |
-| ProgressEvening    | "저녁" Summary 구간 색      | `progressEvening`    |
-| ProgressAnytime    | "종일" Summary 구간 색 | `progressAnytime`    |
 
 이 표에 나온 역할 이름만을 UI 문서에 사용하며, 실제 색상 값(hex, ARGB 등)은 코드 레벨에서 관리한다.
 
@@ -503,10 +417,6 @@ DailyFlow 앱의 모든 UI 색상은 "역할 기반(Role-based) 컬러 시스템
 - "서브 텍스트: TextSecondary"
 - "필터 칩(선택): ChipSelectedBg / ChipSelectedText"
 - "필터 칩(비선택): ChipUnselectedBg / ChipUnselectedText"
-- "요약 Progress – 오전: ProgressMorning"
-- "요약 Progress – 오후: ProgressNoon"
-- "요약 Progress – 저녁: ProgressEvening"
-- "요약 Progress – 종일: ProgressAnytime"
 
 이렇게 기록해 두면, 나중에 팔레트 색상(hex 값)을 변경하더라도 문서는 그대로 두고 코드만 수정해도 전체 UI 테마가 바뀌는 구조를 유지할 수 있다.
 
@@ -549,19 +459,6 @@ Container(
 );
 ```
 
-Summary Bar 예시:
-
-```dart
-Row(
-  children: [
-    Expanded(flex: morning, child: Container(color: p.progressMorning)),
-    Expanded(flex: noon,    child: Container(color: p.progressNoon)),
-    Expanded(flex: evening, child: Container(color: p.progressEvening)),
-    Expanded(flex: anytime, child: Container(color: p.progressAnytime)),
-  ],
-);
-```
-
 이 문서에서 정의하는 모든 색상 요구사항은 **역할 이름(Role) 기준**으로만 유지되며, 실제 색상 값과 다크/라이트 전환 로직은 `AppColorScheme` / `AppColors` / `context.palette` 구현에서 처리한다.
 
 ### 9.4.1 라이트/다크 모드 색상 전략
@@ -572,13 +469,11 @@ Row(
 - 밝은 배경 (`Color(0xFFF5F5F5)`)과 순수 흰색 카드 배경
 - 어두운 텍스트 (`Color(0xFF212121)`)로 가독성 확보
 - Material Design 가이드라인에 맞는 진한 Primary 색상 (`Color(0xFF1976D2)`)
-- 선명하고 밝은 Progress 색상 사용
 
 **다크 모드 특징:**
 - Material Dark 배경 (`Color(0xFF121212)`)과 어두운 카드 배경
 - 밝은 텍스트 (`Color(0xFFFFFFFF)`)로 가독성 확보
 - 다크 모드에 최적화된 밝은 Primary 색상 (`Color(0xFF90CAF9)`)
-- 다크 배경에서도 잘 보이는 밝은 Progress 색상 사용
 - 칩 선택 텍스트는 흰색으로 설정하여 가독성 향상
 
 모든 색상은 `context.palette`를 통해 현재 테마 모드에 맞게 자동으로 제공되므로, 코드에서 별도의 분기 처리가 필요하지 않습니다.
